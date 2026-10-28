@@ -4,6 +4,8 @@
 
 <h1 align="center">Okeat</h1>
 
+<p align="center"><b>English</b> · <a href="README.he.md">עברית</a></p>
+
 <p align="center"><b>OK to eat</b> · A map of kosher, vegan and gluten-free places to eat in Israel,<br>where every claim is confirmed by people who have actually been there.</p>
 
 ---
