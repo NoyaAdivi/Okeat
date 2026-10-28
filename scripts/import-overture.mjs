@@ -218,7 +218,30 @@ if (sb) {
 const rows = [];
 let dupes = 0;
 const catCount = new Map();
+// Strict check on the category itself, word by word, so "public_plaza" (pub) or
+// "delivery_service" (deli) are never mistaken for eateries.
+const EAT_WORDS = new Set([
+  'restaurant', 'eatery', 'cafe', 'coffee', 'bakery', 'pizza', 'pizzeria', 'burger', 'bar', 'pub', 'gastropub', 'brewpub',
+  'dessert', 'ice', 'gelato', 'deli', 'bistro', 'diner', 'sandwich', 'juice', 'smoothie', 'falafel', 'shawarma', 'hummus',
+  'sushi', 'steak', 'steakhouse', 'grill', 'bagel', 'creperie', 'waffle', 'donut', 'patisserie', 'cake', 'chocolatier',
+  'noodle', 'noodles', 'ramen', 'brasserie', 'tea', 'snack', 'kebab', 'barbecue', 'bbq', 'buffet', 'canteen', 'cafeteria',
+  'confectionery', 'pastry', 'bubble',
+]);
+const NOT_EAT_WORDS = new Set([
+  'delivery', 'shipping', 'supplier', 'distributor', 'equipment', 'supply', 'supplies', 'wholesale', 'grocery', 'supermarket',
+  'liquor', 'convenience', 'farm', 'butcher', 'winery', 'school', 'association', 'service', 'services', 'station', 'transit',
+  'plaza', 'learning', 'store', 'market', 'catering', 'vending', 'manufacturer', 'office', 'hotel', 'club', 'agency',
+]);
+function isEatery(cat) {
+  const words = String(cat ?? '').toLowerCase().split('_');
+  if (words.some((w) => NOT_EAT_WORDS.has(w))) return false;
+  if (words.some((w) => EAT_WORDS.has(w))) return true;
+  return words.includes('food') && words.some((w) => ['truck', 'court', 'stand', 'hall', 'kiosk'].includes(w));
+}
+
+const junk = []; // ext ids of non-food places (to remove if an earlier run saved them)
 for (const r of raw) {
+  if (!isEatery(r.cat)) { junk.push(`overture:${r.id}`); continue; }
   let common = {};
   try { common = JSON.parse(r.common ?? 'null') ?? {}; } catch { /* keep empty */ }
   const name = String(common.he ?? r.name ?? '').trim();
@@ -246,7 +269,7 @@ for (const r of raw) {
   });
 }
 
-console.log(`\nב-Overture נמצאו ${raw.length} מקומות אוכל בישראל. ${dupes} כבר קיימים באתר, ${rows.length} חדשים.`);
+console.log(`\nב-Overture נמצאו ${raw.length - junk.length} מקומות אוכל בישראל (ו-${junk.length} מקומות שאינם אוכל, שדילגנו עליהם). ${dupes} כבר קיימים באתר, ${rows.length} חדשים.`);
 console.log('הסוגים הנפוצים:', [...catCount].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([c, n]) => `${c} ${n}`).join(', '));
 if (dryRun) {
   for (const r of rows.slice(0, 20)) console.log('  ', r.place.name, '|', r.place.cuisine?.join(',') ?? '-', '|', r.place.phone ?? '');
@@ -254,6 +277,15 @@ if (dryRun) {
 }
 
 // ---------- save ----------
+// ---------- remove non-food places saved by an earlier run ----------
+let removed = 0;
+for (let i = 0; i < junk.length; i += 200) {
+  const { data, error } = await sb.from('places').delete().eq('data_source', 'overture').in('ext_id', junk.slice(i, i + 200)).select('id');
+  if (error) { console.error('\nהניקוי נכשל:', error.message); process.exit(1); }
+  removed += data?.length ?? 0;
+}
+if (removed) console.log(`נוקו ${removed} מקומות שאינם מקומות אוכל (תחנות, כיכרות, חברות משלוחים וכו').`);
+
 const idByExt = new Map();
 for (let i = 0; i < rows.length; i += 500) {
   process.stdout.write(`\rשומר מקומות… ${Math.min(i + 500, rows.length)}/${rows.length}`);
