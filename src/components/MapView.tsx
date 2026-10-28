@@ -65,7 +65,7 @@ const HIDDEN_LAYERS = /(rail|transit|path|steps|pedestrian|ferry|aeroway|admin|b
 // Map labels in Hebrew only: the Hebrew name if the map has one, else the local name when it's
 // written in Hebrew. Names in Arabic, English or anything else are left blank.
 const HEB_LETTERS = 'אבגדהוזחטיכךלמםנןסעפףצץקרשת';
-const HEBREW_ONLY = [
+const HEBREW_ONLY: mapboxgl.ExpressionSpecification = [
   'case',
   ['has', 'name_he'], ['get', 'name_he'],
   ['==', ['get', 'name_script'], 'Hebrew'], ['get', 'name'],
