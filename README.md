@@ -8,6 +8,8 @@
 
 <p align="center"><b>OK to eat</b> · A map of kosher, vegan and gluten-free places to eat in Israel,<br>where every claim is confirmed by people who have actually been there.</p>
 
+<p align="center"><a href="https://okeat.vercel.app"><b>🌐 Open the live site: okeat.vercel.app</b></a></p>
+
 ---
 
 ## Features
