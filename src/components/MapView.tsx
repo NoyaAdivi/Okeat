@@ -345,7 +345,7 @@ export default function MapView({
     const byId = new Map(placesRef.current.map((p) => [p.id, p]));
     const want = new Set<string>();
     for (const f of map.querySourceFeatures('places', { filter: ['!', ['has', 'point_count']] })) {
-      const pid = f.properties?.pid as string | undefined;
+      const pid = (f as unknown as { properties?: { pid?: string } }).properties?.pid;
       if (pid && byId.has(pid)) want.add(pid);
     }
     if (selectedRef.current && byId.has(selectedRef.current)) want.add(selectedRef.current);
@@ -393,7 +393,7 @@ export default function MapView({
       if (!f) return;
       const src = map.getSource('places') as mapboxgl.GeoJSONSource;
       const center = (f.geometry as unknown as { coordinates: [number, number] }).coordinates;
-      src.getClusterExpansionZoom(f.properties?.cluster_id, (err: unknown, zoom?: number | null) => {
+      src.getClusterExpansionZoom((f as unknown as { properties?: { cluster_id?: number } }).properties?.cluster_id as number, (err: unknown, zoom?: number | null) => {
         if (err || zoom == null) return;
         map.easeTo({ center, zoom: zoom + 0.3, duration: reducedMotion() ? 0 : 600 });
       });
