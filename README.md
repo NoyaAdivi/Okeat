@@ -14,7 +14,7 @@
 
 ---
 
-## Features
+## ✨ Features
 
 - **Nationwide map** of thousands of eateries, clustered for speed, Israel only, labels in Hebrew
 - **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), by food type (pizza, sushi, coffee…) and "open now" in Israel time
@@ -26,7 +26,7 @@
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
 - Contact form, terms of use, privacy policy and accessibility statement
 
-## Tech stack
+## 🛠️ Tech stack
 
 | Part | Technology |
 |---|---|
@@ -36,7 +36,7 @@
 | AI | Claude API (certificate reading, food-type classification) |
 | Data | OpenStreetMap (ODbL), Overture Maps (CDLA Permissive 2.0) |
 
-## Data rules (enforced in the database)
+## 🔒 Data rules (enforced in the database)
 
 | Rule | Where |
 |---|---|
@@ -48,7 +48,7 @@
 | Imported / automatic info is labelled and never counts as community-verified | `claims.source` |
 | Rate limits on certificate reading and contact messages | `log_extraction()`, `feedback_rate_limit()` |
 
-## Project structure
+## 📂 Project structure
 
 ```
 ├── src/
@@ -64,7 +64,7 @@
     └── classify-ai.mjs      give a food type to unclassified places with Claude
 ```
 
-## Running locally
+## 💻 Running locally
 
 1. Create free accounts: [Supabase](https://supabase.com), [Mapbox](https://mapbox.com), [Anthropic](https://console.anthropic.com).
 2. In Supabase → SQL Editor, run the files in `supabase/migrations/` in order, and enable **Anonymous sign-ins** (Authentication → Providers).
@@ -83,6 +83,6 @@
 
 > `SUPABASE_SERVICE_ROLE_KEY` is only for the import scripts on your own computer. Never put it in the browser or in your hosting settings.
 
-## Attribution
+## 🙏 Attribution
 
 Place data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL) and [Overture Maps Foundation](https://overturemaps.org) (CDLA Permissive 2.0). Map © Mapbox.
