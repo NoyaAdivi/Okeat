@@ -12,6 +12,8 @@
 
 <p align="center"><a href="https://okeat.vercel.app"><b>🌐 לאתר עצמו: okeat.vercel.app</b></a></p>
 
+<p align="center"><img src="okeat.png" alt="Okeat screenshot" width="800"></p>
+
 ---
 
 ## מה יש באתר
