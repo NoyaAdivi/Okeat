@@ -661,7 +661,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     setQuery('');
   };
 
-  const route = directions?.geometry ?? (dirLoading ? straight : null);
+  // Roads rarely pass exactly through a point, so the line is joined to the person and to the place.
+  const route = useMemo(() => {
+    if (!directions) return dirLoading ? straight : null;
+    const coordinates = [...directions.geometry.coordinates];
+    if (me && !navigating) coordinates.unshift([me.lng, me.lat]);
+    if (selected) coordinates.push([selected.lng, selected.lat]);
+    return { ...directions.geometry, coordinates };
+  }, [directions, dirLoading, straight, me, navigating, selected]);
   const activeNeeds = Object.values(filter).filter((v) => v !== null && v !== undefined).length;
   const showSearchHere = false;
   const swipe = useRef<{ y: number; t: number; scrolled: boolean } | null>(null);
