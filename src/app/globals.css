@@ -815,3 +815,5 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
   .panel-head { touch-action: none; user-select: none; }
   .panel-head input { user-select: text; }
 }
+
+.allergy-note { margin: 2px 0 0; font-size: 13px; color: var(--muted); }

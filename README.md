@@ -10,7 +10,7 @@
 
 <p align="center"><a href="https://okeat.vercel.app"><b>🌐 Open the live site: okeat.vercel.app</b></a></p>
 
-<p align="center"><img src="[okeat.png](okeat.png)" alt="Okeat screenshot" width="800"></p>
+<p align="center"><img src="okeat.png" alt="Okeat screenshot" width="800"></p>
 
 ---
 
@@ -24,7 +24,7 @@
 - **No sign-up needed** – anonymous accounts; optional Google / email sign-in
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
-- **Community moderation** – 3 reports send a place to moderators; people who add more than 5 places or confirm more than 10 details become moderators automatically; automatic guesses can be corrected by people
+- **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin; automatic guesses can be corrected by people
 - **Public profiles** – join date, places added and confirmations, never an e-mail address
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
 - Contact form, terms of use, privacy policy and accessibility statement
@@ -50,7 +50,7 @@
 | 3 "no longer true" reports → `disputed` | `apply_vote()` |
 | Kosher with or without a photo; an expired certificate stops counting | `effective_claims` |
 | 3 reports on a place → moderators decide | `after_report()`, `moderate_place()` |
-| Moderator role granted automatically; people cannot change their own role | `maybe_promote()` + column grants |
+| Moderators are appointed by the admin; people cannot change their own role | Column grants |
 | Owner approval needs an admin | `decide_ownership()` |
 | Imported / automatic info is labelled and never counts as community-verified | `claims.source` |
 | Rate limits on certificate reading and contact messages | `log_extraction()`, `feedback_rate_limit()` |
@@ -63,10 +63,11 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0010 (schema, RLS, functions)
+│   ├── migrations/          0001 … 0011 (schema, RLS, functions)
 │   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
 │   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
-│   └── RUN-ME-3-IN-SUPABASE.sql same as 0009
+│   ├── RUN-ME-3-IN-SUPABASE.sql same as 0009
+│   └── RUN-ME-4/5-IN-SUPABASE.sql same as 0010, 0011
 └── scripts/
     ├── import-osm.mjs       import eateries from OpenStreetMap
     ├── import-overture.mjs  import more eateries from Overture Maps

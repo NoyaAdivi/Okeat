@@ -76,6 +76,8 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
         </button>
       </div>
       {more && (
+        <>
+        <p className="allergy-note">{L('המידע לא מחליף בדיקה. באלרגיה תמיד שאלו במקום לפני שאוכלים.', 'This does not replace checking. With an allergy, always ask on site before eating.')}</p>
         <div className="chips extra-chips">
           {EXTRA_NEEDS.map((n) => (
             <button key={n} type="button" className={`chip ${NEED_CLASS[n]}`} aria-pressed={(filter[n] ?? null) !== null} onClick={() => toggle(n)}>
@@ -83,6 +85,7 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
             </button>
           ))}
         </div>
+        </>
       )}
 
       {NEED_ORDER.filter((n) => (filter[n] ?? null) !== null).map((n) => (

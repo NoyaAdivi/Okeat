@@ -98,6 +98,16 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [cuisine, setCuisine] = useState<string | null>(null);
   const [viewCenter, setViewCenter] = useState<LatLng | null>(null);
   const centerGetter = useRef<(() => LatLng) | null>(null);
+
+  // Phone: touching anywhere outside the search box closes the keyboard (iPhone keeps it open otherwise).
+  useEffect(() => {
+    const onTouch = (e: TouchEvent) => {
+      const active = document.activeElement as HTMLElement | null;
+      if (active?.matches('.panel-head input') && !(e.target as HTMLElement).closest('.panel-head input')) active.blur();
+    };
+    document.addEventListener('touchstart', onTouch, { passive: true });
+    return () => document.removeEventListener('touchstart', onTouch);
+  }, []);
   /** The exact point under the pin at this moment. */
   const pinPoint = () => centerGetter.current?.() ?? viewCenter ?? mapCenter;
 
@@ -762,6 +772,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                 if (selectedId) deselect();
               }}
               onFocus={() => sheet === 'peek' && setSheet('half')}
+              enterKeyHint="search"
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
             />
           </div>
           <div className="tabs" role="tablist">

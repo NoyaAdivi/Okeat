@@ -31,14 +31,15 @@ function TermsHe() {
           <p>ברוכים הבאים ל-{SITE.name} (&quot;האתר&quot;, &quot;אנחנו&quot;). השימוש באתר מהווה הסכמה לתנאים האלה. אם אינכם מסכימים להם, אנא אל תשתמשו באתר. התנאים כתובים בלשון רבים ומתייחסים לכל המגדרים.</p>
   
           <h2>מה האתר עושה</h2>
-          <p>{SITE.name} מציג מפה של מקומות אוכל בישראל, ומידע על כשרות, טבעונות ומזון ללא גלוטן. המידע מגיע משלושה מקורות: משתמשים שמוסיפים ומאשרים מידע, המאגר הפתוח OpenStreetMap, וסיווג אוטומטי לפי שם המקום. ליד כל פרט מצוין מה מקורו והאם הוא אושר.</p>
+          <p>{SITE.name} מציג מפה של מקומות אוכל בישראל, ומידע על כשרות, טבעונות, צמחונות, מזון ללא גלוטן ואלרגיות. האתר מופעל על ידי נויה אדיבי באופן פרטי. המידע מגיע משלושה מקורות: משתמשים שמוסיפים ומאשרים מידע, המאגרים הפתוחים OpenStreetMap ו-Overture Maps, וסיווג אוטומטי לפי שם המקום וסוגו. ליד כל פרט מצוין מה מקורו והאם הוא אושר.</p>
   
           <h2>המידע אינו מחליף בדיקה</h2>
           <ul>
             <li>אנחנו לא בודקים את המקומות בעצמנו, ולא מתחייבים שהמידע מדויק, מלא או עדכני. מקומות משנים תפריטים, השגחה ושעות פתיחה.</li>
             <li>האתר אינו גוף כשרות ואינו מעניק תעודות. תעודה שמוצגת היא צילום שהעלה משתמש. לפני שסומכים על כשרות, יש לבדוק את התעודה במקום.</li>
             <li>אם יש לכם אלרגיה, צליאקיה או רגישות אחרת, בדקו תמיד מול בית העסק. אל תסתמכו על האתר בלבד.</li>
-            <li>&quot;סיווג אוטומטי&quot; הוא ניחוש של מחשב לפי שם המקום, ועלול להיות שגוי.</li>
+            <li>&quot;סיווג אוטומטי&quot; הוא ניחוש של מחשב לפי שם המקום וסוגו, ועלול להיות שגוי. המיקום על המפה מגיע ממאגרים פתוחים וגם הוא עלול להיות לא מדויק.</li>
+            <li>בעל עסק שמצא מידע שגוי על העסק שלו יכול לפנות אלינו בטופס יצירת הקשר, ונבדוק ונתקן או נסיר את המידע בהקדם.</li>
             <li>הניווט ניתן לעזרה בלבד. שימו לב לתנועה ולשלטים, וצייתו לחוק.</li>
           </ul>
   
@@ -81,14 +82,15 @@ function TermsEn() {
           <p>Welcome to {SITE.name} (&quot;the site&quot;, &quot;we&quot;). Using the site means you agree to these terms. If you don&apos;t agree to them, please don&apos;t use the site.</p>
 
           <h2>What the site does</h2>
-          <p>{SITE.name} shows a map of places to eat in Israel, with information about kosher, vegan, vegetarian and gluten-free food. The information comes from three sources: users who add and confirm it, the open OpenStreetMap database, and an automatic guess based on the place&apos;s name. Every detail shows where it came from and whether it was confirmed.</p>
+          <p>{SITE.name} shows a map of places to eat in Israel, with information about kosher, vegan, vegetarian and gluten-free food and allergies. The site is run privately by Noya Adivi. The information comes from three sources: users who add and confirm it, the open databases OpenStreetMap and Overture Maps, and an automatic guess based on the place&apos;s name and type. Every detail shows where it came from and whether it was confirmed.</p>
 
           <h2>The information does not replace checking</h2>
           <ul>
             <li>We don&apos;t check the places ourselves, and we don&apos;t promise that the information is accurate, complete or up to date. Places change their menus, supervision and opening hours.</li>
             <li>The site is not a kashrut authority and does not issue certificates. A certificate shown is a photo a user uploaded. Before relying on kashrut, check the certificate on site.</li>
             <li>If you have an allergy, celiac disease or another sensitivity, always check with the business. Don&apos;t rely on the site alone.</li>
-            <li>An &quot;automatic guess&quot; is a computer&apos;s guess from the place&apos;s name, and may be wrong.</li>
+            <li>An &quot;automatic guess&quot; is a computer&apos;s guess from the place&apos;s name and type, and may be wrong. Map locations come from open databases and may also be inaccurate.</li>
+            <li>A business owner who finds wrong information about their business can reach us through the contact form, and we will check and correct or remove it promptly.</li>
             <li>Navigation is only an aid. Pay attention to traffic and signs, and obey the law.</li>
           </ul>
 

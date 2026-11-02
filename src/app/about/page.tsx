@@ -55,8 +55,8 @@ const faqOf = (L: T) => [
   },
   {
     q: L('מה קורה אם מישהו מוסיף מקום שגוי?', 'What if someone adds a wrong place?'),
-    a: L('מקום חדש מופיע במפה מיד, עם סימון "ממתין לאישור". כל אחד יכול לדווח עליו. אחרי שלושה דיווחים הוא עובר לבדיקה, ורק מאשר קהילה או מנהל יכולים להסיר אותו. מי שהוסיף יותר מ-5 מקומות או אישר יותר מ-10 דברים הופך למאשר קהילה.',
-      'A new place appears on the map right away, marked "waiting for confirmation". Anyone can report it. After three reports it goes to review, and only a community moderator or an admin can remove it. Someone who added more than 5 places or confirmed more than 10 things becomes a community moderator.'),
+    a: L('מקום חדש מופיע במפה מיד, עם סימון "ממתין לאישור". כל אחד יכול לדווח עליו. אחרי שלושה דיווחים הוא עובר לבדיקה, ורק מאשר קהילה או מנהל יכולים להסיר אותו. מאשרי קהילה ממונים אישית על ידי מנהלת האתר.',
+      'A new place appears on the map right away, marked "waiting for confirmation". Anyone can report it. After three reports it goes to review, and only a community moderator or an admin can remove it. Community moderators are appointed personally by the site admin.'),
   },
   {
     q: L('מה זה "אושר על ידי בעל העסק"?', 'What does "confirmed by the business owner" mean?'),

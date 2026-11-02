@@ -28,7 +28,7 @@ function PrivacyHe() {
           <h1>מדיניות פרטיות</h1>
           <p className="muted">עודכן ב-{SITE.updated}</p>
   
-          <p>אנחנו אוספים כמה שפחות מידע עליכם, ומשתמשים בו רק כדי שהאתר יעבוד. בדף הזה מוסבר מה נאסף, למה, ומה הזכויות שלכם.</p>
+          <p>האתר מופעל על ידי נויה אדיבי, שאחראית על המידע שנאסף בו. אנחנו אוספים כמה שפחות מידע עליכם, ומשתמשים בו רק כדי שהאתר יעבוד. בדף הזה מוסבר מה נאסף, למה, ומה הזכויות שלכם.</p>
   
           <h2>מה אנחנו אוספים</h2>
           <ul>
@@ -49,7 +49,8 @@ function PrivacyHe() {
             <li><b>Supabase</b>: מסד הנתונים, ההתחברות ואחסון התמונות.</li>
             <li><b>Mapbox</b>: הצגת המפה וחישוב מסלולים. כשאתם מבקשים מסלול, נקודת ההתחלה והיעד נשלחות ל-Mapbox.</li>
               <li><b>חיפוש של OpenStreetMap (Photon, של Komoot)</b>: כשאתם מקלידים כתובת כדי לקבוע את המיקום שלכם, הטקסט שהקלדתם נשלח אליו.</li>
-              <li><b>Google</b>: כשפותחים מקום, השם והמיקום שלו נשלחים ל-Google כדי להציג פרטים עדכניים. שום דבר עליכם לא נשלח.</li>
+              <li><b>Vercel</b>: אחסון האתר. כמו בכל אתר, השרת מקבל פרטים טכניים כמו כתובת IP.</li>
+              <li><b>Google</b>: התחברות עם חשבון Google, רק אם בחרתם בה.</li>
             <li><b>jsDelivr</b>: טעינת כלי קריאת התעודות לדפדפן. התמונה עצמה נקראת בתוך הדפדפן שלכם.</li>
           </ul>
           <p>חלק מהספקים פועלים מחוץ לישראל, והמידע עשוי להיות מאוחסן שם.</p>
@@ -58,7 +59,7 @@ function PrivacyHe() {
           <p>אתם רשאים לבקש לעיין במידע שנשמר עליכם, לתקן אותו או למחוק אותו. כתבו לנו ב<Link href="/contact?topic=privacy">טופס יצירת הקשר</Link> ונטפל בבקשה תוך 30 יום.</p>
   
           <h2>אבטחה</h2>
-          <p>אנחנו נוקטים אמצעים סבירים להגנה על המידע, כמו הצפנה בהעברה והרשאות גישה מוגבלות. שום מערכת אינה מוגנת לגמרי.</p>
+          <p>אנחנו נוקטים אמצעים סבירים להגנה על המידע: החיבור לאתר מוצפן (HTTPS), סיסמאות נשמרות אצל ספק ההתחברות בצורה מוצפנת, וכל משתמש מקבל גישה רק למה שמותר לו. שום מערכת אינה מוגנת לגמרי.</p>
   
           <h2>קטינים</h2>
           <p>האתר מיועד לקהל הרחב. אם אתם מתחת לגיל 18, היעזרו בהורה כשאתם יוצרים חשבון.</p>
@@ -75,7 +76,7 @@ function PrivacyEn() {
           <h1>Privacy policy</h1>
           <p className="muted">Updated on {SITE.updated}</p>
 
-          <p>We collect as little information about you as possible, and use it only to make the site work. This page explains what is collected, why, and what your rights are.</p>
+          <p>The site is run by Noya Adivi, who is responsible for the information collected here. We collect as little information about you as possible, and use it only to make the site work. This page explains what is collected, why, and what your rights are.</p>
 
           <h2>What we collect</h2>
           <ul>
@@ -96,7 +97,8 @@ function PrivacyEn() {
             <li><b>Supabase</b>: the database, sign-in and photo storage.</li>
             <li><b>Mapbox</b>: showing the map and working out routes. When you ask for a route, the start and the destination are sent to Mapbox.</li>
             <li><b>OpenStreetMap search (Photon, by Komoot)</b>: when you type an address to set your location, the text you type is sent to it.</li>
-            <li><b>Google</b>: when you open a place, its name and location are sent to Google to show live details. Nothing about you is sent.</li>
+            <li><b>Vercel</b>: hosting the site. As with any site, the server receives technical details such as your IP address.</li>
+            <li><b>Google</b>: signing in with a Google account, only if you choose it.</li>
             <li><b>jsDelivr</b>: loading the certificate reader into your browser. The photo itself is read inside your browser.</li>
           </ul>
           <p>Some providers operate outside Israel, and the information may be stored there.</p>
@@ -105,7 +107,7 @@ function PrivacyEn() {
           <p>You may ask to see, correct or delete the information stored about you. Write to us using the <Link href="/contact?topic=privacy">contact form</Link> and we will handle it within 30 days.</p>
 
           <h2>Security</h2>
-          <p>We take reasonable measures to protect the information, such as encryption in transit and limited access permissions. No system is completely secure.</p>
+          <p>We take reasonable measures to protect the information: the connection to the site is encrypted (HTTPS), passwords are stored encrypted by the sign-in provider, and each user can reach only what they are allowed to. No system is completely secure.</p>
 
           <h2>Minors</h2>
           <p>The site is meant for the general public. If you are under 18, ask a parent to help when you create an account.</p>

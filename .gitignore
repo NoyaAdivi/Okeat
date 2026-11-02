@@ -6,5 +6,5 @@ node_modules/
 UPLOAD-TO-GITHUB/
 client_secret*.json
 *.log
-
+# images for LinkedIn, kept only on the computer
 linkedin-images/
