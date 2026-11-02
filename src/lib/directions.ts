@@ -1,11 +1,12 @@
 import type { LatLng } from './geo';
+import type { Lang } from './lang';
 
 export type TravelMode = 'walking' | 'driving' | 'cycling';
 
-export const TRAVEL_MODES: { mode: TravelMode; label: string }[] = [
-  { mode: 'walking', label: 'ברגל' },
-  { mode: 'cycling', label: 'אופניים' },
-  { mode: 'driving', label: 'רכב' },
+export const TRAVEL_MODES: { mode: TravelMode; label: string; en: string }[] = [
+  { mode: 'walking', label: 'ברגל', en: 'Walk' },
+  { mode: 'cycling', label: 'אופניים', en: 'Bike' },
+  { mode: 'driving', label: 'רכב', en: 'Car' },
 ];
 
 export interface NavStep {
@@ -31,15 +32,15 @@ interface RawStep {
 }
 
 /** Route with turn-by-turn steps from the Mapbox Directions API, Hebrew instructions when available. */
-export async function fetchDirections(token: string, mode: TravelMode, from: LatLng, to: LatLng): Promise<Directions | null> {
+export async function fetchDirections(token: string, mode: TravelMode, from: LatLng, to: LatLng, lang: Lang = 'he'): Promise<Directions | null> {
   const base =
     `https://api.mapbox.com/directions/v5/mapbox/${mode}/${from.lng},${from.lat};${to.lng},${to.lat}` +
     `?geometries=geojson&overview=full&steps=true&access_token=${token}`;
 
-  for (const lang of ['&language=he', '']) {
-    const res = await fetch(base + lang);
+  for (const language of lang === 'en' ? ['&language=en'] : ['&language=he', '']) {
+    const res = await fetch(base + language);
     if (!res.ok) {
-      if (lang) continue; // language not supported: retry in English
+      if (language && lang !== 'en') continue; // language not supported: retry in English
       return null;
     }
     const json = await res.json();

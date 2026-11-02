@@ -1,5 +1,6 @@
 'use client';
 
+import { useL } from './LangProvider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,11 +13,13 @@ import { googleMapsUrl, wazeUrl } from '@/lib/geo';
 import PlaceDetail from './PlaceDetail';
 import Logo from './Logo';
 import AccountButton from './AccountButton';
+import DisplayToggles from './DisplayToggles';
 import AuthDialog from './AuthDialog';
 import CertificateDialog from './CertificateDialog';
 
 /** The standalone page behind a shared link: same place card, plus a way into the map. */
 export default function SharedPlace({ place: initial }: { place: Place }) {
+  const L = useL();
   const sb = useMemo(() => createClient(), []);
   const router = useRouter();
   const { user, ready } = useUser(sb);
@@ -47,10 +50,10 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
         try {
       await vote(sb, claimId, value);
       setVoted((m) => new Map(m).set(claimId, value));
-      showToast(value === 1 ? 'תודה, האישור נרשם' : 'תודה. הדיווח נשלח לבדיקה של הקהילה');
+      showToast(value === 1 ? L('תודה, האישור נרשם', 'Thanks, your confirmation was saved') : L('תודה. הדיווח נשלח לבדיקה של הקהילה', 'Thanks. Your report was sent for the community to check'));
       reload();
     } catch (e) {
-      showToast(friendly(e));
+      showToast(friendly(e, L.lang));
     }
   };
 
@@ -59,13 +62,13 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
       <div className="shared-inner">
         <div className="shared-head">
           <Link href="/" className="brand-link"><Logo size={36} /><span>okeat</span></Link>
-          <AccountButton sb={sb} user={user} ready={ready} onSignIn={() => setAuth({})} onSignedOut={() => showToast('התנתקת')} />
+          <span className="shared-tools"><DisplayToggles compact /><AccountButton sb={sb} user={user} ready={ready} onSignIn={() => setAuth({})} onSignedOut={() => showToast(L('התנתקת', 'You signed out'))} /></span>
         </div>
         <PlaceDetail
           place={place}
           goPanel={
             <div className="nav">
-              <a className="btn primary" href={`/map?place=${place.id}`}>ניווט מהמפה</a>
+              <a className="btn primary" href={`/map?place=${place.id}`}>{L('ניווט מהמפה', 'Navigate from the map')}</a>
               <div className="nav-ext">
                 <a href={wazeUrl(place)} target="_blank" rel="noopener noreferrer">Waze</a>
                 <a href={googleMapsUrl(place)} target="_blank" rel="noopener noreferrer">Google Maps</a>
@@ -75,13 +78,13 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
           voted={voted}
           certificateUrl={(p) => certificateUrl(sb, p)}
           onBack={() => router.push(`/map?place=${place.id}`)}
-          backLabel="פתיחה במפה"
+          backLabel={L('פתיחה במפה', 'Open on the map')}
           onVote={onVote}
           onAddCertificate={() => setCertOpen(true)}
           onShare={async () => {
             try {
               await navigator.clipboard.writeText(window.location.href);
-              showToast('הקישור הועתק');
+              showToast(L('הקישור הועתק', 'Link copied'));
             } catch {
               showToast(window.location.href);
             }
@@ -97,7 +100,7 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
           onClose={() => setCertOpen(false)}
           onDone={() => {
             setCertOpen(false);
-            showToast('התעודה נשלחה לאישור הקהילה');
+            showToast(L('התעודה נשלחה לאישור הקהילה', 'The certificate was sent for the community to confirm'));
             reload();
           }}
         />

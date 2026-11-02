@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Okeat',
     short_name: 'Okeat',
-    description: 'מפה של מקומות כשרים, טבעוניים וללא גלוטן, שהקהילה מאשרת',
+    description: 'מפה של מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן, שהקהילה מאשרת',
     start_url: '/map',
     display: 'standalone',
     background_color: '#FFF7F3',

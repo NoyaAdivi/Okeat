@@ -6,7 +6,7 @@
 
 <p align="center"><b>English</b> · <a href="README.he.md">עברית</a></p>
 
-<p align="center"><b>OK to eat</b> · A map of kosher, vegan and gluten-free places to eat in Israel,<br>where every claim is confirmed by people who have actually been there.</p>
+<p align="center"><b>OK to eat</b> · A map of kosher, vegan, vegetarian and gluten-free places to eat in Israel,<br>where every claim is confirmed by people who have actually been there.</p>
 
 <p align="center"><a href="https://okeat.vercel.app"><b>🌐 Open the live site: okeat.vercel.app</b></a></p>
 
@@ -16,14 +16,17 @@
 
 ## ✨ Features
 
-- **Nationwide map** of thousands of eateries, clustered for speed, Israel only, labels in Hebrew
-- **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), by food type (pizza, sushi, coffee…) and "open now" in Israel time
+- **Nationwide map** of thousands of eateries, clustered for speed, Israel only, in Hebrew and English, with light, dark and automatic themes
+- **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by food type (pizza, sushi, coffee…) and "open now" in Israel time
 - **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
-- **Kosher certificates** – kosher claims require a photo of the certificate; Claude reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
+- **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. Claude reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
 - **Turn-by-turn navigation** inside the site (walking, cycling, driving) with Hebrew voice guidance, rerouting and "choose my location"
 - **No sign-up needed** – anonymous accounts; optional Google / email sign-in
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
+- **Community moderation** – 3 reports send a place to moderators; people who add more than 5 places or confirm more than 10 details become moderators automatically; automatic guesses can be corrected by people
+- **Public profiles** – join date, places added and confirmations, never an e-mail address
+- **Business owner approval** – owners prove ownership with a code and an admin approves them
 - Contact form, terms of use, privacy policy and accessibility statement
 
 ## 🛠️ Tech stack
@@ -44,7 +47,10 @@
 | You can't vote on a claim you proposed | `apply_vote()` |
 | A newer verified claim replaces the older one | `apply_vote()` |
 | 3 "no longer true" reports → `disputed` | `apply_vote()` |
-| Kosher only with a valid certificate photo | `propose_kosher_claim()` + RLS |
+| Kosher with or without a photo; an expired certificate stops counting | `effective_claims` |
+| 3 reports on a place → moderators decide | `after_report()`, `moderate_place()` |
+| Moderator role granted automatically; people cannot change their own role | `maybe_promote()` + column grants |
+| Owner approval needs an admin | `decide_ownership()` |
 | Imported / automatic info is labelled and never counts as community-verified | `claims.source` |
 | Rate limits on certificate reading and contact messages | `log_extraction()`, `feedback_rate_limit()` |
 
@@ -56,12 +62,15 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0007 (schema, RLS, functions)
-│   └── RUN-ME-IN-SUPABASE.sql   all recent migrations in one file
+│   ├── migrations/          0001 … 0009 (schema, RLS, functions)
+│   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
+│   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
+│   └── RUN-ME-3-IN-SUPABASE.sql same as 0009
 └── scripts/
     ├── import-osm.mjs       import eateries from OpenStreetMap
     ├── import-overture.mjs  import more eateries from Overture Maps
-    └── classify-ai.mjs      give a food type to unclassified places with Claude
+    ├── classify-ai.mjs      give a food type to unclassified places with Claude
+    └── classify-diet.mjs    add vegan, vegetarian and gluten-free guesses, labelled as not confirmed
 ```
 
 ## 💻 Running locally
@@ -79,6 +88,7 @@
    npm run import:osm
    npm install @duckdb/node-api && npm run import:overture
    npm run classify
+   npm run classify:diet
    ```
 
 > `SUPABASE_SERVICE_ROLE_KEY` is only for the import scripts on your own computer. Never put it in the browser or in your hosting settings.

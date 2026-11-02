@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_PREFS, applyPrefs, loadPrefs, savePrefs, type Prefs, type ThemePref } from '@/lib/prefs';
 import { readableText, speak, speechSupported, stopSpeaking } from '@/lib/speech';
+import { useL } from './LangProvider';
 
 const SIZES = [1, 1.15, 1.3, 1.5];
 
 /** Accessibility menu, available on every page from a tab on the side of the screen. */
 export default function A11yMenu() {
+  const L = useL();
   const [open, setOpen] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
   const [clickToRead, setClickToRead] = useState(false);
@@ -82,9 +84,9 @@ export default function A11yMenu() {
 
   const sizeIndex = Math.max(0, SIZES.indexOf(prefs.scale));
   const themes: { v: ThemePref; label: string; icon: string }[] = [
-    { v: 'auto', label: 'אוטומטי', icon: '🌗' },
-    { v: 'light', label: 'בהיר', icon: '☀️' },
-    { v: 'dark', label: 'כהה', icon: '🌙' },
+    { v: 'auto', label: L('אוטומטי', 'Auto'), icon: '🌗' },
+    { v: 'light', label: L('בהיר', 'Light'), icon: '☀️' },
+    { v: 'dark', label: L('כהה', 'Dark'), icon: '🌙' },
   ];
 
   return (
@@ -96,30 +98,30 @@ export default function A11yMenu() {
         aria-expanded={open}
         aria-controls="a11y-panel"
         onClick={() => setOpen((o) => !o)}
-        aria-label="תפריט נגישות"
+        aria-label={L('תפריט נגישות', 'Accessibility menu')}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2" /><path d="M5 8l7 1.5L19 8M12 9.5V14l-3 7M12 14l3 7" /></svg>
       </button>
 
       {open && (
-        <div id="a11y-panel" ref={panel} className="a11y-panel" role="dialog" aria-label="הגדרות נגישות">
+        <div id="a11y-panel" ref={panel} className="a11y-panel" role="dialog" aria-label={L('הגדרות נגישות', 'Accessibility settings')}>
           <div className="a11y-head">
-            <h2>נגישות</h2>
-            <button type="button" className="link" onClick={() => setOpen(false)} aria-label="סגירה">✕</button>
+            <h2>{L('נגישות', 'Accessibility')}</h2>
+            <button type="button" className="link" onClick={() => setOpen(false)} aria-label={L('סגירה', 'Close')}>✕</button>
           </div>
 
           <div className="a11y-group">
-            <span className="a11y-label">גודל טקסט</span>
+            <span className="a11y-label">{L('גודל טקסט', 'Text size')}</span>
             <div className="a11y-row">
-              <button type="button" className="a11y-btn" onClick={() => update({ scale: SIZES[Math.max(0, sizeIndex - 1)] })} disabled={sizeIndex === 0} aria-label="הקטנת טקסט">א-</button>
+              <button type="button" className="a11y-btn" onClick={() => update({ scale: SIZES[Math.max(0, sizeIndex - 1)] })} disabled={sizeIndex === 0} aria-label={L('הקטנת טקסט', 'Smaller text')}>{L('א-', 'A-')}</button>
               <span className="a11y-val" aria-live="polite">{Math.round(prefs.scale * 100)}%</span>
-              <button type="button" className="a11y-btn" onClick={() => update({ scale: SIZES[Math.min(SIZES.length - 1, sizeIndex + 1)] })} disabled={sizeIndex === SIZES.length - 1} aria-label="הגדלת טקסט">א+</button>
+              <button type="button" className="a11y-btn" onClick={() => update({ scale: SIZES[Math.min(SIZES.length - 1, sizeIndex + 1)] })} disabled={sizeIndex === SIZES.length - 1} aria-label={L('הגדלת טקסט', 'Larger text')}>{L('א+', 'A+')}</button>
             </div>
           </div>
 
           <div className="a11y-group">
-            <span className="a11y-label">מצב תצוגה</span>
-            <div className="a11y-row" role="radiogroup" aria-label="מצב תצוגה">
+            <span className="a11y-label">{L('מצב תצוגה', 'Display mode')}</span>
+            <div className="a11y-row" role="radiogroup" aria-label={L('מצב תצוגה', 'Display mode')}>
               {themes.map((t) => (
                 <button key={t.v} type="button" role="radio" aria-checked={prefs.theme === t.v} className="a11y-btn" onClick={() => update({ theme: t.v })}>
                   <span aria-hidden="true">{t.icon}</span> {t.label}
@@ -130,28 +132,28 @@ export default function A11yMenu() {
 
           {speechSupported() && (
             <div className="a11y-group">
-              <span className="a11y-label">הקראה</span>
+              <span className="a11y-label">{L('הקראה', 'Read aloud')}</span>
               <div className="a11y-row">
                 <button type="button" className="a11y-btn" aria-pressed={reading} onClick={readPage}>
-                  <span aria-hidden="true">{reading ? '⏹️' : '🔊'}</span> {reading ? 'עצירה' : 'הקראת הדף'}
+                  <span aria-hidden="true">{reading ? '⏹️' : '🔊'}</span> {reading ? L('עצירה', 'Stop') : L('הקראת הדף', 'Read the page')}
                 </button>
                 <button type="button" className="a11y-btn" aria-pressed={clickToRead} onClick={() => { setClickToRead((v) => !v); stopSpeaking(); }}>
-                  <span aria-hidden="true">👆</span> הקראה בלחיצה
+                  <span aria-hidden="true">👆</span> {L('הקראה בלחיצה', 'Read what I click')}
                 </button>
               </div>
             </div>
           )}
 
           <div className="a11y-toggles">
-            <Toggle label="ניגודיות גבוהה" icon="◐" on={prefs.contrast} onChange={(v) => update({ contrast: v })} />
-            <Toggle label="עצירת אנימציות" icon="⏸️" on={prefs.stillMotion} onChange={(v) => update({ stillMotion: v })} />
-            <Toggle label="הדגשת קישורים" icon="🔗" on={prefs.underline} onChange={(v) => update({ underline: v })} />
-            <Toggle label="גופן קריא" icon="🔤" on={prefs.readableFont} onChange={(v) => update({ readableFont: v })} />
+            <Toggle label={L('ניגודיות גבוהה', 'High contrast')} icon="◐" on={prefs.contrast} onChange={(v) => update({ contrast: v })} />
+            <Toggle label={L('עצירת אנימציות', 'Stop animations')} icon="⏸️" on={prefs.stillMotion} onChange={(v) => update({ stillMotion: v })} />
+            <Toggle label={L('הדגשת קישורים', 'Highlight links')} icon="🔗" on={prefs.underline} onChange={(v) => update({ underline: v })} />
+            <Toggle label={L('גופן קריא', 'Readable font')} icon="🔤" on={prefs.readableFont} onChange={(v) => update({ readableFont: v })} />
           </div>
 
           <div className="a11y-foot">
-            <button type="button" className="link" onClick={() => { update(DEFAULT_PREFS); setClickToRead(false); stopSpeaking(); }}>איפוס הגדרות</button>
-            <Link className="link" href="/accessibility">הצהרת נגישות</Link>
+            <button type="button" className="link" onClick={() => { update(DEFAULT_PREFS); setClickToRead(false); stopSpeaking(); }}>{L('איפוס הגדרות', 'Reset settings')}</button>
+            <Link className="link" href="/accessibility">{L('הצהרת נגישות', 'Accessibility statement')}</Link>
           </div>
         </div>
       )}

@@ -3,6 +3,9 @@ import { Fredoka, Rubik } from 'next/font/google';
 import A11yMenu from '@/components/A11yMenu';
 import CookieNotice from '@/components/CookieNotice';
 import { PREFS_BOOT_SCRIPT } from '@/lib/prefs';
+import { LangProvider } from '@/components/LangProvider';
+import { getLang } from '@/lib/lang-server';
+import { dirOf } from '@/lib/lang';
 import './globals.css';
 
 // Fredoka: rounded display face that matches the scalloped logo. Rubik: readable Hebrew body.
@@ -20,10 +23,15 @@ const ui = Rubik({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'Okeat',
-  description: 'מפה של מקומות כשרים, טבעוניים וללא גלוטן, שהקהילה מאשרת',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  return {
+    title: 'Okeat',
+    description: lang === 'en'
+      ? 'A map of kosher, vegan, vegetarian and gluten-free places, confirmed by the community'
+      : 'מפה של מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן, שהקהילה מאשרת',
+  };
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -35,9 +43,10 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const lang = await getLang();
   return (
-    <html lang="he" dir="rtl" className={`${ui.variable} ${display.variable}`} suppressHydrationWarning>
+    <html lang={lang} dir={dirOf(lang)} className={`${ui.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
         {/* apply saved theme / text size before the first paint */}
         <script dangerouslySetInnerHTML={{ __html: PREFS_BOOT_SCRIPT }} />
@@ -47,10 +56,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {process.env.NEXT_PUBLIC_SUPABASE_URL && <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} crossOrigin="anonymous" />}
       </head>
       <body>
-        <a href="#main" className="skip">דילוג לתוכן</a>
-        {children}
-        <A11yMenu />
-        <CookieNotice />
+        <LangProvider initial={lang}>
+          <a href="#main" className="skip">{lang === 'en' ? 'Skip to content' : 'דילוג לתוכן'}</a>
+          {children}
+          <A11yMenu />
+          <CookieNotice />
+        </LangProvider>
       </body>
     </html>
   );

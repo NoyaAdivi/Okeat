@@ -1,5 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+import { useL } from './LangProvider';
+import Avatar from './Avatar';
 import { useEffect, useRef, useState } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 
@@ -12,6 +15,7 @@ interface Props {
 }
 
 export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }: Props) {
+  const L = useL();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
 
@@ -27,21 +31,24 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
   // Anonymous visitors (who added or confirmed without registering) still see "sign in".
   if (!user || user.is_anonymous) {
     return (
-      <button type="button" className="account-in" onClick={onSignIn}>התחברות</button>
+      <button type="button" className="account-in" onClick={onSignIn}>{L('התחברות', 'Sign in')}</button>
     );
   }
 
-  const name = (user.user_metadata?.name as string | undefined) ?? user.email ?? '';
-  const initial = name.trim().charAt(0).toUpperCase() || '?';
+  const name = (user.user_metadata?.name as string | undefined) ?? (user.user_metadata?.full_name as string | undefined) ?? '';
+  const avatar = (user.user_metadata?.avatar_url as string | undefined) ?? null;
 
   return (
     <div className="account-wrap" ref={wrap}>
-      <button type="button" className="account" aria-haspopup="menu" aria-expanded={open} aria-label={`החשבון של ${name}`} onClick={() => setOpen((o) => !o)}>
-        {initial}
+      <button type="button" className="account" aria-haspopup="menu" aria-expanded={open} aria-label={L(`החשבון של ${name}`, `${name}'s account`)} onClick={() => setOpen((o) => !o)}>
+        <Avatar name={name || '?'} url={avatar} size={36} />
       </button>
       {open && (
         <div className="account-menu" role="menu">
           <div className="who">{name}</div>
+          <Link href="/u/me" role="menuitem" className="menu-link" onClick={() => setOpen(false)}>
+            <span aria-hidden="true">👤</span> {L('הפרופיל שלי', 'My profile')}
+          </Link>
           <button
             type="button"
             role="menuitem"
@@ -51,7 +58,7 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
               onSignedOut();
             }}
           >
-            התנתקות
+            {L('התנתקות', 'Sign out')}
           </button>
         </div>
       )}

@@ -8,7 +8,7 @@ interface Props {
   searchParams: Promise<{ place?: string; auth_error?: string; need?: string; add?: string }>;
 }
 
-const NEEDS: Need[] = ['kosher', 'vegan', 'gluten_free'];
+const NEEDS: Need[] = ['kosher', 'vegan', 'vegetarian', 'gluten_free'];
 
 export default async function MapPage({ searchParams }: Props) {
   const { place, auth_error, need, add } = await searchParams;

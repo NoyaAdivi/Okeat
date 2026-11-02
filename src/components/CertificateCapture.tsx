@@ -1,8 +1,9 @@
 'use client';
 
+import { useL } from './LangProvider';
 import { useEffect, useRef, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { LEVELS, type ExtractedCertificate, type KosherLevel } from '@/lib/types';
+import { LEVELS, levelNote, levelText, type ExtractedCertificate, type KosherLevel } from '@/lib/types';
 import { extractCertificate, uploadCertificatePhoto } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 
@@ -31,6 +32,8 @@ const today = () => new Date().toISOString().slice(0, 10);
  * and fixes the fields. Nothing is trusted blindly: every field stays editable.
  */
 export default function CertificateCapture({ sb, onChange }: Props) {
+  const L = useL();
+  const lang = L.lang;
   const [phase, setPhase] = useState<Phase>('idle');
   const [preview, setPreview] = useState<string | null>(null);
   const [imagePath, setImagePath] = useState<string | null>(null);
@@ -83,7 +86,7 @@ export default function CertificateCapture({ sb, onChange }: Props) {
   const onFile = async (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setError('צריך קובץ תמונה.');
+      setError(L('צריך קובץ תמונה.', 'Please choose an image file.'));
       return;
     }
     setError('');
@@ -98,7 +101,7 @@ export default function CertificateCapture({ sb, onChange }: Props) {
     } catch (e) {
       setPhase('idle');
       setPreview(null);
-      setError(friendly(e));
+      setError(friendly(e, lang));
       return;
     }
 
@@ -112,7 +115,7 @@ export default function CertificateCapture({ sb, onChange }: Props) {
       setBusinessName(r.businessName ?? '');
     } catch (e) {
       // The photo is uploaded; let them type the details instead.
-      setReadError(friendly(e));
+      setReadError(friendly(e, lang));
     }
     setPhase('review');
   };
@@ -124,8 +127,8 @@ export default function CertificateCapture({ sb, onChange }: Props) {
           <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
           </svg>
-          <b>צילום או העלאה של תעודת הכשרות</b>
-          <small>הגוף המשגיח, הרמה ותאריך התוקף ייקראו מהתמונה</small>
+          <b>{L('צילום או העלאה של תעודת הכשרות', 'Photograph or upload the kosher certificate')}</b>
+          <small>{L('הגוף המשגיח, הרמה ותאריך התוקף ייקראו מהתמונה', 'The supervising body, level and expiry date are read from the photo')}</small>
         </label>
         <input id="cert-file" ref={input} className="vh" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={(e) => onFile(e.target.files?.[0])} />
         {error && <div className="err" role="alert">{error}</div>}
@@ -140,51 +143,51 @@ export default function CertificateCapture({ sb, onChange }: Props) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" className="extract-img" />
         )}
-        <span>{phase === 'uploading' ? 'מעלה את התמונה…' : 'קורא את התעודה…'}</span>
+        <span>{phase === 'uploading' ? L('מעלה את התמונה…', 'Uploading the photo…') : L('קורא את התעודה…', 'Reading the certificate…')}</span>
         <div className="bar"><i className={phase === 'reading' ? 'go' : ''} /></div>
       </div>
     );
   }
 
   const warnings: string[] = [];
-  if (extracted && !extracted.isKosherCertificate) warnings.push('זה לא נראה כמו תעודת כשרות. בדקו את התמונה.');
-  if (extracted && extracted.isKosherCertificate && extracted.confidence < 0.6) warnings.push('חלק מהפרטים לא היו ברורים. בדקו כל שדה.');
+  if (extracted && !extracted.isKosherCertificate) warnings.push(L('זה לא נראה כמו תעודת כשרות. בדקו את התמונה.', "This doesn't look like a kosher certificate. Please check the photo."));
+  if (extracted && extracted.isKosherCertificate && extracted.confidence < 0.6) warnings.push(L('חלק מהפרטים לא היו ברורים. בדקו כל שדה.', 'Some details were unclear. Please check every field.'));
   if (extracted) warnings.push(...extracted.issues);
 
   return (
     <div className="extract">
       {preview && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt="התעודה שצילמתם" className="extract-img" />
+        <img src={preview} alt={L('התעודה שצילמתם', 'The certificate you photographed')} className="extract-img" />
       )}
-      {readError && <div className="warnbox">{readError} אפשר למלא את הפרטים ידנית.</div>}
+      {readError && <div className="warnbox">{readError} {L('אפשר למלא את הפרטים ידנית.', 'You can fill in the details by hand.')}</div>}
       {warnings.length > 0 && (
         <ul className="issues">{warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>
       )}
       <div className="grid">
         <div className="field">
-          <label htmlFor="cert-body">גוף משגיח</label>
-          <input id="cert-body" type="text" value={body} onChange={(e) => setBody(e.target.value)} placeholder="למשל: הרבנות הראשית רמת גן" />
+          <label htmlFor="cert-body">{L('גוף משגיח', 'Supervising body')}</label>
+          <input id="cert-body" type="text" value={body} onChange={(e) => setBody(e.target.value)} placeholder={L('למשל: הרבנות הראשית רמת גן', 'e.g. Chief Rabbinate of Ramat Gan')} />
         </div>
         <div className="field">
-          <label htmlFor="cert-level">רמה</label>
+          <label htmlFor="cert-level">{L('רמה', 'Level')}</label>
           <select id="cert-level" value={level} onChange={(e) => setLevel(e.target.value as KosherLevel | '')}>
-            <option value="">בחרו רמה</option>
-            {LEVELS.kosher.filter((l) => l.value !== 'marked').map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+            <option value="">{L('בחרו רמה', 'Choose a level')}</option>
+            {LEVELS.kosher.filter((l) => l.value !== 'marked').map((l) => <option key={l.value} value={l.value}>{levelText(l, lang)}</option>)}
           </select>
         </div>
         <div className="field">
-          <label htmlFor="cert-until">בתוקף עד</label>
+          <label htmlFor="cert-until">{L('בתוקף עד', 'Valid until')}</label>
           <input id="cert-until" type="date" value={validUntil} min={today()} onChange={(e) => setValidUntil(e.target.value)} />
         </div>
         <div className="field">
-          <label htmlFor="cert-name">שם העסק בתעודה</label>
+          <label htmlFor="cert-name">{L('שם העסק בתעודה', 'Business name on the certificate')}</label>
           <input id="cert-name" type="text" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
         </div>
       </div>
-      {level === 'pikuach' && <span className="hint">{LEVELS.kosher.find((l) => l.value === 'pikuach')?.note}</span>}
-      {expired && <div className="err" role="alert">התאריך כבר עבר. אפשר להוסיף רק תעודה בתוקף.</div>}
-      <button type="button" className="link" onClick={reset}>צילום מחדש</button>
+      {level === 'pikuach' && <span className="hint">{(() => { const i = LEVELS.kosher.find((l) => l.value === 'pikuach'); return i ? levelNote(i, lang) : null; })()}</span>}
+      {expired && <div className="err" role="alert">{L('התאריך כבר עבר. אפשר להוסיף רק תעודה בתוקף.', 'That date has passed. Only a valid certificate can be added.')}</div>}
+      <button type="button" className="link" onClick={reset}>{L('צילום מחדש', 'Take it again')}</button>
     </div>
   );
 }

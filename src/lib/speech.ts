@@ -3,6 +3,12 @@
 
 export const speechSupported = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 
+const pageIsEnglish = () => typeof document !== 'undefined' && document.documentElement.lang === 'en';
+
+function englishVoice(): SpeechSynthesisVoice | undefined {
+  return window.speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith('en'));
+}
+
 function hebrewVoice(): SpeechSynthesisVoice | undefined {
   const voices = window.speechSynthesis.getVoices();
   return voices.find((v) => v.lang?.toLowerCase().startsWith('he')) ?? voices.find((v) => v.lang?.toLowerCase().startsWith('iw'));
@@ -20,8 +26,8 @@ export function speak(text: string, opts: { interrupt?: boolean; rate?: number }
   const parts = text.replace(/\s+/g, ' ').match(/[^.!?\n]+[.!?]?/g) ?? [text];
   for (const part of parts) {
     const u = new SpeechSynthesisUtterance(part.trim());
-    u.lang = 'he-IL';
-    const v = hebrewVoice();
+    u.lang = pageIsEnglish() ? 'en-US' : 'he-IL';
+    const v = pageIsEnglish() ? englishVoice() : hebrewVoice();
     if (v) u.voice = v;
     u.rate = opts.rate ?? 1;
     synth.speak(u);

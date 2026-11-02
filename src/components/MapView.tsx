@@ -3,16 +3,18 @@
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { NEED_LABELS, type MapPoint } from '@/lib/types';
+import { needLabel, needLetter, type MapPoint } from '@/lib/types';
+import type { Lang } from '@/lib/lang';
 import type { LatLng } from '@/lib/geo';
 import { MAPBOX_TOKEN } from '@/lib/mapboxToken';
 import { isDarkNow, motionAllowed } from '@/lib/prefs';
-import { NEED_CLASS } from '@/lib/claims';
+import { NEED_CLASS, isMainNeed } from '@/lib/claims';
 import { placeEmoji } from '@/lib/emoji';
 
 export type RouteLine = { type: 'LineString'; coordinates: [number, number][] };
 /** Change `key` to make the map frame these points. */
-export type FocusRequest = { key: number; points: LatLng[] };
+/** exact: put the point in the very middle of the map box (under the pick pin), ignoring the panels. */
+export type FocusRequest = { key: number; points: LatLng[]; exact?: boolean };
 
 interface Props {
   initialCenter: LatLng;
@@ -28,12 +30,16 @@ interface Props {
   /** When true, a click on the map picks a location instead of doing nothing. */
   picking?: boolean;
   onPick?: (point: LatLng) => void;
+  /** Filled with a function that answers the exact point under the pin, right now. */
+  centerGetter?: { current: (() => LatLng) | null };
   /** Keep the camera on the person (turn-by-turn navigation). */
   follow?: boolean;
   /** Center of the map after any move (used to place a new spot under the center pin). */
   onCenter?: (center: LatLng) => void;
   /** The person started dragging the map by hand. */
   onUserDrag?: () => void;
+  /** page language, for map labels and marker texts */
+  lang?: Lang;
 }
 
 const STYLES = {
@@ -72,9 +78,14 @@ const HEBREW_ONLY: mapboxgl.ExpressionSpecification = [
   ['in', ['slice', ['to-string', ['get', 'name']], 0, 1], HEB_LETTERS], ['get', 'name'],
   '',
 ];
+// English pages: the English name when the map has one, else the local name.
+const ENGLISH_FIRST: mapboxgl.ExpressionSpecification = ['coalesce', ['get', 'name_en'], ['get', 'name']];
 
-/** Hebrew labels and the pastel palette. */
-function styleMap(map: mapboxgl.Map, dark: boolean) {
+// Markers are plain DOM built outside React; they read the language from here (set on every render).
+let markerLang: Lang = 'he';
+
+/** Labels in the page language and the pastel palette. */
+function styleMap(map: mapboxgl.Map, dark: boolean, lang: Lang = markerLang) {
   const c = dark ? MAP_COLORS.dark : MAP_COLORS.light;
   for (const layer of map.getStyle()?.layers ?? []) {
     const id: string = layer.id;
@@ -90,7 +101,7 @@ function styleMap(map: mapboxgl.Map, dark: boolean) {
     if (layer.type === 'symbol') {
       const field = map.getLayoutProperty(id, 'text-field');
       if (field && JSON.stringify(field).includes('name')) {
-        safe(() => map.setLayoutProperty(id, 'text-field', HEBREW_ONLY));
+        safe(() => map.setLayoutProperty(id, 'text-field', lang === 'en' ? ENGLISH_FIRST : HEBREW_ONLY));
       }
       if (/(road|street|place|settlement|poi)/.test(id)) safe(() => map.setPaintProperty(id, 'text-color', c.label));
       continue;
@@ -204,7 +215,7 @@ function markerButton(p: MapPoint, selected: boolean, onClick: () => void): HTML
   const verified = p.seals;
   el.setAttribute(
     'aria-label',
-    `${p.name}${verified.length ? ', ' + verified.map((c) => NEED_LABELS[c.need].label).join(', ') : ', ממתין לאישור'}`,
+    `${p.name}${verified.length ? ', ' + verified.map((c) => needLabel(c.need, markerLang)).join(', ') : markerLang === 'en' ? ', waiting for confirmation' : ', ממתין לאישור'}`,
   );
 
   if (verified.length === 0) {
@@ -222,15 +233,17 @@ function markerButton(p: MapPoint, selected: boolean, onClick: () => void): HTML
     return el;
   }
 
-  const seals = verified.length
-    ? verified
+  // the marker shows up to three seals: the main needs first
+  const shown = [...verified].sort((a, b) => Number(!isMainNeed(a.need)) - Number(!isMainNeed(b.need))).slice(0, 3);
+  const seals = shown.length
+    ? shown
         .map((c) => {
           const cls = [
-            (c.need === 'kosher' && (c.level === 'pikuach' || c.expired)) ? 'x' : NEED_CLASS[c.need],
+            (c.need === 'kosher' && (c.level === 'pikuach' || c.level === 'tzohar' || c.level === 'unknown' || c.expired)) ? 'x' : NEED_CLASS[c.need],
             c.expired ? 'expired' : '',
             c.imported || c.level === 'marked' ? 'soft' : '',
           ].join(' ');
-          return sealHTML(cls, NEED_LABELS[c.need].letter);
+          return sealHTML(cls, needLetter(c.need, markerLang));
         })
         .join('')
     : sealHTML('x pending', '?');
@@ -252,8 +265,9 @@ function markerButton(p: MapPoint, selected: boolean, onClick: () => void): HTML
 }
 
 export default function MapView({
-  initialCenter, user, places, selectedId, route, focus, onSelect, onUserMove, picking = false, onPick, follow = false, onCenter, onUserDrag,
+  initialCenter, user, places, selectedId, route, focus, onSelect, onUserMove, picking = false, onPick, centerGetter, follow = false, onCenter, onUserDrag, lang = 'he',
 }: Props) {
+  markerLang = lang;
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const userMarker = useRef<mapboxgl.Marker | null>(null);
@@ -304,12 +318,27 @@ export default function MapView({
       drawRoute(map, routeRef.current, false);
     });
     map.on('dragstart', () => onUserDragRef.current?.());
+    // The point under the middle of the map box, where the pick pin is drawn.
+    // (map.getCenter() is NOT that point: easeTo/fitBounds leave padding behind for the side panel and the
+    // bottom sheet, and getCenter() then answers the middle of the padded area, up to hundreds of meters away.)
+    const boxCenter = () => {
+      const el = map.getContainer();
+      const ll = map.unproject([el.clientWidth / 2, el.clientHeight / 2]);
+      return { lat: ll.lat, lng: ll.lng };
+    };
+    // stop any glide first, so the answer is where the pin will stay
+    if (centerGetter) centerGetter.current = () => { map.stop(); return boxCenter(); };
+    map.on('load', () => onCenterRef.current?.(boxCenter()));
+    // While picking, a click brings that spot under the pin.
+    map.on('click', (e) => {
+      if (!pickingRef.current) return;
+      map.easeTo({ center: e.lngLat, padding: { top: 0, left: 0, right: 0, bottom: 0 }, duration: reducedMotion() ? 0 : 250 });
+    });
     map.on('moveend', (e) => {
-      const center = map.getCenter();
-      onCenterRef.current?.({ lat: center.lat, lng: center.lng });
+      const c = boxCenter();
+      onCenterRef.current?.(c);
       if (!('originalEvent' in e) || !e.originalEvent) return;
-      const c = map.getCenter();
-      onUserMoveRef.current({ lat: c.lat, lng: c.lng });
+      onUserMoveRef.current(c);
     });
 
     // Follow the theme: the system setting, or the choice in the accessibility menu.
@@ -389,6 +418,7 @@ export default function MapView({
     map.on('style.load', setup);
     map.on('render', queueSync);
     const onCluster = (e: mapboxgl.MapMouseEvent) => {
+      if (pickingRef.current) return;
       const f = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })[0];
       if (!f) return;
       const src = map.getSource('places') as mapboxgl.GeoJSONSource;
@@ -424,7 +454,13 @@ export default function MapView({
     if (src) src.setData(placesGeoJSON(places, selectedId));
     queueSync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [places, selectedId]);
+  }, [places, selectedId, lang]);
+
+  // Switch the map labels when the page language changes.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map && map.isStyleLoaded()) styleMap(map, isDarkNow(), lang);
+  }, [lang]);
 
   // "You are here".
   useEffect(() => {
@@ -433,7 +469,7 @@ export default function MapView({
     if (!userMarker.current) {
       const el = document.createElement('div');
       el.className = 'me-dot';
-      el.setAttribute('aria-label', 'המיקום שלך');
+      el.setAttribute('aria-label', markerLang === 'en' ? 'Your location' : 'המיקום שלך');
       userMarker.current = new mapboxgl.Marker({ element: el }).setLngLat([user.lng, user.lat]).addTo(map);
     } else {
       userMarker.current.setLngLat([user.lng, user.lat]);
@@ -467,15 +503,17 @@ export default function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !focus || focus.points.length === 0) return;
-    const padding = {
+    const padding = focus.exact ? { top: 0, left: 0, right: 0, bottom: 0 } : {
       top: 90,
-      left: 70,
-      right: isPhone() ? 70 : 470, // desktop: keep clear of the floating panel on the right
+      // desktop: keep clear of the floating panel (right side in Hebrew, left side in English)
+      left: !isPhone() && document.documentElement.dir === 'ltr' ? 470 : 70,
+      right: !isPhone() && document.documentElement.dir !== 'ltr' ? 470 : 70,
       bottom: isPhone() ? Math.round(window.innerHeight * 0.56) : 90,
     };
     if (focus.points.length === 1) {
       const [p] = focus.points;
-      map.easeTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15.5), padding, duration: reducedMotion() ? 0 : 700 });
+      // picking needs street level: at a low zoom one pixel is many meters
+      map.easeTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), focus.exact ? 17.5 : 15.5), padding, duration: reducedMotion() ? 0 : 700 });
       return;
     }
     const b = new mapboxgl.LngLatBounds();

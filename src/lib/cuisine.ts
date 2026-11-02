@@ -1,40 +1,42 @@
+import type { Lang } from './lang';
+
 // Food categories. Keys match what the importer stores in places.cuisine.
 
-export const CUISINES: Record<string, { label: string; emoji: string }> = {
-  pizza: { label: 'פיצה', emoji: '🍕' },
-  burger: { label: 'המבורגר', emoji: '🍔' },
-  sushi: { label: 'סושי', emoji: '🍣' },
-  japanese: { label: 'יפני', emoji: '🍱' },
-  chinese: { label: 'סיני', emoji: '🥡' },
-  asian: { label: 'אסייתי', emoji: '🍜' },
-  indian: { label: 'הודי', emoji: '🍛' },
-  italian: { label: 'איטלקי', emoji: '🍝' },
-  mexican: { label: 'מקסיקני', emoji: '🌮' },
-  middle_eastern: { label: 'מזרחי', emoji: '🥙' },
-  hummus: { label: 'חומוס', emoji: '🧆' },
-  falafel: { label: 'פלאפל', emoji: '🧆' },
-  shawarma: { label: 'שווארמה', emoji: '🥙' },
-  meat: { label: 'בשרים וגריל', emoji: '🥩' },
-  steak_house: { label: 'סטייקיה', emoji: '🥩' },
-  chicken: { label: 'עוף', emoji: '🍗' },
-  fish: { label: 'דגים', emoji: '🐟' },
-  coffee_shop: { label: 'בית קפה', emoji: '☕' },
-  breakfast: { label: 'ארוחת בוקר', emoji: '🍳' },
-  sandwich: { label: 'כריכים', emoji: '🥪' },
-  bagel: { label: 'בייגל', emoji: '🥯' },
-  bakery: { label: 'מאפים', emoji: '🥐' },
-  dessert: { label: 'קינוחים', emoji: '🍰' },
-  ice_cream: { label: 'גלידה', emoji: '🍦' },
-  salad: { label: 'סלטים', emoji: '🥗' },
-  juice: { label: 'מיצים ושייקים', emoji: '🧃' },
-  vegan: { label: 'טבעוני', emoji: '🌱' },
-  vegetarian: { label: 'צמחוני', emoji: '🥕' },
-  french: { label: 'צרפתי', emoji: '🥖' },
-  georgian: { label: 'גאורגי', emoji: '🫓' },
-  ethiopian: { label: 'אתיופי', emoji: '🍲' },
-  yemeni: { label: 'תימני', emoji: '🫓' },
-  moroccan: { label: 'מרוקאי', emoji: '🍲' },
-  american: { label: 'אמריקאי', emoji: '🌭' },
+export const CUISINES: Record<string, { label: string; en: string; emoji: string }> = {
+  pizza: { label: 'פיצה', en: 'Pizza', emoji: '🍕' },
+  burger: { label: 'המבורגר', en: 'Burgers', emoji: '🍔' },
+  sushi: { label: 'סושי', en: 'Sushi', emoji: '🍣' },
+  japanese: { label: 'יפני', en: 'Japanese', emoji: '🍱' },
+  chinese: { label: 'סיני', en: 'Chinese', emoji: '🥡' },
+  asian: { label: 'אסייתי', en: 'Asian', emoji: '🍜' },
+  indian: { label: 'הודי', en: 'Indian', emoji: '🍛' },
+  italian: { label: 'איטלקי', en: 'Italian', emoji: '🍝' },
+  mexican: { label: 'מקסיקני', en: 'Mexican', emoji: '🌮' },
+  middle_eastern: { label: 'מזרחי', en: 'Middle Eastern', emoji: '🥙' },
+  hummus: { label: 'חומוס', en: 'Hummus', emoji: '🧆' },
+  falafel: { label: 'פלאפל', en: 'Falafel', emoji: '🧆' },
+  shawarma: { label: 'שווארמה', en: 'Shawarma', emoji: '🥙' },
+  meat: { label: 'בשרים וגריל', en: 'Meat & grill', emoji: '🥩' },
+  steak_house: { label: 'סטייקיה', en: 'Steakhouse', emoji: '🥩' },
+  chicken: { label: 'עוף', en: 'Chicken', emoji: '🍗' },
+  fish: { label: 'דגים', en: 'Fish', emoji: '🐟' },
+  coffee_shop: { label: 'בית קפה', en: 'Café', emoji: '☕' },
+  breakfast: { label: 'ארוחת בוקר', en: 'Breakfast', emoji: '🍳' },
+  sandwich: { label: 'כריכים', en: 'Sandwiches', emoji: '🥪' },
+  bagel: { label: 'בייגל', en: 'Bagels', emoji: '🥯' },
+  bakery: { label: 'מאפים', en: 'Bakery', emoji: '🥐' },
+  dessert: { label: 'קינוחים', en: 'Desserts', emoji: '🍰' },
+  ice_cream: { label: 'גלידה', en: 'Ice cream', emoji: '🍦' },
+  salad: { label: 'סלטים', en: 'Salads', emoji: '🥗' },
+  juice: { label: 'מיצים ושייקים', en: 'Juice & shakes', emoji: '🧃' },
+  vegan: { label: 'טבעוני', en: 'Vegan', emoji: '🌱' },
+  vegetarian: { label: 'צמחוני', en: 'Vegetarian', emoji: '🥕' },
+  french: { label: 'צרפתי', en: 'French', emoji: '🥖' },
+  georgian: { label: 'גאורגי', en: 'Georgian', emoji: '🫓' },
+  ethiopian: { label: 'אתיופי', en: 'Ethiopian', emoji: '🍲' },
+  yemeni: { label: 'תימני', en: 'Yemeni', emoji: '🫓' },
+  moroccan: { label: 'מרוקאי', en: 'Moroccan', emoji: '🍲' },
+  american: { label: 'אמריקאי', en: 'American', emoji: '🌭' },
 };
 
 /** The category chips in the filter bar, in order. */
@@ -43,7 +45,7 @@ export const CUISINE_FILTERS = [
   'bakery', 'dessert', 'ice_cream', 'breakfast', 'fish', 'mexican', 'indian',
 ];
 
-export const cuisineLabel = (c: string) => CUISINES[c]?.label ?? c;
+export const cuisineLabel = (c: string, lang: Lang = 'he') => (lang === 'en' ? CUISINES[c]?.en : CUISINES[c]?.label) ?? c;
 export const cuisineEmoji = (c: string) => CUISINES[c]?.emoji ?? '🍴';
 
 // Words in a place's name (Hebrew / English) that point to a category. Used together with the

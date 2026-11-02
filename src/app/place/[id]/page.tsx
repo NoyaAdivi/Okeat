@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { fetchPlace } from '@/lib/places';
-import { NEED_LABELS, levelInfo, placeTypeLabel } from '@/lib/types';
+import { levelInfo, levelText, needLabel, placeTypeLabel } from '@/lib/types';
+import { getLang } from '@/lib/lang-server';
 import { NEED_ORDER, verifiedClaim } from '@/lib/claims';
 import SharedPlace from '@/components/SharedPlace';
 
@@ -21,17 +22,23 @@ async function load(id: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const place = await load((await params).id);
   if (!place) return { title: 'Okeat' };
+  const lang = await getLang();
   // "כשר למהדרין, ללא גלוטן: מטבח נפרד" — what was verified, for link previews
   const verified = NEED_ORDER.map((n) => verifiedClaim(place, n))
     .filter((c) => c !== null && !c.certificate?.expired)
-    .map((c) => (c!.need === 'kosher' ? levelInfo('kosher', c!.level)?.label : `${NEED_LABELS[c!.need].label}: ${levelInfo(c!.need, c!.level)?.label}`));
+    .map((c) => {
+      const info = levelInfo(c!.need, c!.level);
+      const lvl = info ? levelText(info, lang) : '';
+      return c!.need === 'kosher' ? lvl : `${needLabel(c!.need, lang)}: ${lvl}`;
+    });
+  const type = placeTypeLabel(place.place_type, lang);
   const description = verified.length
-    ? `${placeTypeLabel(place.place_type)}. ${verified.join(', ')}.`
-    : `${placeTypeLabel(place.place_type)}. ממתין לאישור הקהילה.`;
+    ? `${type}. ${verified.join(', ')}.`
+    : `${type}. ${lang === 'en' ? 'Waiting for community confirmation.' : 'ממתין לאישור הקהילה.'}`;
   return {
     title: `${place.name} | Okeat`,
     description,
-    openGraph: { title: place.name, description, type: 'website', locale: 'he_IL' },
+    openGraph: { title: place.name, description, type: 'website', locale: lang === 'en' ? 'en_US' : 'he_IL' },
   };
 }
 

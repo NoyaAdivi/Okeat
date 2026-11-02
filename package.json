@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "import:osm": "node scripts/import-osm.mjs",
     "import:overture": "node scripts/import-overture.mjs",
-    "classify": "node scripts/classify-ai.mjs"
+    "classify": "node scripts/classify-ai.mjs",
+    "classify:diet": "node scripts/classify-diet.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": ">=0.39.0 <1",
