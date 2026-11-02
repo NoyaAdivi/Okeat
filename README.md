@@ -10,7 +10,7 @@
 
 <p align="center"><a href="https://okeat.vercel.app"><b>🌐 Open the live site: okeat.vercel.app</b></a></p>
 
-<p align="center"><img src="okeat.png" alt="Okeat screenshot" width="800"></p>
+<p align="center"><img src="[okeat.png](https://raw.githubusercontent.com/NoyaAdivi/Okeat/main/okeat.png)" alt="Okeat screenshot" width="800"></p>
 
 ---
 
