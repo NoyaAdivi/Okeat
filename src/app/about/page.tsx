@@ -20,8 +20,8 @@ const journeyOf = (L: T) => [
 const faqOf = (L: T) => [
   {
     q: L('מאיפה מגיע המידע?', 'Where does the information come from?'),
-    a: L('משני מקורות. הראשון הוא אנשים שמוסיפים ומאשרים מקומות באתר. השני הוא OpenStreetMap, מפה פתוחה שמתנדבים מעדכנים. ליד מידע שהגיע מ-OpenStreetMap ועוד לא אושר באתר כתוב את זה במפורש.',
-      'Two sources. The first is people who add and confirm places on the site. The second is OpenStreetMap, an open map kept up to date by volunteers. Information from OpenStreetMap that has not been confirmed on the site yet is clearly labelled.'),
+    a: L('משלושה מקורות: אנשים שמוסיפים ומאשרים מידע באתר, המאגרים הפתוחים OpenStreetMap ו-Overture Maps, וסיווג אוטומטי לפי שם המקום וסוגו. מידע שעוד לא אושר באתר מסומן במפורש.',
+      'Three sources: people who add and confirm information on the site, the open databases OpenStreetMap and Overture Maps, and automatic classification by a place's name and type. Anything not yet confirmed on the site is clearly labelled.'),
   },
   {
     q: L('למה אין כאן את כל המסעדות שיש בגוגל או באיזי?', "Why aren't all the restaurants from Google or other apps here?"),
@@ -119,12 +119,13 @@ export default async function About() {
         <section className="section" aria-labelledby="seals-h">
           <h2 id="seals-h" className="section-title">{L('מה אומרות החותמות', 'What the seals mean')}</h2>
           <ul className="legend-grid">
-            <li><span className="seal k" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('כשר', 'Kosher')}</b> {L('עם צילום תעודה', 'with a certificate photo')}</span></li>
-            <li><span className="seal v" aria-hidden="true"><span>{L('ט', 'V')}</span></span><span><b>{L('טבעוני', 'Vegan')}</b></span></li>
-            <li><span className="seal h" aria-hidden="true"><span>{L('צ', 'Vg')}</span></span><span><b>{L('צמחוני', 'Vegetarian')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהמנות.', 'No meat or fish, in the whole place or in some dishes.')}</span></li>
-            <li><span className="seal g" aria-hidden="true"><span>{L('ג', 'G')}</span></span><span><b>{L('ללא גלוטן', 'Gluten-free')}</b></span></li>
-            <li><span className="seal k soft" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מ-OpenStreetMap, עוד לא אושר באתר', 'from OpenStreetMap, not confirmed on the site yet')}</span></li>
-            <li><span className="seal x pending" aria-hidden="true"><span>?</span></span><span><b>{L('ממתין לאישור', 'Waiting for confirmation')}</b> {L('הקהילה', 'by the community')}</span></li>
+            <li><span className="seal k" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('כשר:', 'Kosher:')}</b> {L('יש השגחת כשרות, עם תעודה או בלי.', 'Under kosher supervision, with or without a certificate photo.')}</span></li>
+            <li><span className="seal v" aria-hidden="true"><span>{L('ט', 'V')}</span></span><span><b>{L('טבעוני:', 'Vegan:')}</b> {L('מנות בלי מוצרים מן החי, בכל המקום או בחלק מהתפריט.', 'Dishes with no animal products, in the whole place or part of the menu.')}</span></li>
+            <li><span className="seal h" aria-hidden="true"><span>{L('צ', 'Vg')}</span></span><span><b>{L('צמחוני:', 'Vegetarian:')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהתפריט.', 'No meat or fish, in the whole place or part of the menu.')}</span></li>
+            <li><span className="seal g" aria-hidden="true"><span>{L('ג', 'G')}</span></span><span><b>{L('ללא גלוטן:', 'Gluten-free:')}</b> {L('תפריט ללא גלוטן או מטבח נפרד.', 'A gluten-free menu or a separate kitchen.')}</span></li>
+            <li><span className="seal e" aria-hidden="true"><span>{L('א', 'A')}</span></span><span><b>{L('אלרגיות:', 'Allergies:')}</b> {L('בלי חלב, ביצים, בוטנים, אגוזים, שומשום או סויה. באלרגיה חמורה תמיד כדאי לשאול במקום.', 'Free of dairy, egg, peanuts, nuts, sesame or soy. With a serious allergy, always ask on site.')}</span></li>
+            <li><span className="seal k soft" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מידע ממאגר פתוח או סיווג אוטומטי, שעוד לא אושר על ידי הקהילה.', 'From an open database or an automatic guess, not yet confirmed by the community.')}</span></li>
+            <li><span className="seal x pending" aria-hidden="true"><span>{L('?', '?')}</span></span><span><b>{L('ממתין לאישור:', 'Waiting for confirmation:')}</b> {L('מישהו הוסיף את המידע, ועכשיו מחכים לאישור של הקהילה.', 'Someone added this, and it is waiting for the community to confirm it.')}</span></li>
           </ul>
         </section>
 

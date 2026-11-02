@@ -17,7 +17,7 @@ type T = (he: string, en: string) => string;
 const needsOf = (L: T) => [
   {
     key: 'kosher', cls: 'k', letter: L('כ', 'K'), emoji: '🍽️', title: L('כשר', 'Kosher'),
-    text: L('רואים את תעודת הכשרות עצמה, מי משגיח ועד מתי היא בתוקף. תעודה שפגה מסומנת מיד.', 'See the kosher certificate itself, who supervises and until when it is valid. An expired certificate is flagged right away.'),
+    text: L('רואים מי משגיח, וכשיש תעודה גם עד מתי היא בתוקף. תעודה שפגה מסומנת מיד.', 'See who supervises and, when there is a certificate, until when it is valid. An expired certificate is flagged right away.'),
     levels: [L('רבנות', 'Rabbinate'), L('מהדרין', 'Mehadrin'), L('בד״ץ', 'Badatz')],
     go: L('למקומות הכשרים', 'Kosher places'),
   },

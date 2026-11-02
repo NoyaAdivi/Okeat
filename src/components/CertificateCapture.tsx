@@ -29,7 +29,7 @@ type Phase = 'idle' | 'uploading' | 'reading' | 'review';
 const today = () => new Date().toISOString().slice(0, 10);
 
 /**
- * Photo -> upload to Storage -> the server reads it with Claude -> the person checks
+ * Photo -> upload to Storage -> read by the server if it can, else in the browser -> the person checks
  * and fixes the fields. Nothing is trusted blindly: every field stays editable.
  */
 export default function CertificateCapture({ sb, onChange }: Props) {

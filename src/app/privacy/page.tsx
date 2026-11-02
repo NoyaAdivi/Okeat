@@ -50,7 +50,7 @@ function PrivacyHe() {
             <li><b>Mapbox</b>: הצגת המפה וחישוב מסלולים. כשאתם מבקשים מסלול, נקודת ההתחלה והיעד נשלחות ל-Mapbox.</li>
               <li><b>חיפוש של OpenStreetMap (Photon, של Komoot)</b>: כשאתם מקלידים כתובת כדי לקבוע את המיקום שלכם, הטקסט שהקלדתם נשלח אליו.</li>
               <li><b>Google</b>: כשפותחים מקום, השם והמיקום שלו נשלחים ל-Google כדי להציג פרטים עדכניים. שום דבר עליכם לא נשלח.</li>
-            <li><b>Anthropic</b>: קריאה אוטומטית של תמונת תעודת כשרות, רק כשאתם מעלים תמונה כזו.</li>
+            <li><b>jsDelivr</b>: טעינת כלי קריאת התעודות לדפדפן. התמונה עצמה נקראת בתוך הדפדפן שלכם.</li>
           </ul>
           <p>חלק מהספקים פועלים מחוץ לישראל, והמידע עשוי להיות מאוחסן שם.</p>
   
@@ -97,7 +97,7 @@ function PrivacyEn() {
             <li><b>Mapbox</b>: showing the map and working out routes. When you ask for a route, the start and the destination are sent to Mapbox.</li>
             <li><b>OpenStreetMap search (Photon, by Komoot)</b>: when you type an address to set your location, the text you type is sent to it.</li>
             <li><b>Google</b>: when you open a place, its name and location are sent to Google to show live details. Nothing about you is sent.</li>
-            <li><b>Anthropic</b>: automatic reading of a kosher certificate photo, only when you upload one.</li>
+            <li><b>jsDelivr</b>: loading the certificate reader into your browser. The photo itself is read inside your browser.</li>
           </ul>
           <p>Some providers operate outside Israel, and the information may be stored there.</p>
 
