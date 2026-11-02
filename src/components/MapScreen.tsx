@@ -573,6 +573,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       if (!hit) return;
       if (!isCityName(text, hit.name) || selectedId) { setCityHit(hit); return; }
       setFocus({ key: Date.now(), points: [hit.point], zoom: 13 });
+      setMapCenter(hit.point);
+      setSearchCenter(hit.point);
       setQuery('');
       setSheet('peek');
       showToast(L(`עברנו ל${hit.name}`, `Moved to ${hit.name}`));
@@ -889,6 +891,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           {cityHit && !selected && (
             <button type="button" className="city-jump" onClick={() => {
               setFocus({ key: Date.now(), points: [cityHit.point], zoom: 13 });
+              setMapCenter(cityHit.point);
+              setSearchCenter(cityHit.point);
               setQuery('');
               setSheet('peek');
             }}>
