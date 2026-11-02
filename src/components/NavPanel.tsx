@@ -128,7 +128,7 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
 }
 
 /** Big instruction card floating over the map while navigating. */
-export function NavBanner({ step, toNext, onStop, voice, onVoice }: { step: NavStep; toNext: number | null; onStop: () => void; voice?: boolean; onVoice?: () => void }) {
+export function NavBanner({ step, toNext, onStop, onPrev, onNext, voice, onVoice }: { step: NavStep; toNext: number | null; onStop: () => void; onPrev?: () => void; onNext?: () => void; voice?: boolean; onVoice?: () => void }) {
   const L = useL();
   return (
     <div className="nav-banner" role="status" aria-live="polite">
@@ -137,6 +137,8 @@ export function NavBanner({ step, toNext, onStop, voice, onVoice }: { step: NavS
         {toNext !== null && <b>{formatMeters(toNext, L.lang)}</b>}
         <span>{step.instruction}</span>
       </span>
+      {onPrev && <button type="button" className="nb-step" onClick={onPrev}>{L('הקודם', 'Back')}</button>}
+      {onNext && <button type="button" className="nb-step" onClick={onNext}>{L('הבא', 'Next')}</button>}
       {onVoice && (
         <button type="button" onClick={onVoice} aria-pressed={voice} aria-label={voice ? L('השתקת ההנחיות הקוליות', 'Mute voice directions') : L('הפעלת הנחיות קוליות', 'Turn on voice directions')}>
           {voice ? '🔊' : '🔇'}

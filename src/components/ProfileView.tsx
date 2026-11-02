@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
-import { fetchPlacesAddedBy, fetchProfile, type PublicProfile } from '@/lib/places';
+import { fetchPlacesAddedBy, fetchProfile, setUserRole, type PublicProfile } from '@/lib/places';
 import { placeTypeLabel } from '@/lib/types';
 import { placeEmoji } from '@/lib/emoji';
 import { formatDate } from '@/lib/geo';
@@ -34,6 +34,23 @@ export default function ProfileView({ id }: { id: string }) {
   }, [sb, target, id, ready]);
 
   const mine = !!user && profile?.id === user.id;
+  // Site admins see role buttons on other people's profiles.
+  const [viewerAdmin, setViewerAdmin] = useState(false);
+  const [roleError, setRoleError] = useState('');
+  useEffect(() => {
+    if (!user || user.is_anonymous) { setViewerAdmin(false); return; }
+    fetchProfile(sb, user.id).then((p) => setViewerAdmin(p?.role === 'admin')).catch(() => setViewerAdmin(false));
+  }, [sb, user]);
+  const changeRole = async (next: PublicProfile['role']) => {
+    if (!profile) return;
+    setRoleError('');
+    try {
+      await setUserRole(sb, profile.id, next);
+      setProfile({ ...profile, role: next });
+    } catch {
+      setRoleError(L('השינוי לא נשמר. נסו שוב.', "The change wasn't saved. Please try again."));
+    }
+  };
   const role = profile?.role === 'admin' ? L('מנהל/ת', 'Admin') : profile?.role === 'trusted' ? L('מאשר/ת קהילה', 'Community moderator') : null;
 
   return (
@@ -62,8 +79,17 @@ export default function ProfileView({ id }: { id: string }) {
               <li><b>{profile.info_added}</b><span>{L('פרטי מידע שהוסיף/ה', 'pieces of info added')}</span></li>
               <li><b>{profile.confirmations}</b><span>{L('אישורים בקהילה', 'confirmations')}</span></li>
             </ul>
-            {mine && profile.role === 'user' && (
-              <p className="hint center">{L('אחרי שתוסיפו יותר מ-5 מקומות או תאשרו יותר מ-10 דברים, תהפכו למאשרי קהילה ותוכלו לתקן סיווגים ולטפל בדיווחים.', 'Add more than 5 places or confirm more than 10 things, and you become a community moderator who can fix guesses and handle reports.')}</p>
+            {viewerAdmin && !mine && (
+              <section className="role-admin" aria-label={L('הרשאות המשתמש', 'User permissions')}>
+                <h2>{L('הרשאות', 'Permissions')}</h2>
+                <div className="role-buttons">
+                  {([['user', L('משתמש/ת רגיל/ה', 'Regular user')], ['trusted', L('מאשר/ת קהילה', 'Community moderator')], ['admin', L('מנהל/ת', 'Admin')]] as const).map(([value, label]) => (
+                    <button key={value} type="button" className="btn" aria-pressed={profile.role === value} onClick={() => changeRole(value)}>{label}</button>
+                  ))}
+                </div>
+                <p className="muted">{L('מאשר/ת קהילה מטפל/ת בדיווחים. מנהל/ת יכול/ה גם למנות אחרים, ומה שמוסיף/ה מאושר מיד.', 'Moderators handle reports. Admins can also appoint others, and what they add is confirmed right away.')}</p>
+                {roleError && <div className="err" role="alert">{roleError}</div>}
+              </section>
             )}
             {mine && profile.role !== 'user' && (
               <p className="center"><Link className="btn" href="/admin">{L('לדיווחים ולבקשות', 'Reports and requests')}</Link></p>

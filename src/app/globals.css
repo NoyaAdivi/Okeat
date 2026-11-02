@@ -819,3 +819,14 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .allergy-note { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
 
 .more-info-title { margin: 10px 0 6px; font-size: 14px; font-weight: 600; color: var(--muted); }
+
+/* chosen location: moving through the turns by hand */
+.nav-banner .nb-step { margin-inline-start: 0; flex: none; padding: 7px 11px; border-radius: 12px; background: color-mix(in srgb, currentColor 16%, transparent); font-size: 14px; font-weight: 700; opacity: 1; }
+.nav-banner .nb-step + .nb-step { margin-inline-start: 4px; }
+
+/* admin: permissions on someone's profile */
+.role-admin { background: var(--surface); border-radius: 22px; padding: 16px 18px; display: grid; gap: 10px; box-shadow: var(--shadow-sm); margin-block: 14px; }
+.role-admin h2 { margin: 0; font-size: 18px; }
+.role-admin p { margin: 0; font-size: 14px; }
+.role-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.role-buttons .btn[aria-pressed="true"] { background: var(--peach-deep); color: var(--on-peach); }

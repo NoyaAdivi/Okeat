@@ -353,6 +353,12 @@ export interface PublicProfile {
   confirmations: number;
 }
 
+/** Site admins only; the database refuses anyone else. */
+export async function setUserRole(sb: SupabaseClient, id: string, role: PublicProfile['role']): Promise<void> {
+  const { error } = await sb.rpc('set_user_role', { p_user: id, p_role: role });
+  if (error) throw error;
+}
+
 export async function fetchProfile(sb: SupabaseClient, id: string): Promise<PublicProfile | null> {
   const { data, error } = await sb.rpc('public_profile', { p_id: id });
   if (error) throw error;

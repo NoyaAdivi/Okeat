@@ -435,6 +435,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     spokenStep.current = -1;
     if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${directions.minutes} דקות. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${directions.minutes} minutes. ${directions.steps[0]?.instruction ?? ''}`));
     setSheet('peek');
+    // A chosen location is not live GPS: the person moves through the turns with the buttons.
+    if (manualLabel) {
+      showToast(L('הניווט מתחיל מהמיקום שבחרת. לחצו "הבא" בכל פנייה.', 'Navigation starts from your chosen location. Press "Next" at each turn.'));
+      return;
+    }
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
         // A rough fix (computers guess by internet address, kilometers off) would make the
@@ -445,9 +450,18 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         }
         setMe({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
-      () => { if (!weakGpsWarned.current) { weakGpsWarned.current = true; showToast(L('אין גישה למיקום, אז הניווט לא יתקדם לבד. בטלפון עם מיקום מופעל הוא יעבוד.', "There's no access to your location, so navigation won't move on by itself. It works on a phone with location turned on.")); } },
+      () => { if (!weakGpsWarned.current) { weakGpsWarned.current = true; showToast(L('אין גישה למיקום. אפשרו מיקום בהגדרות הדפדפן, או בחרו מיקום ידנית בכפתור "המיקום שלי".', 'No access to your location. Allow location in your browser settings, or choose it with the "My location" button.')); } },
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 },
     );
+  };
+
+  /** With a chosen location: go to the next or previous turn by hand. */
+  const moveStep = (delta: number) => {
+    if (!directions) return;
+    const steps = directions.steps;
+    const i = Math.max(1, Math.min(steps.length - 1, stepIndex + delta));
+    setStepIndex(i);
+    setMe(steps[i - 1].location);
   };
 
   // Follow progress: distance to the next turn, advance steps, detect arrival.
@@ -660,7 +674,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         )}
 
         {currentStep ? (
-          <NavBanner step={currentStep} toNext={toNext} onStop={stopNav} voice={voice} onVoice={speechSupported() ? () => { setVoice((v) => !v); stopSpeaking(); } : undefined} />
+          <NavBanner step={currentStep} toNext={toNext} onStop={stopNav} onPrev={manualLabel ? () => moveStep(-1) : undefined} onNext={manualLabel ? () => moveStep(1) : undefined} voice={voice} onVoice={speechSupported() ? () => { setVoice((v) => !v); stopSpeaking(); } : undefined} />
         ) : pickingMe ? (
           <>
             <PickPin emoji="🧍" />
