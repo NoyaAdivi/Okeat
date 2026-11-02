@@ -1,7 +1,14 @@
 import { levelInfo, type Claim, type MapPoint, type Need, type Place } from './types';
 
-export const NEED_ORDER: Need[] = ['kosher', 'vegan', 'gluten_free'];
-export const NEED_CLASS: Record<Need, 'k' | 'v' | 'g'> = { kosher: 'k', vegan: 'v', gluten_free: 'g' };
+export const MAIN_NEEDS: Need[] = ['kosher', 'vegan', 'gluten_free'];
+export const EXTRA_NEEDS: Need[] = ['vegetarian', 'dairy_free', 'egg_free', 'peanut_free', 'nut_free', 'sesame_free', 'soy_free'];
+export const NEED_ORDER: Need[] = [...MAIN_NEEDS, ...EXTRA_NEEDS];
+/** colour class: k / v / g for the three main needs, e (pastel lilac) for the rest */
+export const NEED_CLASS: Record<Need, 'k' | 'v' | 'g' | 'e'> = {
+  kosher: 'k', vegan: 'v', gluten_free: 'g',
+  vegetarian: 'e', dairy_free: 'e', egg_free: 'e', peanut_free: 'e', nut_free: 'e', sesame_free: 'e', soy_free: 'e',
+};
+export const isMainNeed = (n: Need) => MAIN_NEEDS.includes(n);
 
 export const rankOf = (c: Claim) => levelInfo(c.need, c.level)?.rank ?? -1;
 
@@ -16,7 +23,7 @@ export const hasAnyVerified = (place: Place) => place.claims.some((c) => c.statu
 
 /** Kosher that shouldn't be shown as kosher: expired certificate or private supervision. */
 export function isWeakKosher(c: Claim): boolean {
-  return c.need === 'kosher' && (c.level === 'pikuach' || !!c.certificate?.expired);
+  return c.need === 'kosher' && (c.level === 'pikuach' || c.level === 'tzohar' || c.level === 'unknown' || !!c.certificate?.expired);
 }
 
 /** Imported from OpenStreetMap or guessed automatically, and not confirmed by anyone yet. */

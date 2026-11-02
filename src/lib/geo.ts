@@ -1,3 +1,5 @@
+import type { Lang } from './lang';
+
 export interface LatLng {
   lat: number;
   lng: number;
@@ -22,12 +24,14 @@ export function estimateWalk(meters: number) {
   return { meters: Math.round(walked / 10) * 10, minutes: Math.max(1, Math.round(walked / 80)) };
 }
 
-export function formatMeters(m: number): string {
+export function formatMeters(m: number, lang: Lang = 'he'): string {
+  if (lang === 'en') return m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
   return m < 1000 ? `${Math.round(m / 10) * 10} מ׳` : `${(m / 1000).toFixed(1)} ק״מ`;
 }
 
 /** "היום", "אתמול", "לפני 3 ימים", "לפני שבועיים"... */
-export function ago(iso: string | null): string {
+export function ago(iso: string | null, lang: Lang = 'he'): string {
+  if (lang === 'en') return agoEn(iso);
   if (!iso) return 'לא ידוע';
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   if (days <= 0) return 'היום';
@@ -39,6 +43,17 @@ export function ago(iso: string | null): string {
   }
   const m = Math.round(days / 30);
   return m === 1 ? 'לפני חודש' : m === 2 ? 'לפני חודשיים' : `לפני ${m} חודשים`;
+}
+
+function agoEn(iso: string | null): string {
+  if (!iso) return 'unknown';
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  if (days < 30) { const w = Math.round(days / 7); return w === 1 ? 'a week ago' : `${w} weeks ago`; }
+  const m = Math.round(days / 30);
+  return m === 1 ? 'a month ago' : `${m} months ago`;
 }
 
 export function formatDate(ymd: string): string {

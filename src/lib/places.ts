@@ -1,5 +1,6 @@
 import { matchesCuisine } from './cuisine';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { EXTRA_NEEDS } from './claims';
 import type { ExtractedCertificate, KosherLevel, Level, MapPoint, Need, NeedFilter, PendingClaim, Place } from './types';
 import type { LatLng } from './geo';
 
@@ -18,6 +19,19 @@ export async function ensureUser(sb: SupabaseClient) {
 // Data access. Every function takes a Supabase client so it works from
 // both the browser and the server.
 
+/**
+ * Vegetarian and allergy filters, as {"dairy_free": 1}. Only sent when one is on, so the site keeps
+ * working with a database that doesn't have migration 0008 yet.
+ */
+function extraParam(filter: NeedFilter): { p_extra?: Record<string, number> } {
+  const extra: Record<string, number> = {};
+  for (const n of EXTRA_NEEDS) {
+    const v = filter[n];
+    if (v !== null && v !== undefined) extra[n] = v;
+  }
+  return Object.keys(extra).length ? { p_extra: extra } : {};
+}
+
 export async function fetchNearby(
   sb: SupabaseClient,
   opts: { lat: number; lng: number; radiusM?: number; filter: NeedFilter; query?: string; limit?: number; cuisine?: string | null },
@@ -31,6 +45,7 @@ export async function fetchNearby(
     p_min_gluten_free: opts.filter.gluten_free,
     p_query: opts.query?.trim() || null,
     p_limit: opts.limit ?? 500,
+    ...extraParam(opts.filter),
   });
   if (error) throw error;
   const rows = (data ?? []) as Place[];
@@ -49,7 +64,7 @@ export async function fetchAllPlacesFallback(sb: SupabaseClient, filter: NeedFil
       .rpc('nearby_places', {
         p_lat: 31.4, p_lng: 35.0, p_radius_m: 450_000,
         p_min_kosher: filter.kosher, p_min_vegan: filter.vegan, p_min_gluten_free: filter.gluten_free,
-        p_query: query?.trim() || null, p_limit: 50_000,
+        p_query: query?.trim() || null, p_limit: 50_000, ...extraParam(filter),
       })
       .range(from, from + 999);
     if (error) throw error;
@@ -100,6 +115,7 @@ export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, que
         p_min_vegan: filter.vegan,
         p_min_gluten_free: filter.gluten_free,
         p_query: query?.trim() || null,
+        ...extraParam(filter),
       })
       .range(from, from + PAGE - 1);
     if (error) throw error;
@@ -222,10 +238,10 @@ export async function addPlace(
   return data.id as string;
 }
 
-/** Vegan and gluten-free claims. Kosher goes through proposeKosherClaim. */
+/** Any claim without a photo (kosher too, since migration 0008). A kosher certificate photo goes through proposeKosherClaim. */
 export async function proposeClaim(
   sb: SupabaseClient,
-  claim: { placeId: string; need: Exclude<Need, 'kosher'>; level: Level; note?: string },
+  claim: { placeId: string; need: Need; level: Level; note?: string },
 ) {
   const auth = { user: await ensureUser(sb) };
   const { error } = await sb.from('claims').insert({
@@ -278,4 +294,93 @@ export async function proposeKosherClaim(
 
 export function certificateUrl(sb: SupabaseClient, imagePath: string): string {
   return sb.storage.from('certificates').getPublicUrl(imagePath).data.publicUrl;
+}
+
+// ---------------------------------------------------------------- community (migration 0008)
+
+export interface PlaceMeta {
+  createdAt: string;
+  creator: { id: string; name: string; avatar: string | null } | null;
+  ownerVerified: boolean;
+  flagged: boolean;
+  reports: number;
+  iReported: boolean;
+  iRequestedOwner: boolean;
+  canModerate: boolean;
+  isAdmin: boolean;
+}
+
+/** Who added the place, owner badge, reports. null when the database doesn't have migration 0008 yet. */
+export async function fetchPlaceMeta(sb: SupabaseClient, placeId: string): Promise<PlaceMeta | null> {
+  const { data, error } = await sb.rpc('place_meta', { p_id: placeId });
+  if (error) return null;
+  return data as PlaceMeta | null;
+}
+
+export async function reportPlace(sb: SupabaseClient, placeId: string, reason: string) {
+  const { data } = await sb.auth.getUser();
+  if (!data.user || data.user.is_anonymous) throw new Error('Sign in with an account to report a place');
+  const { error } = await sb.from('place_reports').insert({ place_id: placeId, user_id: data.user.id, reason: reason.slice(0, 300) || null });
+  if (error) throw error;
+}
+
+export async function requestOwnership(sb: SupabaseClient, placeId: string): Promise<string> {
+  const { data, error } = await sb.rpc('request_ownership', { p_place: placeId });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function submitOwnershipProof(sb: SupabaseClient, placeId: string, url: string, note: string) {
+  const { error } = await sb.rpc('submit_ownership_proof', { p_place: placeId, p_url: url, p_note: note || null });
+  if (error) throw error;
+}
+
+export interface PublicProfile {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  role: 'user' | 'trusted' | 'admin';
+  joined_at: string;
+  places_added: number;
+  info_added: number;
+  confirmations: number;
+}
+
+export async function fetchProfile(sb: SupabaseClient, id: string): Promise<PublicProfile | null> {
+  const { data, error } = await sb.rpc('public_profile', { p_id: id });
+  if (error) throw error;
+  return ((data ?? []) as PublicProfile[])[0] ?? null;
+}
+
+export async function fetchPlacesAddedBy(sb: SupabaseClient, id: string): Promise<{ id: string; name: string; place_type: string; created_at: string }[]> {
+  const { data, error } = await sb.rpc('places_added_by', { p_id: id });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export interface ModerationQueue {
+  reported: { id: string; name: string; address: string | null; reports: number; reasons: string[] | null }[];
+  claims: { id: string; placeId: string; placeName: string; need: Need; level: Level; status: string; source: string; confirm: number; reject: number }[];
+  owners: { id: string; placeId: string; placeName: string; code: string; proofUrl: string; note: string | null; user: string; createdAt: string }[];
+}
+
+export async function fetchModerationQueue(sb: SupabaseClient): Promise<ModerationQueue> {
+  const { data, error } = await sb.rpc('moderation_queue');
+  if (error) throw error;
+  return data as ModerationQueue;
+}
+
+export async function moderatePlace(sb: SupabaseClient, placeId: string, remove: boolean) {
+  const { error } = await sb.rpc('moderate_place', { p_place: placeId, p_remove: remove });
+  if (error) throw error;
+}
+
+export async function moderateClaim(sb: SupabaseClient, claimId: string, verify: boolean) {
+  const { error } = await sb.rpc('moderate_claim', { p_claim: claimId, p_verify: verify });
+  if (error) throw error;
+}
+
+export async function decideOwnership(sb: SupabaseClient, requestId: string, approve: boolean) {
+  const { error } = await sb.rpc('decide_ownership', { p_request: requestId, p_approve: approve });
+  if (error) throw error;
 }

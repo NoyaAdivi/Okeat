@@ -20,4 +20,11 @@ export const NEED_EMOJI: Record<Need, string> = {
   kosher: '🍽️',
   vegan: '🌱',
   gluten_free: '🌾',
+  vegetarian: '🥦',
+  dairy_free: '🥛',
+  egg_free: '🥚',
+  peanut_free: '🥜',
+  nut_free: '🌰',
+  sesame_free: '🫓',
+  soy_free: '🫘',
 };

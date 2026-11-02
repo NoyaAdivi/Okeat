@@ -6,6 +6,7 @@ import { cuisineLabel } from '@/lib/cuisine';
 import { openStatus } from '@/lib/hours';
 import { estimateWalk } from '@/lib/geo';
 import Badges from './Badges';
+import { useL } from './LangProvider';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -20,6 +21,8 @@ interface Props {
 const PAGE = 40;
 
 export default function PlaceList({ places, loading, error, activeNeeds, onSelect, onReset }: Props) {
+  const L = useL();
+  const lang = L.lang;
   const [shown, setShown] = useState(PAGE);
   useEffect(() => setShown(PAGE), [places]);
 
@@ -32,17 +35,17 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
   }
   if (loading && places.length === 0) {
     return (
-      <div aria-busy="true" aria-label="טוען מקומות">
+      <div aria-busy="true" aria-label={L('טוען מקומות', 'Loading places')}>
         <div className="skeleton" /><div className="skeleton" /><div className="skeleton" />
       </div>
     );
   }
 
-  const word = places.length === 1 ? 'מקום אחד' : `${places.length} מקומות`;
+  const word = places.length === 1 ? L('מקום אחד', '1 place') : L(`${places.length} מקומות`, `${places.length} places`);
   const summary =
-    activeNeeds >= 2 ? <><b>{word}</b> מתאימים לכל הדרישות שבחרתם</> :
-    activeNeeds === 1 ? <><b>{word}</b> מתאימים</> :
-    <><b>{word}</b> בסביבה</>;
+    activeNeeds >= 2 ? <><b>{word}</b> {L('מתאימים לכל הדרישות שבחרתם', 'match everything you chose')}</> :
+    activeNeeds === 1 ? <><b>{word}</b> {L('מתאימים', 'match')}</> :
+    <><b>{word}</b> {L('בסביבה', 'nearby')}</>;
 
   if (places.length === 0) {
     return (
@@ -50,12 +53,12 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
         <p className="summary">{summary}</p>
         {activeNeeds > 0 ? (
           <div className="empty">
-            <p>אין כרגע מקום קרוב שעונה על כל הדרישות. אפשר להוריד רמה באחת מהן, או לחפש באזור אחר במפה.</p>
-            <button type="button" className="btn" onClick={onReset}>איפוס הסינון</button>
+            <p>{L('אין כרגע מקום קרוב שעונה על כל הדרישות. אפשר להוריד רמה באחת מהן, או לחפש באזור אחר במפה.', 'No place nearby matches everything right now. Try a lower level for one of them, or search another area on the map.')}</p>
+            <button type="button" className="btn" onClick={onReset}>{L('איפוס הסינון', 'Reset filters')}</button>
           </div>
         ) : (
           <div className="empty">
-            <p>עוד אין מקומות באזור הזה. מכירים מקום טוב? הוסיפו אותו, או הזיזו את המפה לאזור אחר.</p>
+            <p>{L('עוד אין מקומות באזור הזה. מכירים מקום טוב? הוסיפו אותו, או הזיזו את המפה לאזור אחר.', 'No places in this area yet. Know a good one? Add it, or move the map to another area.')}</p>
           </div>
         )}
       </>
@@ -67,7 +70,7 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
       <p className="summary" aria-live="polite">{summary}</p>
       <ul className="list">
         {places.slice(0, shown).map((p, i) => {
-          const st = openStatus(p.hours);
+          const st = openStatus(p.hours, lang);
           return (
             <li key={p.id} style={{ '--i': Math.min(i, 12) } as React.CSSProperties}>
               <button type="button" className="item" onClick={() => onSelect(p.id)}>
@@ -75,11 +78,11 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
                 <span className="row1">
                   <span className="nm">{p.name}</span>
                   {p.distance_m !== null && (
-                    <span className="dist">{estimateWalk(p.distance_m).minutes} דק׳ הליכה</span>
+                    <span className="dist">{L(`${estimateWalk(p.distance_m).minutes} דק׳ הליכה`, `${estimateWalk(p.distance_m).minutes} min walk`)}</span>
                   )}
                 </span>
                 <span className="row2">
-                  <span>{p.cuisine?.length ? p.cuisine.slice(0, 2).map(cuisineLabel).join(', ') : placeTypeLabel(p.place_type)}</span>
+                  <span>{p.cuisine?.length ? p.cuisine.slice(0, 2).map((c) => cuisineLabel(c, lang)).join(', ') : placeTypeLabel(p.place_type, lang)}</span>
                   <span className={st.open ? 'st-open' : undefined}>{st.text}</span>
                 </span>
                 <Badges place={p} />
@@ -90,7 +93,7 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
       </ul>
       {places.length > shown && (
         <button type="button" className="btn more" onClick={() => setShown((n) => n + PAGE)}>
-          עוד {Math.min(PAGE, places.length - shown)} מקומות
+          {L(`עוד ${Math.min(PAGE, places.length - shown)} מקומות`, `${Math.min(PAGE, places.length - shown)} more places`)}
         </button>
       )}
     </>

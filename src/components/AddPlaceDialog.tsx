@@ -4,8 +4,9 @@ import { useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Modal from './Modal';
 import CertificateCapture, { type CertificateValue } from './CertificateCapture';
-import { LEVELS, NEED_LABELS, PLACE_TYPES, type Level, type Need } from '@/lib/types';
-import { NEED_CLASS, NEED_ORDER } from '@/lib/claims';
+import { LEVELS, PLACE_TYPES, levelText, needLabel, placeTypeLabel, type Level, type Need } from '@/lib/types';
+import { useL } from './LangProvider';
+import { MAIN_NEEDS, NEED_CLASS, NEED_ORDER } from '@/lib/claims';
 import { addPlace, proposeClaim, proposeKosherClaim } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import type { LatLng } from '@/lib/geo';
@@ -18,13 +19,14 @@ interface Props {
   onDone: (placeId: string, warning?: string) => void;
 }
 
-function LevelPicker({ need, value, onChange }: { need: 'vegan' | 'gluten_free'; value: Level; onChange: (v: Level) => void }) {
+function LevelPicker({ need, value, onChange }: { need: Need; value: Level; onChange: (v: Level) => void }) {
+  const L = useL();
   return (
-    <div className="levels" role="radiogroup" aria-label={`רמה: ${NEED_LABELS[need].label}`}>
-      {LEVELS[need].map((l) => (
+    <div className="levels" role="radiogroup" aria-label={`${L('רמה', 'Level')}: ${needLabel(need, L.lang)}`}>
+      {LEVELS[need].filter((l) => l.value !== 'marked').map((l) => (
         <label key={l.value}>
           <input type="radio" name={`lvl-${need}`} value={l.value} checked={value === l.value} onChange={() => onChange(l.value)} />
-          {l.label}
+          {levelText(l, L.lang)}
         </label>
       ))}
     </div>
@@ -32,87 +34,102 @@ function LevelPicker({ need, value, onChange }: { need: 'vegan' | 'gluten_free';
 }
 
 export default function AddPlaceDialog({ sb, location, onClose, onDone }: Props) {
+  const L = useL();
+  const lang = L.lang;
   const [name, setName] = useState('');
   const [placeType, setPlaceType] = useState('restaurant');
   const [address, setAddress] = useState('');
-  const [needs, setNeeds] = useState<Record<Need, boolean>>({ kosher: false, vegan: false, gluten_free: false });
-  const [levels, setLevels] = useState<Record<'vegan' | 'gluten_free', Level>>({ vegan: 'options', gluten_free: 'menu' });
+  const [needs, setNeeds] = useState<Record<Need, boolean>>(() => Object.fromEntries(NEED_ORDER.map((n) => [n, false])) as Record<Need, boolean>);
+  const [levels, setLevels] = useState<Record<Need, Level>>(() =>
+    Object.fromEntries(NEED_ORDER.map((n) => [n, n === 'kosher' ? 'rabanut' : LEVELS[n][0].value])) as Record<Need, Level>);
+  const [withPhoto, setWithPhoto] = useState(false);
+  const [moreNeeds, setMoreNeeds] = useState(false);
   const [cert, setCert] = useState<CertificateValue | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const submit = async () => {
     setError('');
-    if (!name.trim()) return setError('צריך שם למקום.');
-    if (!NEED_ORDER.some((n) => needs[n])) return setError('סמנו לפחות דבר אחד: כשר, טבעוני או ללא גלוטן.');
-    if (needs.kosher && !cert) return setError('כדי לסמן כשרות צריך לצלם את התעודה ולוודא שכל השדות מלאים.');
+    if (!name.trim()) return setError(L('צריך שם למקום.', 'The place needs a name.'));
+    if (!NEED_ORDER.some((n) => needs[n])) return setError(L('סמנו לפחות דבר אחד, למשל כשר, טבעוני או ללא גלוטן.', 'Mark at least one thing, e.g. kosher, vegan or gluten-free.'));
+    if (needs.kosher && withPhoto && !cert) return setError(L('צלמו את התעודה ובדקו שהפרטים מלאים, או בטלו את הצילום.', 'Photograph the certificate and check the details, or turn the photo off.'));
 
     setBusy(true);
     let placeId: string | null = null;
     try {
       placeId = await addPlace(sb, { name: name.trim(), placeType, address: address.trim() || undefined, ...location });
-      for (const n of ['vegan', 'gluten_free'] as const) {
-        if (needs[n]) await proposeClaim(sb, { placeId, need: n, level: levels[n] });
+      for (const n of NEED_ORDER) {
+        if (!needs[n]) continue;
+        if (n === 'kosher' && withPhoto && cert) await proposeKosherClaim(sb, { placeId, ...cert });
+        else await proposeClaim(sb, { placeId, need: n, level: levels[n] });
       }
-      if (needs.kosher && cert) await proposeKosherClaim(sb, { placeId, ...cert });
       onDone(placeId);
     } catch (e) {
-      if (placeId) onDone(placeId, `המקום נוסף, אבל חלק מהפרטים לא נשמרו: ${friendly(e)}`);
+      if (placeId) onDone(placeId, L(`המקום נוסף, אבל חלק מהפרטים לא נשמרו: ${friendly(e)}`, `The place was added, but some details weren't saved: ${friendly(e, 'en')}`));
       else {
-        setError(friendly(e));
+        setError(friendly(e, lang));
         setBusy(false);
       }
     }
   };
 
   return (
-    <Modal title="מקום חדש" subtitle="מה שתוסיפו יופיע במפה אחרי ששלושה אנשים נוספים יאשרו." onClose={onClose}>
+    <Modal title={L('מקום חדש', 'New place')} subtitle={L('המקום יופיע במפה מיד, ומה שסימנתם יאושר אחרי ששלושה אנשים נוספים יאשרו.', 'The place appears on the map right away; what you marked is confirmed after three more people agree.')} onClose={onClose}>
       <div className="field">
-        <label htmlFor="add-name">שם המקום</label>
-        <input id="add-name" type="text" maxLength={120} placeholder="למשל: קפה הפינה" value={name} onChange={(e) => setName(e.target.value)} />
+        <label htmlFor="add-name">{L('שם המקום', "The place's name")}</label>
+        <input id="add-name" type="text" maxLength={120} placeholder={L('למשל: קפה הפינה', 'e.g. Corner Café')} value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <div className="grid2">
         <div className="field">
-          <label htmlFor="add-type">סוג</label>
+          <label htmlFor="add-type">{L('סוג', 'Type')}</label>
           <select id="add-type" value={placeType} onChange={(e) => setPlaceType(e.target.value)}>
-            {Object.entries(PLACE_TYPES).map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+            {Object.keys(PLACE_TYPES).map((v) => <option key={v} value={v}>{placeTypeLabel(v, lang)}</option>)}
           </select>
         </div>
         <div className="field">
-          <label htmlFor="add-address">כתובת (לא חובה)</label>
+          <label htmlFor="add-address">{L('כתובת (לא חובה)', 'Address (optional)')}</label>
           <input id="add-address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
       </div>
 
       <div className="field">
-        <span className="lab">מה יש שם?</span>
+        <span className="lab">{L('מה יש שם?', "What's there?")}</span>
         <div className="need-list">
-          {NEED_ORDER.map((n) => (
+          {(moreNeeds ? NEED_ORDER : MAIN_NEEDS).map((n) => (
             <div key={n} className={`need-box ${NEED_CLASS[n]}${needs[n] ? ' on' : ''}`}>
               <label>
                 <input type="checkbox" checked={needs[n]} onChange={(e) => setNeeds({ ...needs, [n]: e.target.checked })} />
-                {NEED_LABELS[n].label}
+                {needLabel(n, lang)}
               </label>
-              {needs[n] && n === 'kosher' && <CertificateCapture sb={sb} onChange={setCert} />}
-              {needs[n] && n !== 'kosher' && (
-                <LevelPicker
-                  need={n as 'vegan' | 'gluten_free'}
-                  value={levels[n as 'vegan' | 'gluten_free']}
-                  onChange={(v) => setLevels({ ...levels, [n as 'vegan' | 'gluten_free']: v })}
-                />
+              {needs[n] && (
+                <LevelPicker need={n} value={levels[n]} onChange={(v) => setLevels({ ...levels, [n]: v })} />
+              )}
+              {needs[n] && n === 'kosher' && (
+                <>
+                  <label className="small-check">
+                    <input type="checkbox" checked={withPhoto} onChange={(e) => setWithPhoto(e.target.checked)} />
+                    {L('יש לי צילום של התעודה (לא חובה)', 'I have a photo of the certificate (optional)')}
+                  </label>
+                  {withPhoto && <CertificateCapture sb={sb} onChange={setCert} />}
+                </>
               )}
             </div>
           ))}
         </div>
-        <span className="hint">כשרות נוספת רק עם צילום של התעודה.</span>
+        {!moreNeeds && (
+          <button type="button" className="link more-needs" onClick={() => setMoreNeeds(true)}>
+            + {L('צמחוני ואלרגיות (חלב, ביצים, בוטנים, אגוזים, שומשום, סויה)', 'Vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy)')}
+          </button>
+        )}
+        <span className="hint">{L('צילום של תעודת הכשרות לא חובה, אבל הוא מחזק את המידע.', "A photo of the kosher certificate isn't required, but it makes the information stronger.")}</span>
       </div>
 
       {error && <div className="err" role="alert">{error}</div>}
-      <p className="consent">בשליחה אתם מאשרים שהמידע נכון למיטב ידיעתכם, ומסכימים ל<a href="/terms" target="_blank" rel="noopener noreferrer">תנאי השימוש</a>.</p>
+      <p className="consent">{L('בשליחה אתם מאשרים שהמידע נכון למיטב ידיעתכם, ומסכימים ל', 'By sending you confirm the information is correct to the best of your knowledge, and agree to the ')}<a href="/terms" target="_blank" rel="noopener noreferrer">{L('תנאי השימוש', 'terms of use')}</a>.</p>
       <div className="modal-acts">
-        <button type="button" className="btn" onClick={onClose}>ביטול</button>
+        <button type="button" className="btn" onClick={onClose}>{L('ביטול', 'Cancel')}</button>
         <button type="button" className="btn primary" onClick={submit} disabled={busy}>
-          {busy ? 'שולח…' : 'שליחה לאישור הקהילה'}
+          {busy ? L('שולח…', 'Sending…') : L('שליחה לאישור הקהילה', 'Send for the community to confirm')}
         </button>
       </div>
     </Modal>

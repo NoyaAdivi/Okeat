@@ -38,7 +38,8 @@ export async function GET(req: NextRequest) {
   recent.push(now);
   hits.set(ip, recent);
 
-  const ck = `${name}|${lat.toFixed(5)}|${lng.toFixed(5)}`;
+  const lang = p.get('lang') === 'en' ? 'en' : 'he';
+  const ck = `${name}|${lat.toFixed(5)}|${lng.toFixed(5)}|${lang}`;
   const hit = cache.get(ck);
   if (hit && Date.now() - hit.at < TTL) return NextResponse.json(hit.data);
 
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
     headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': KEY, 'X-Goog-FieldMask': FIELDS },
     body: JSON.stringify({
       textQuery: name,
-      languageCode: 'he',
+      languageCode: lang,
       regionCode: 'IL',
       pageSize: 3,
       locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius: 250 } },

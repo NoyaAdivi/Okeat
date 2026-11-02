@@ -155,7 +155,14 @@ function claimsFor(t, name) {
   if (t['diet:gluten_free'] === 'only') add('gluten_free', 'kitchen', 'osm');
   else if (t['diet:gluten_free'] === 'yes') add('gluten_free', 'menu', 'osm');
 
+  // vegetarian and allergies (OpenStreetMap tags; needs database migration 0008)
+  if (t['diet:vegetarian'] === 'only') add('vegetarian', 'full', 'osm');
+  else if (t['diet:vegetarian'] === 'yes') add('vegetarian', 'options', 'osm');
+  if (t['diet:lactose_free'] === 'only' || t['diet:dairy_free'] === 'only') add('dairy_free', 'full', 'osm');
+  else if (t['diet:lactose_free'] === 'yes' || t['diet:dairy_free'] === 'yes') add('dairy_free', 'options', 'osm');
+
   if (/טבעונ|vegan/i.test(name)) add('vegan', 'full', 'auto');
+  if (/צמחונ|vegetarian/i.test(name)) add('vegetarian', 'full', 'auto');
   if (/ללא גלוטן|נטול גלוטן|gluten.?free/i.test(name)) add('gluten_free', 'menu', 'auto');
   if (/כשר|kosher|מהדרין|glatt|בד"?ץ/i.test(name)) add('kosher', 'marked', 'auto');
   return out;

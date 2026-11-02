@@ -1,5 +1,6 @@
 'use client';
 
+import { useL } from './LangProvider';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { fetchStats } from '@/lib/places';
@@ -9,6 +10,7 @@ type Counts = { places: number; kosher: number; vegan: number; gluten_free: numb
 
 /** Live numbers from the database, counting up once when they arrive. */
 export default function Stats() {
+  const L = useL();
   const sb = useMemo(() => createClient(), []);
   const [counts, setCounts] = useState<Counts | null>(null);
 
@@ -17,14 +19,14 @@ export default function Stats() {
   }, [sb]);
 
   const items: { key: keyof Counts; label: string; emoji: string; cls: string }[] = [
-    { key: 'places', label: 'מקומות במפה', emoji: '📍', cls: 'p' },
-    { key: 'kosher', label: 'כשרים', emoji: '🍽️', cls: 'k' },
-    { key: 'vegan', label: 'טבעוניים', emoji: '🌱', cls: 'v' },
-    { key: 'gluten_free', label: 'ללא גלוטן', emoji: '🌾', cls: 'g' },
+    { key: 'places', label: L('מקומות במפה', 'Places on the map'), emoji: '📍', cls: 'p' },
+    { key: 'kosher', label: L('כשרים', 'Kosher'), emoji: '🍽️', cls: 'k' },
+    { key: 'vegan', label: L('טבעוניים', 'Vegan'), emoji: '🌱', cls: 'v' },
+    { key: 'gluten_free', label: L('ללא גלוטן', 'Gluten-free'), emoji: '🌾', cls: 'g' },
   ];
 
   return (
-    <ul className="stats" aria-label="המספרים במפה">
+    <ul className="stats" aria-label={L('המספרים במפה', 'The map in numbers')}>
       {items.map((it) => (
         <li key={it.key} className={`stat ${it.cls}`}>
           <span className="stat-emoji" aria-hidden="true">{it.emoji}</span>
@@ -56,5 +58,5 @@ function CountUp({ value }: { value: number | null }) {
     const done = setTimeout(() => setShown(value), 1400);
     return () => { cancelAnimationFrame(raf.current); clearTimeout(done); };
   }, [value]);
-  return <b className="stat-num">{value === null ? '…' : shown.toLocaleString('he-IL')}</b>;
+  return <b className="stat-num">{value === null ? '…' : shown.toLocaleString('en-US')}</b>;
 }

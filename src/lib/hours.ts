@@ -1,7 +1,9 @@
 import type { WeeklyHours } from './types';
+import type { Lang } from './lang';
 
 const TZ = 'Asia/Jerusalem';
 const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAY: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
 const toMin = (t: string) => {
@@ -27,20 +29,25 @@ export function isOpen(hours: WeeklyHours | null, now = new Date()): boolean {
 }
 
 /** "פתוח עד 22:00", "סגור, נפתח מחר ב-08:00", "סגור, נפתח במוצאי שבת ב-19:30" */
-export function openStatus(hours: WeeklyHours | null, now = new Date()): { open: boolean; text: string } {
-  if (!hours) return { open: false, text: 'שעות פתיחה עוד לא נוספו' };
+export function openStatus(hours: WeeklyHours | null, lang: Lang = 'he', now = new Date()): { open: boolean; text: string } {
+  const en = lang === 'en';
+  if (!hours) return { open: false, text: en ? 'Opening hours not added yet' : 'שעות פתיחה עוד לא נוספו' };
   const { day, minutes } = israelNow(now);
 
   const current = (rangesFor(hours, day) ?? []).find(([a, b]) => minutes >= toMin(a) && minutes < toMin(b));
-  if (current) return { open: true, text: `פתוח עד ${current[1]}` };
+  if (current) return { open: true, text: en ? `Open until ${current[1]}` : `פתוח עד ${current[1]}` };
 
   for (let i = 0; i < 8; i++) {
     const d = (day + i) % 7;
     const next = (rangesFor(hours, d) ?? []).find(([a]) => i > 0 || toMin(a) > minutes);
     if (!next) continue;
+    if (en) {
+      const when = i === 0 ? 'today' : i === 1 ? 'tomorrow' : `on ${DAYS_EN[d]}`;
+      return { open: false, text: `Closed, opens ${when} at ${next[0]}` };
+    }
     let when = i === 0 ? 'היום' : i === 1 ? 'מחר' : `ביום ${DAYS[d]}`;
     if (d === 6 && toMin(next[0]) >= 18 * 60) when = 'במוצאי שבת';
     return { open: false, text: `סגור, נפתח ${when} ב-${next[0]}` };
   }
-  return { open: false, text: 'סגור' };
+  return { open: false, text: en ? 'Closed' : 'סגור' };
 }

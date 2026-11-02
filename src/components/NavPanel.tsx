@@ -2,6 +2,7 @@
 
 import { TRAVEL_MODES, arrowRotation, eta, type Directions, type NavStep, type TravelMode } from '@/lib/directions';
 import { formatMeters, googleMapsUrl, wazeUrl, type LatLng } from '@/lib/geo';
+import { useL } from './LangProvider';
 
 const MODE_ICON: Record<TravelMode, React.ReactNode> = {
   walking: (
@@ -48,6 +49,8 @@ interface Props {
 }
 
 export default function NavPanel({ place, hasLocation, mode, directions, loading, navigating, stepIndex, toNext, onMode, onStart, onStop, onSetLocation }: Props) {
+  const L = useL();
+  const lang = L.lang;
   const external = (
     <div className="nav-ext">
       <a href={wazeUrl(place)} target="_blank" rel="noopener noreferrer">Waze</a>
@@ -58,11 +61,11 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
   if (!hasLocation) {
     return (
       <div className="nav">
-        <p className="nav-note">כדי לנווט מכאן צריך לדעת איפה אתם: לאשר לאתר לראות את המיקום, או לבחור אותו בעצמכם.</p>
+        <p className="nav-note">{L('כדי לנווט מכאן צריך לדעת איפה אתם: לאשר לאתר לראות את המיקום, או לבחור אותו בעצמכם.', 'To navigate from here we need to know where you are: allow the site to see your location, or choose it yourself.')}</p>
         {onSetLocation && (
-          <button type="button" className="btn primary nav-setloc" onClick={onSetLocation}>📍 בחירת המיקום שלי</button>
+          <button type="button" className="btn primary nav-setloc" onClick={onSetLocation}>📍 {L('בחירת המיקום שלי', 'Choose my location')}</button>
         )}
-        <p className="nav-note">או לפתוח באפליקציית ניווט:</p>
+        <p className="nav-note">{L('או לפתוח באפליקציית ניווט:', 'Or open in a navigation app:')}</p>
         {external}
       </div>
     );
@@ -70,48 +73,48 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
 
   return (
     <div className={`nav${navigating ? ' on' : ''}`}>
-      <div className="modes" role="radiogroup" aria-label="איך מגיעים">
+      <div className="modes" role="radiogroup" aria-label={L('איך מגיעים', 'How to get there')}>
         {TRAVEL_MODES.map((m) => (
           <button key={m.mode} type="button" role="radio" aria-checked={mode === m.mode} className="mode" onClick={() => onMode(m.mode)} disabled={navigating && mode !== m.mode}>
             {MODE_ICON[m.mode]}
-            {m.label}
+            {lang === 'en' ? m.en : m.label}
           </button>
         ))}
       </div>
 
       <div className="nav-sum" aria-live="polite">
         {loading || !directions ? (
-          <span className="nav-time">{loading ? 'מחשב מסלול…' : 'לא נמצא מסלול'}</span>
+          <span className="nav-time">{loading ? L('מחשב מסלול…', 'Finding a route…') : L('לא נמצא מסלול', 'No route found')}</span>
         ) : (
           <>
-            <span className="nav-time">{directions.minutes}<small> דק׳</small></span>
+            <span className="nav-time">{directions.minutes}<small> {L('דק׳', 'min')}</small></span>
             <span className="nav-meta">
-              {formatMeters(directions.meters)}
+              {formatMeters(directions.meters, lang)}
               <br />
-              הגעה ב-{eta(directions.minutes)}
+              {L('הגעה ב-', 'Arrive at ')}{eta(directions.minutes)}
             </span>
           </>
         )}
         {navigating ? (
-          <button type="button" className="btn stop" onClick={onStop}>סיום</button>
+          <button type="button" className="btn stop" onClick={onStop}>{L('סיום', 'Stop')}</button>
         ) : (
           <button type="button" className="btn go-btn" onClick={onStart} disabled={!directions}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l14-7-5 15-2-6z" /></svg>
-            יציאה לדרך
+            {L('יציאה לדרך', 'Start')}
           </button>
         )}
       </div>
 
       {directions && directions.steps.length > 0 && (
         <details className="steps" open={navigating}>
-          <summary>{directions.steps.length} שלבים בדרך</summary>
+          <summary>{L(`${directions.steps.length} שלבים בדרך`, `${directions.steps.length} steps on the way`)}</summary>
           <ol>
             {directions.steps.map((s, i) => (
               <li key={i} className={navigating && i === stepIndex ? 'cur' : navigating && i < stepIndex ? 'done' : undefined}>
                 <TurnArrow step={s} />
                 <span className="ins">{s.instruction}</span>
                 <span className="d">
-                  {navigating && i === stepIndex && toNext !== null ? formatMeters(toNext) : s.distance > 0 ? formatMeters(s.distance) : ''}
+                  {navigating && i === stepIndex && toNext !== null ? formatMeters(toNext, lang) : s.distance > 0 ? formatMeters(s.distance, lang) : ''}
                 </span>
               </li>
             ))}
@@ -126,19 +129,20 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
 
 /** Big instruction card floating over the map while navigating. */
 export function NavBanner({ step, toNext, onStop, voice, onVoice }: { step: NavStep; toNext: number | null; onStop: () => void; voice?: boolean; onVoice?: () => void }) {
+  const L = useL();
   return (
     <div className="nav-banner" role="status" aria-live="polite">
       <span className="nb-arrow"><TurnArrow step={step} size={34} /></span>
       <span className="nb-text">
-        {toNext !== null && <b>{formatMeters(toNext)}</b>}
+        {toNext !== null && <b>{formatMeters(toNext, L.lang)}</b>}
         <span>{step.instruction}</span>
       </span>
       {onVoice && (
-        <button type="button" onClick={onVoice} aria-pressed={voice} aria-label={voice ? 'השתקת ההנחיות הקוליות' : 'הפעלת הנחיות קוליות'}>
+        <button type="button" onClick={onVoice} aria-pressed={voice} aria-label={voice ? L('השתקת ההנחיות הקוליות', 'Mute voice directions') : L('הפעלת הנחיות קוליות', 'Turn on voice directions')}>
           {voice ? '🔊' : '🔇'}
         </button>
       )}
-      <button type="button" onClick={onStop} aria-label="סיום ניווט">✕</button>
+      <button type="button" onClick={onStop} aria-label={L('סיום ניווט', 'Stop navigation')}>✕</button>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cachedMapPoints, certificateUrl, clearPointsCache, fetchAllPlacesFallback, fetchMapPoints, fetchMyVotes, fetchNearby, fetchPlace, fetchQueue, vote } from '@/lib/places';
-import { placeToPoint } from '@/lib/claims';
+import { NEED_ORDER, placeToPoint } from '@/lib/claims';
 import { matchesCuisine } from '@/lib/cuisine';
 import type { MapPoint, Need, NeedFilter, PendingClaim, Place } from '@/lib/types';
 import { isOpen } from '@/lib/hours';
@@ -27,16 +27,24 @@ import AuthDialog from './AuthDialog';
 import AddPlaceDialog from './AddPlaceDialog';
 import CertificateDialog from './CertificateDialog';
 import AddInfoDialog from './AddInfoDialog';
+import PlaceCommunity from './PlaceCommunity';
 import LocationPicker from './LocationPicker';
+import DisplayToggles from './DisplayToggles';
+import { useL } from './LangProvider';
 import type { FocusRequest, RouteLine } from './MapView';
 
 // Mapbox touches `window`, so the map renders on the client only.
 const MapView = dynamic(() => import('./MapView'), {
   ssr: false,
-  loading: () => <div className="map-msg">טוען מפה…</div>,
+  loading: () => <MapLoading />,
 });
 
-const NO_FILTER: NeedFilter = { kosher: null, vegan: null, gluten_free: null };
+function MapLoading() {
+  const L = useL();
+  return <div className="map-msg">{L('טוען מפה…', 'Loading the map…')}</div>;
+}
+
+const NO_FILTER = Object.fromEntries(NEED_ORDER.map((n) => [n, null])) as NeedFilter;
 /** The list grows outward until it has enough places: 3 km, 15 km, 60 km, then all of Israel. */
 const RADII_M = [3000, 15_000, 60_000, 450_000];
 const TOKEN = MAPBOX_TOKEN;
@@ -69,6 +77,8 @@ interface Props {
 }
 
 export default function MapScreen({ initialPlaceId = null, authError = false, initialNeed = null, addOnLoad = false }: Props) {
+  const L = useL();
+  const lang = L.lang;
   const sb = useMemo(() => createClient(), []);
   const { user, ready } = useUser(sb);
 
@@ -130,7 +140,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [manualLabel, setManualLabel] = useState<string | null>(null);
   const [addAt, setAddAt] = useState<LatLng | null>(null);
   const [certFor, setCertFor] = useState<Place | null>(null);
-  const [infoFor, setInfoFor] = useState<{ place: Place; need: 'vegan' | 'gluten_free' } | null>(null);
+  const [infoFor, setInfoFor] = useState<{ place: Place; need: Need } | null>(null);
 
   const [toast, setToast] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -143,7 +153,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   }, []);
 
   useEffect(() => {
-    if (authError) showToast('ההתחברות לא הצליחה. נסו שוב.');
+    if (authError) showToast(L('ההתחברות לא הצליחה. נסו שוב.', 'Sign-in failed. Please try again.'));
   }, [authError, showToast]);
 
   // 1. Find the person.
@@ -203,7 +213,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       return rows;
     })()
       .then((rows) => !cancelled && setPlaces(rows))
-      .catch(() => !cancelled && setError('לא הצלחנו לטעון מקומות. בדקו את החיבור ונסו שוב.'))
+      .catch(() => !cancelled && setError(L('לא הצלחנו לטעון מקומות. בדקו את החיבור ונסו שוב.', "We couldn't load places. Check your connection and try again.")))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
@@ -295,7 +305,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       }
       if (!TOKEN) return;
       setDirLoading(true);
-      const d = await fetchDirections(TOKEN, m, from, place).catch(() => null);
+      const d = await fetchDirections(TOKEN, m, from, place, lang).catch(() => null);
       if (req !== routeRequest.current) return; // a newer request won
       if (d || !keepOld) setDirections(d);
       setStraight(null); // the dashed guess is only shown while the real route loads
@@ -319,7 +329,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       let place = places.find((p) => p.id === id) ?? null;
       if (!place) place = await fetchPlace(sb, id, me ?? searchCenter).catch(() => null);
       if (!place) {
-        showToast('לא מצאנו את המקום הזה. ייתכן שהוא נמחק.');
+        showToast(L('לא מצאנו את המקום הזה. ייתכן שהוא נמחק.', "We couldn't find this place. It may have been removed."));
         return;
       }
       setSelectedFallback(place);
@@ -371,15 +381,15 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     saveManual({ ...loc, label });
     setFocus({ key: Date.now(), points: selected ? [loc, selected] : [loc] });
     if (selected) loadRoute(selected, loc, modeChosen.current ? mode : modeFor(haversine(loc, selected)));
-    showToast(`המיקום שלך עודכן: ${label}`);
+    showToast(L(`המיקום שלך עודכן: ${label}`, `Your location was updated: ${label}`));
   };
 
   const locateMe = () => {
     setLocOpen(false);
     setManualLabel(null);
     saveManual(null);
-    if (!('geolocation' in navigator)) return showToast('הדפדפן הזה לא תומך במיקום.');
-    showToast('מאתרים אותך…');
+    if (!('geolocation' in navigator)) return showToast(L('הדפדפן הזה לא תומך במיקום.', "This browser doesn't support location."));
+    showToast(L('מאתרים אותך…', 'Finding you…'));
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -388,10 +398,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         setSearchCenter(loc);
         setFocus({ key: Date.now(), points: [loc] });
         setFollowPaused(false);
-        if (pos.coords.accuracy > 1500) showToast('המיקום לא מדויק (כנראה לפי האינטרנט). בטלפון הוא יהיה מדויק יותר.');
+        if (pos.coords.accuracy > 1500) showToast(L('המיקום לא מדויק (כנראה לפי האינטרנט). בטלפון הוא יהיה מדויק יותר.', 'The location is not accurate (probably from your internet connection). It will be more accurate on a phone.'));
         else setToast('');
       },
-      () => showToast('לא קיבלנו את המיקום. בדקו שהרשיתם לאתר לראות מיקום.'),
+      () => showToast(L('לא קיבלנו את המיקום. בדקו שהרשיתם לאתר לראות מיקום.', "We didn't get your location. Check that the site is allowed to see it.")),
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
     );
   };
@@ -410,19 +420,19 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     lastReroute.current = Date.now();
     setStepIndex(1);
     spokenStep.current = -1;
-    if (voice && speechSupported()) speak(`יוצאים לדרך ל${selected.name}. ${directions.minutes} דקות. ${directions.steps[0]?.instruction ?? ''}`);
+    if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${directions.minutes} דקות. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${directions.minutes} minutes. ${directions.steps[0]?.instruction ?? ''}`));
     setSheet('peek');
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
         // A rough fix (computers guess by internet address, kilometers off) would make the
         // route jump around or "arrive" by mistake, so only accurate readings move you.
         if (pos.coords.accuracy > 150) {
-          if (!weakGpsWarned.current) { weakGpsWarned.current = true; showToast('המיקום במכשיר הזה לא מדויק. הניווט עובד הכי טוב בטלפון.'); }
+          if (!weakGpsWarned.current) { weakGpsWarned.current = true; showToast(L('המיקום במכשיר הזה לא מדויק. הניווט עובד הכי טוב בטלפון.', 'The location on this device is not accurate. Navigation works best on a phone.')); }
           return;
         }
         setMe({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
-      () => { if (!weakGpsWarned.current) { weakGpsWarned.current = true; showToast('אין גישה למיקום, אז הניווט לא יתקדם לבד. בטלפון עם מיקום מופעל הוא יעבוד.'); } },
+      () => { if (!weakGpsWarned.current) { weakGpsWarned.current = true; showToast(L('אין גישה למיקום, אז הניווט לא יתקדם לבד. בטלפון עם מיקום מופעל הוא יעבוד.', "There's no access to your location, so navigation won't move on by itself. It works on a phone with location turned on.")); } },
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 },
     );
   };
@@ -433,14 +443,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     const steps = directions.steps;
     if (haversine(me, selected) < NEAR_M[mode] + 10) {
       stopNav();
-      showToast(`הגעת ל${selected.name}! בתיאבון 🎉`);
-      if (voice) speak(`הגעת ל${selected.name}. בתיאבון!`);
+      showToast(L(`הגעת ל${selected.name}! בתיאבון 🎉`, `You've arrived at ${selected.name}! Enjoy your meal 🎉`));
+      if (voice) speak(L(`הגעת ל${selected.name}. בתיאבון!`, `You've arrived at ${selected.name}. Enjoy your meal!`));
       return;
     }
     // Left the route: ask for a new one from here (at most every 12 seconds).
     if (distanceToLine(me, directions.geometry.coordinates) > OFF_ROUTE_M[mode] && Date.now() - lastReroute.current > 12000) {
       lastReroute.current = Date.now();
-      showToast('מחשבים מסלול חדש…');
+      showToast(L('מחשבים מסלול חדש…', 'Finding a new route…'));
       loadRoute(selected, me, mode, true).then(() => setStepIndex(1));
       return;
     }
@@ -463,7 +473,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     const step = directions.steps[stepIndex];
     if (!step || toNext === null) return;
     spokenStep.current = stepIndex;
-    speak(toNext > 40 ? `בעוד ${formatMeters(toNext).replace('מ׳', 'מטר').replace('ק״מ', 'קילומטר')}, ${step.instruction}` : step.instruction, { interrupt: false });
+    speak(toNext > 40
+      ? (lang === 'en' ? `In ${formatMeters(toNext, 'en').replace(' km', ' kilometers').replace(' m', ' meters')}, ${step.instruction}` : `בעוד ${formatMeters(toNext).replace('מ׳', 'מטר').replace('ק״מ', 'קילומטר')}, ${step.instruction}`)
+      : step.instruction, { interrupt: false });
   }, [navigating, voice, directions, stepIndex, toNext]);
 
   useEffect(() => () => {
@@ -516,10 +528,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         await vote(sb, claimId, value);
         setVoted((m) => new Map(m).set(claimId, value));
         setQueue((q) => q.filter((x) => x.claim_id !== claimId));
-        showToast(value === 1 ? 'תודה, האישור נרשם' : 'תודה. הדיווח נשלח לבדיקה של הקהילה');
+        showToast(value === 1 ? L('תודה, האישור נרשם', 'Thanks, your confirmation was saved') : L('תודה. הדיווח נשלח לבדיקה של הקהילה', 'Thanks. Your report was sent for the community to check'));
         refreshSelected();
       } catch (e) {
-        showToast(friendly(e));
+        showToast(friendly(e, lang));
       }
     },
     [sb, showToast, refreshSelected],
@@ -529,13 +541,15 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     deselect();
     setPicking(true);
     setSheet('peek');
+    // start the pin on the spot in the middle of what the person is looking at
+    setFocus({ key: Date.now(), points: [viewCenter ?? mapCenter], exact: true });
   };
 
   const share = async (place: Place) => {
     const url = `${window.location.origin}/place/${place.id}`;
     try {
       await navigator.clipboard.writeText(url);
-      showToast('הקישור הועתק');
+      showToast(L('הקישור הועתק', 'Link copied'));
     } catch {
       showToast(url);
     }
@@ -549,8 +563,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   };
 
   const route = directions?.geometry ?? (dirLoading ? straight : null);
-  const activeNeeds = Object.values(filter).filter((v) => v !== null).length;
+  const activeNeeds = Object.values(filter).filter((v) => v !== null && v !== undefined).length;
   const showSearchHere = false;
+  const swipe = useRef<{ y: number; t: number; scrolled: boolean } | null>(null);
   const cycleSheet = () => setSheet((s) => (s === 'peek' ? 'half' : s === 'half' ? 'full' : 'peek'));
   const currentStep = navigating && directions ? directions.steps[Math.min(stepIndex, directions.steps.length - 1)] : null;
 
@@ -560,7 +575,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         {!TOKEN ? (
           <div className="map-msg">חסר NEXT_PUBLIC_MAPBOX_TOKEN בקובץ ‎.env.local</div>
         ) : located === 'pending' ? (
-          <div className="map-msg"><Logo size={64} /><span>מאתרים את המיקום שלך…</span></div>
+          <div className="map-msg"><Logo size={64} /><span>{L('מאתרים את המיקום שלך…', 'Finding your location…')}</span></div>
         ) : (
           <MapView
             initialCenter={searchCenter}
@@ -575,6 +590,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             onCenter={setViewCenter}
             follow={navigating && !followPaused}
             onUserDrag={() => navigating && setFollowPaused(true)}
+            lang={lang}
           />
         )}
 
@@ -583,38 +599,39 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         ) : pickingMe ? (
           <>
             <div className="pick-pin" aria-hidden="true"><span className="pin-head">🧍</span><span className="pin-shadow" /></div>
-            <div className="pickbar" role="dialog" aria-label="בחירת המיקום שלי">
-              <span>הזיזו את המפה כך שהסימן יעמוד במקום שבו אתם נמצאים</span>
+            <div className="pickbar" role="dialog" aria-label={L('בחירת המיקום שלי', 'Choose my location')}>
+              <span>{L('הזיזו את המפה כך שהסימן יעמוד במקום שבו אתם נמצאים', 'Move the map so the figure stands where you are')}</span>
               <span className="pick-acts">
-                <button type="button" className="ok" onClick={() => setMyLocation(viewCenter ?? mapCenter, 'נבחר על המפה')}>אני כאן</button>
-                <button type="button" onClick={() => setPickingMe(false)}>ביטול</button>
+                <button type="button" className="ok" onClick={() => setMyLocation(viewCenter ?? mapCenter, L('נבחר על המפה', 'Picked on the map'))}>{L('אני כאן', "I'm here")}</button>
+                <button type="button" onClick={() => setPickingMe(false)}>{L('ביטול', 'Cancel')}</button>
               </span>
             </div>
           </>
         ) : picking ? (
           <>
             <div className="pick-pin" aria-hidden="true"><span className="pin-head">📍</span><span className="pin-shadow" /></div>
-            <div className="pickbar" role="dialog" aria-label="בחירת מיקום למקום חדש">
-              <span>הזיזו את המפה כך שהסיכה תעמוד על המקום</span>
+            <div className="pickbar" role="dialog" aria-label={L('בחירת מיקום למקום חדש', 'Choose the spot for a new place')}>
+              <span>{L('הזיזו את המפה כך שהסיכה תעמוד על המקום', 'Move the map so the pin stands on the place')}</span>
               <span className="pick-acts">
-                <button type="button" className="ok" onClick={() => { setPicking(false); setAddAt(viewCenter ?? mapCenter); }}>זה המקום</button>
-                <button type="button" onClick={() => setPicking(false)}>ביטול</button>
+                <button type="button" className="ok" onClick={() => { setPicking(false); setAddAt(viewCenter ?? mapCenter); }}>{L('זה המקום', "That's the place")}</button>
+                <button type="button" onClick={() => setPicking(false)}>{L('ביטול', 'Cancel')}</button>
               </span>
             </div>
           </>
         ) : showSearchHere ? (
           <button type="button" className="search-here" onClick={() => setSearchCenter(mapCenter)}>
-            חיפוש באזור הזה
+            {L('חיפוש באזור הזה', 'Search this area')}
           </button>
         ) : located === 'fallback' ? (
-          <div className="notice">לא קיבלנו את המיקום שלך, אז מוצגת רמת גן. אפשר להזיז את המפה ולחפש באזור אחר.</div>
+          <div className="notice">{L('לא קיבלנו את המיקום שלך, אז מוצגת רמת גן. אפשר להזיז את המפה ולחפש באזור אחר.', "We didn't get your location, so Ramat Gan is shown. You can move the map and search another area.")}</div>
         ) : null}
 
         {locOpen && (
           <LocationPicker
             manualLabel={manualLabel}
+            near={viewCenter ?? me ?? mapCenter}
             onGps={locateMe}
-            onPickOnMap={() => { setLocOpen(false); stopNav(); setPickingMe(true); setSheet('peek'); if (me) setFocus({ key: Date.now(), points: [me] }); }}
+            onPickOnMap={() => { setLocOpen(false); stopNav(); setPickingMe(true); setSheet('peek'); if (me) setFocus({ key: Date.now(), points: [me], exact: true }); }}
             onChoose={setMyLocation}
             onClose={() => setLocOpen(false)}
           />
@@ -623,14 +640,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         {TOKEN && located !== 'pending' && !picking && !pickingMe && (
           <div className="map-tools">
             {navigating && followPaused ? (
-              <button type="button" className="map-tool wide" onClick={() => setFollowPaused(false)}>🧭 חזרה למסלול</button>
+              <button type="button" className="map-tool wide" onClick={() => setFollowPaused(false)}>🧭 {L('חזרה למסלול', 'Back to the route')}</button>
             ) : (
               <button type="button" className={`map-tool wide${manualLabel ? ' manual' : ''}`} onClick={() => setLocOpen((o) => !o)} aria-expanded={locOpen} aria-haspopup="dialog">
-                📍 {manualLabel ? 'המיקום שבחרתי' : 'המיקום שלי'}
+                📍 {manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}
               </button>
             )}
             {route && !navigating && (
-              <button type="button" className="map-tool wide" onClick={clearRoute}>✕ הסתרת המסלול</button>
+              <button type="button" className="map-tool wide" onClick={clearRoute}>✕ {L('הסתרת המסלול', 'Hide the route')}</button>
             )}
           </div>
         )}
@@ -638,39 +655,50 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         {!picking && !pickingMe && !navigating && TOKEN && located !== 'pending' && (
           <button type="button" className="fab" onClick={startAdd}>
             <svg viewBox="0 0 24 24" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-            הוספת מקום
+            {L('הוספת מקום', 'Add a place')}
           </button>
         )}
       </div>
 
-      <aside className="panel" aria-label="מקומות" id="main" data-read-root>
-        <button type="button" className="sheet-handle" onClick={cycleSheet} aria-label="הגדלה או הקטנה של הרשימה">
+      <aside className="panel" aria-label={L('מקומות', 'Places')} id="main" data-read-root
+        onTouchStart={(e) => { swipe.current = { y: e.touches[0].clientY, t: Date.now(), scrolled: (bodyRef.current?.scrollTop ?? 0) > 0 }; }}
+        onTouchEnd={(e) => {
+          const s0 = swipe.current;
+          swipe.current = null;
+          if (!s0 || Date.now() - s0.t > 700) return;
+          const dy = e.changedTouches[0].clientY - s0.y;
+          // swipe up: bigger; swipe down (when the list is at its top): smaller
+          if (dy < -40) setSheet((v) => (v === 'peek' ? 'half' : 'full'));
+          else if (dy > 40 && !s0.scrolled) setSheet((v) => (v === 'full' ? 'half' : 'peek'));
+        }}>
+        <button type="button" className="sheet-handle" onClick={cycleSheet} aria-label={L('הגדלה או הקטנה של הרשימה', 'Make the list bigger or smaller')}>
           <span />
         </button>
         <div className="panel-head">
           <div className="brand">
-            <Link href="/" className="brand-home" aria-label="Okeat, לדף הבית">
+            <Link href="/" className="brand-home" aria-label={L('Okeat, לדף הבית', 'Okeat, home page')}>
               <Logo size={44} />
               <span className="brand-text">
                 <span className="h1">okeat</span>
-                <span className="tag">איפה באמת אפשר לאכול</span>
+                <span className="tag">{L('איפה באמת אפשר לאכול', 'Where you can really eat')}</span>
               </span>
             </Link>
+            <DisplayToggles compact />
             <AccountButton
               sb={sb}
               user={user}
               ready={ready}
               onSignIn={() => setAuth({})}
-              onSignedOut={() => showToast('התנתקת')}
+              onSignedOut={() => showToast(L('התנתקת', 'You signed out'))}
             />
           </div>
           <div className="search">
             <svg viewBox="0 0 24 24" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-            <label className="vh" htmlFor="q">חיפוש מקום</label>
+            <label className="vh" htmlFor="q">{L('חיפוש מקום', 'Search for a place')}</label>
             <input
               id="q"
               type="search"
-              placeholder="חיפוש לפי שם או סוג מקום"
+              placeholder={L('חיפוש לפי שם או סוג מקום', 'Search by name or type of place')}
               autoComplete="off"
               value={query}
               onChange={(e) => {
@@ -682,11 +710,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             />
           </div>
           <div className="tabs" role="tablist">
-            <button type="button" role="tab" className="tab" aria-selected={tab === 'near'} onClick={() => setTab('near')}>
-              בסביבה
+            <button type="button" role="tab" className="tab" aria-selected={tab === 'near'} onClick={() => { setTab('near'); if (sheet === 'peek') setSheet('half'); }}>
+              {L('בסביבה', 'Nearby')}
             </button>
-            <button type="button" role="tab" className="tab" aria-selected={tab === 'queue'} onClick={() => { setTab('queue'); deselect(); }}>
-              לאישור הקהילה {queue.length > 0 && <span className="count">{queue.length}</span>}
+            <button type="button" role="tab" className="tab" aria-selected={tab === 'queue'} onClick={() => { setTab('queue'); deselect(); if (sheet === 'peek') setSheet('half'); }}>
+              {L('לאישור הקהילה', 'For the community to confirm')} {queue.length > 0 && <span className="count">{queue.length}</span>}
             </button>
           </div>
         </div>
@@ -728,6 +756,17 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               onAddCertificate={() => setCertFor(selected)}
               onAddInfo={(need) => setInfoFor({ place: selected, need })}
               onShare={() => share(selected)}
+              extra={
+                <PlaceCommunity
+                  key={selected.id}
+                  sb={sb}
+                  place={selected}
+                  signedIn={!!user && !user.is_anonymous}
+                  onSignIn={(reason) => setAuth({ reason })}
+                  onToast={showToast}
+                  onChanged={() => { setRefreshKey((k) => k + 1); refreshSelected(); }}
+                />
+              }
             />
           ) : (
             <>
@@ -754,7 +793,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           onClose={() => setAddAt(null)}
           onDone={(id, warning) => {
             setAddAt(null);
-            showToast(warning ?? 'תודה! המקום יופיע אחרי ששלושה אנשים יאשרו');
+            showToast(warning ?? L('תודה! המקום כבר במפה, ומסומן "ממתין לאישור" עד ששלושה אנשים יאשרו', 'Thanks! The place is on the map now, marked "waiting" until three people confirm it'));
             setRefreshKey((k) => k + 1);
             select(id);
           }}
@@ -769,7 +808,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           onClose={() => setInfoFor(null)}
           onDone={() => {
             setInfoFor(null);
-            showToast('תודה! זה יופיע אחרי ששלושה אנשים יאשרו');
+            showToast(L('תודה! זה יופיע אחרי ששלושה אנשים יאשרו', 'Thanks! This will appear after three people confirm it'));
             refreshSelected();
           }}
         />
@@ -782,7 +821,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           onClose={() => setCertFor(null)}
           onDone={() => {
             setCertFor(null);
-            showToast('התעודה נשלחה לאישור הקהילה');
+            showToast(L('התעודה נשלחה לאישור הקהילה', 'The certificate was sent for the community to confirm'));
             refreshSelected();
           }}
         />

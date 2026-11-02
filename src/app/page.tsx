@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Logo from '@/components/Logo';
 import Stats from '@/components/Stats';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
+import { serverL } from '@/lib/lang-server';
 
 // Food emoji drifting behind the hero. Positions are percentages of the hero box.
 const FLOATERS = [
@@ -11,31 +12,39 @@ const FLOATERS = [
   { e: '🍦', x: 14, y: 44, d: 2.3 },
 ];
 
-const NEEDS = [
+type T = (he: string, en: string) => string;
+
+const needsOf = (L: T) => [
   {
-    key: 'kosher', cls: 'k', letter: 'כ', emoji: '🍽️', title: 'כשר',
-    text: 'רואים את תעודת הכשרות עצמה, מי משגיח ועד מתי היא בתוקף. תעודה שפגה מסומנת מיד.',
-    levels: ['רבנות', 'מהדרין', 'בד״ץ'],
+    key: 'kosher', cls: 'k', letter: L('כ', 'K'), emoji: '🍽️', title: L('כשר', 'Kosher'),
+    text: L('רואים את תעודת הכשרות עצמה, מי משגיח ועד מתי היא בתוקף. תעודה שפגה מסומנת מיד.', 'See the kosher certificate itself, who supervises and until when it is valid. An expired certificate is flagged right away.'),
+    levels: [L('רבנות', 'Rabbinate'), L('מהדרין', 'Mehadrin'), L('בד״ץ', 'Badatz')],
+    go: L('למקומות הכשרים', 'Kosher places'),
   },
   {
-    key: 'vegan', cls: 'v', letter: 'ט', emoji: '🌱', title: 'טבעוני',
-    text: 'יודעים אם המקום טבעוני לגמרי, או שיש בו כמה מנות טבעוניות.',
-    levels: ['יש מנות', 'טבעוני לגמרי'],
+    key: 'vegan', cls: 'v', letter: L('ט', 'V'), emoji: '🌱', title: L('טבעוני', 'Vegan'),
+    text: L('יודעים אם המקום טבעוני לגמרי, או שיש בו כמה מנות טבעוניות.', 'Know whether a place is fully vegan, or just has a few vegan dishes.'),
+    levels: [L('יש מנות', 'Vegan options'), L('טבעוני לגמרי', 'Fully vegan')],
+    go: L('למקומות הטבעוניים', 'Vegan places'),
   },
   {
-    key: 'gluten_free', cls: 'g', letter: 'ג', emoji: '🌾', title: 'ללא גלוטן',
-    text: 'ההבדל שחשוב לצליאקים: תפריט ללא גלוטן במטבח משותף, או מטבח נפרד באמת.',
-    levels: ['תפריט ללא גלוטן', 'מטבח נפרד'],
+    key: 'gluten_free', cls: 'g', letter: L('ג', 'G'), emoji: '🌾', title: L('ללא גלוטן', 'Gluten-free'),
+    text: L('ההבדל שחשוב לצליאקים: תפריט ללא גלוטן במטבח משותף, או מטבח נפרד באמת.', 'The difference that matters for celiacs: a gluten-free menu in a shared kitchen, or a truly separate kitchen.'),
+    levels: [L('תפריט ללא גלוטן', 'Gluten-free menu'), L('מטבח נפרד', 'Separate kitchen')],
+    go: L('למקומות ללא גלוטן', 'Gluten-free places'),
   },
 ];
 
-const STEPS = [
-  { emoji: '📍', title: 'מוצאים', text: 'פותחים את המפה, בוחרים מה חשוב לכם, ורואים מה פתוח עכשיו בסביבה.' },
-  { emoji: '🧭', title: 'מגיעים', text: 'ניווט מהמקום שלכם עד הדלת, ברגל, באופניים או ברכב, גם עם הנחיות קוליות.' },
-  { emoji: '✅', title: 'מאשרים', text: 'הייתם שם? לחיצה אחת מאשרת שהמידע נכון. ככה כולם יודעים שאפשר לסמוך עליו.' },
+const stepsOf = (L: T) => [
+  { emoji: '📍', title: L('מוצאים', 'Find'), text: L('פותחים את המפה, בוחרים מה חשוב לכם, ורואים מה פתוח עכשיו בסביבה.', "Open the map, choose what matters to you, and see what's open nearby right now.") },
+  { emoji: '🧭', title: L('מגיעים', 'Go'), text: L('ניווט מהמקום שלכם עד הדלת, ברגל, באופניים או ברכב, גם עם הנחיות קוליות.', 'Directions from where you are to the door, on foot, by bike or by car, with voice guidance too.') },
+  { emoji: '✅', title: L('מאשרים', 'Confirm'), text: L('הייתם שם? לחיצה אחת מאשרת שהמידע נכון. ככה כולם יודעים שאפשר לסמוך עליו.', 'Been there? One tap confirms the information is right, so everyone knows they can trust it.') },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const L = await serverL();
+  const NEEDS = needsOf(L);
+  const STEPS = stepsOf(L);
   return (
     <div className="page">
       <SiteHeader />
@@ -48,23 +57,23 @@ export default function Home() {
           </div>
           <div className="hero-inner">
             <div className="hero-logo"><Logo size={132} /></div>
-            <h1>מוצאים איפה לאכול, <span className="nowrap">בלי לנחש</span></h1>
-            <p className="lead">מפה של מקומות כשרים, טבעוניים וללא גלוטן, שאנשים כמוכם בדקו ואישרו.</p>
+            <h1>{L('מוצאים איפה לאכול, ', 'Find where to eat, ')}<span className="nowrap">{L('בלי לנחש', 'without guessing')}</span></h1>
+            <p className="lead">{L('מפה של מקומות כשרים, טבעוניים וללא גלוטן, שאנשים כמוכם בדקו ואישרו.', 'A map of kosher, vegan and gluten-free places, checked and confirmed by people like you.')}</p>
             <div className="cta-row">
-              <Link href="/map" className="cta primary"><span aria-hidden="true">🗺️</span> לפתוח את המפה</Link>
-              <Link href="/about" className="cta">איך זה עובד</Link>
+              <Link href="/map" className="cta primary"><span aria-hidden="true">🗺️</span> {L('לפתוח את המפה', 'Open the map')}</Link>
+              <Link href="/about" className="cta">{L('איך זה עובד', 'How it works')}</Link>
             </div>
           </div>
         </section>
 
         <section className="band" aria-labelledby="stats-h">
-          <h2 id="stats-h" className="vh">המספרים</h2>
+          <h2 id="stats-h" className="vh">{L('המספרים', 'The numbers')}</h2>
           <Stats />
         </section>
 
         <section className="section" aria-labelledby="needs-h">
-          <h2 id="needs-h" className="section-title">מה חשוב לכם?</h2>
-          <p className="section-sub">בוחרים צורך אחד, או כמה ביחד. למשל כשר וגם ללא גלוטן, בשביל כל המשפחה.</p>
+          <h2 id="needs-h" className="section-title">{L('מה חשוב לכם?', 'What matters to you?')}</h2>
+          <p className="section-sub">{L('בוחרים צורך אחד, או כמה ביחד. למשל כשר וגם ללא גלוטן, בשביל כל המשפחה.', 'Choose one need, or several together. For example kosher and gluten-free, for the whole family.')}</p>
           <div className="need-cards">
             {NEEDS.map((n, i) => (
               <Link key={n.key} href={`/map?need=${n.key}`} className={`need-card ${n.cls}`} style={{ '--i': i } as React.CSSProperties}>
@@ -77,14 +86,14 @@ export default function Home() {
                 <span className="nc-levels">
                   {n.levels.map((l) => <span key={l}>{l}</span>)}
                 </span>
-                <span className="nc-go">למקומות {n.title === 'כשר' ? 'הכשרים' : n.title === 'טבעוני' ? 'הטבעוניים' : 'ללא גלוטן'}</span>
+                <span className="nc-go">{n.go}</span>
               </Link>
             ))}
           </div>
         </section>
 
         <section className="section" aria-labelledby="how-h">
-          <h2 id="how-h" className="section-title">שלושה צעדים, וזהו</h2>
+          <h2 id="how-h" className="section-title">{L('שלושה צעדים, וזהו', "Three steps, that's it")}</h2>
           <ol className="steps-row">
             {STEPS.map((s, i) => (
               <li key={s.title} className="step-card" style={{ '--i': i } as React.CSSProperties}>
@@ -101,9 +110,9 @@ export default function Home() {
           <div className="join">
             <div className="join-art" aria-hidden="true">📸</div>
             <div>
-              <h2 className="section-title">מכירים מקום שחסר?</h2>
-              <p>מוסיפים אותו בחצי דקה, בלי הרשמה. אם יש שם תעודת כשרות, מצלמים אותה והפרטים נקראים לבד.</p>
-              <Link href="/map?add=1" className="cta primary"><span aria-hidden="true">➕</span> הוספת מקום</Link>
+              <h2 className="section-title">{L('מכירים מקום שחסר?', 'Know a place that is missing?')}</h2>
+              <p>{L('מוסיפים אותו בחצי דקה, בלי הרשמה. אם יש שם תעודת כשרות, מצלמים אותה והפרטים נקראים לבד.', 'Add it in half a minute, no sign-up needed. If there is a kosher certificate, photograph it and the details are read automatically.')}</p>
+              <Link href="/map?add=1" className="cta primary"><span aria-hidden="true">➕</span> {L('הוספת מקום', 'Add a place')}</Link>
             </div>
           </div>
         </section>
