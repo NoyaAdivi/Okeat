@@ -799,3 +799,8 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .me-dot::after { content: attr(data-label); position: absolute; top: 27px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 2px 9px; border-radius: 999px; background: var(--ink); color: var(--surface); font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); pointer-events: none; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .me-dot { background: #FF7A5C; border-color: #fff; } }
 :root[data-theme="dark"] .me-dot { background: #FF7A5C; border-color: #fff; }
+
+/* "my chosen location" and the go button: readable in dark mode too */
+.map-tool.manual { background: var(--kosher-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--kosher), 0 8px 22px rgba(60, 40, 90, .18); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .go-btn { color: #241B33; } }
+:root[data-theme="dark"] .go-btn { color: #241B33; }

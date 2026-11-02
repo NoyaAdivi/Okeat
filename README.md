@@ -19,7 +19,7 @@
 - **Nationwide map** of over 20,000 eateries, clustered for speed, Israel only, in Hebrew and English, with light, dark and automatic themes
 - **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by food type (pizza, sushi, coffee…) and "open now" in Israel time
 - **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
-- **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. Claude reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
+- **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. The site reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
 - **Turn-by-turn navigation** inside the site (walking, cycling, driving) with Hebrew voice guidance, rerouting and "choose my location"
 - **No sign-up needed** – anonymous accounts; optional Google / email sign-in
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
@@ -36,7 +36,8 @@
 | Framework | Next.js 15 (App Router), React 19, TypeScript |
 | Database | Supabase – Postgres + PostGIS, Row Level Security, Auth, Storage |
 | Maps | Mapbox GL JS v3, Mapbox Directions & Geocoding |
-| AI | Claude API (certificate reading, food-type classification) |
+| Certificate reading | Tesseract OCR in the browser; Claude API when a key is set |
+| Classification | Name and type rules; Claude API when a key is set |
 | Data | OpenStreetMap (ODbL), Overture Maps (CDLA Permissive 2.0) |
 
 ## 🔒 Data rules (enforced in the database)
