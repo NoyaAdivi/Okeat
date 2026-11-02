@@ -27,6 +27,8 @@ interface Props {
   /** Propose info about a need (kosher too, with an optional photo). Omit to hide those buttons. */
   onAddInfo?: (need: Need) => void;
   onShare: () => void;
+  /** Admins: fix where this place is. */
+  onFixLocation?: () => void;
   /** Shown at the end: who added the place, owner, reports. */
   extra?: ReactNode;
 }
@@ -46,7 +48,7 @@ function Seal({ cls, letter }: { cls: string; letter: string }) {
 }
 
 export default function PlaceDetail({
-  place, goPanel, voted, certificateUrl, onBack, backLabel, onVote, onAddCertificate, onAddInfo, onShare, extra,
+  place, goPanel, voted, certificateUrl, onBack, backLabel, onVote, onAddCertificate, onAddInfo, onShare, onFixLocation, extra,
 }: Props) {
   const L = useL();
   const lang = L.lang;
@@ -108,6 +110,12 @@ export default function PlaceDetail({
       )}
 
       {goPanel}
+
+      {onFixLocation && (
+        <section className="sec">
+          <button type="button" className="btn" onClick={onFixLocation}>📍 {L('תיקון מיקום המקום', 'Fix this place\'s location')}</button>
+        </section>
+      )}
 
       <section className="sec" aria-labelledby="hours-h">
         <h3 id="hours-h">{L('שעות פתיחה', 'Opening hours')}</h3>

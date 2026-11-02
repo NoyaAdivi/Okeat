@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { cachedMapPoints, certificateUrl, clearPointsCache, fetchAllPlacesFallback, fetchMapPoints, fetchMyVotes, fetchNearby, fetchPlace, fetchQueue, vote } from '@/lib/places';
+import { cachedMapPoints, certificateUrl, clearPointsCache, fetchAllPlacesFallback, fetchMapPoints, fetchProfile, fixPlaceLocation, fetchMyVotes, fetchNearby, fetchPlace, fetchQueue, vote } from '@/lib/places';
 import { NEED_ORDER, placeToPoint } from '@/lib/claims';
 import { matchesCuisine } from '@/lib/cuisine';
 import type { MapPoint, Need, NeedFilter, PendingClaim, Place } from '@/lib/types';
@@ -550,6 +550,28 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     }
   }, [sb, selectedId, me, searchCenter]);
 
+  // Site admins can put a place at its real location.
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [fixOpen, setFixOpen] = useState(false);
+  const [fixingPin, setFixingPin] = useState(false);
+  useEffect(() => {
+    if (!user || user.is_anonymous) { setIsAdmin(false); return; }
+    fetchProfile(sb, user.id).then((p) => setIsAdmin(p?.role === 'admin')).catch(() => setIsAdmin(false));
+  }, [sb, user]);
+  const saveFix = async (point: LatLng, address: string | null) => {
+    if (!selectedId) return;
+    setFixOpen(false);
+    setFixingPin(false);
+    try {
+      await fixPlaceLocation(sb, selectedId, point, address);
+      await refreshSelected();
+      setFocus({ key: Date.now(), points: [point] });
+      showToast(L('המיקום של המקום עודכן', "The place's location was updated"));
+    } catch {
+      showToast(L('השינוי לא נשמר. נסו שוב.', "The change wasn't saved. Please try again."));
+    }
+  };
+
   const onVote = useCallback(
     async (claimId: string, value: 1 | -1) => {
       try {
@@ -664,7 +686,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             focus={focus}
             onSelect={select}
             onUserMove={setMapCenter}
-            picking={picking || pickingMe}
+            picking={picking || pickingMe || fixingPin}
             onCenter={setViewCenter}
             centerGetter={centerGetter}
             follow={navigating && !followPaused}
@@ -675,6 +697,17 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
         {currentStep ? (
           <NavBanner step={currentStep} toNext={toNext} onStop={stopNav} onPrev={manualLabel ? () => moveStep(-1) : undefined} onNext={manualLabel ? () => moveStep(1) : undefined} voice={voice} onVoice={speechSupported() ? () => { setVoice((v) => !v); stopSpeaking(); } : undefined} />
+        ) : fixingPin ? (
+          <>
+            <PickPin emoji="🍴" />
+            <div className="pickbar" role="dialog" aria-label={L('תיקון מיקום המקום', "Fix the place's location")}>
+              <span>{L('הזיזו את המפה או לחצו עליה, עד שחוד הסיכה נמצא בדיוק על המקום', 'Move or click the map until the tip of the pin is exactly on the place')}</span>
+              <span className="pick-acts">
+                <button type="button" className="ok" onClick={() => saveFix(pinPoint(), null)}>{L('זה המקום', "That's the place")}</button>
+                <button type="button" onClick={() => setFixingPin(false)}>{L('ביטול', 'Cancel')}</button>
+              </span>
+            </div>
+          </>
         ) : pickingMe ? (
           <>
             <PickPin emoji="🧍" />
@@ -705,6 +738,17 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           <div className="notice">{L('לא קיבלנו את המיקום שלך, אז מוצגת רמת גן. אפשר להזיז את המפה ולחפש באזור אחר.', "We didn't get your location, so Ramat Gan is shown. You can move the map and search another area.")}</div>
         ) : null}
 
+        {fixOpen && selected && (
+          <LocationPicker
+            fixing
+            manualLabel={null}
+            near={selected}
+            onGps={() => undefined}
+            onPickOnMap={() => { setFixOpen(false); setFixingPin(true); setSheet('peek'); setFocus({ key: Date.now(), points: [selected], exact: true }); }}
+            onChoose={(point, label) => saveFix(point, label)}
+            onClose={() => setFixOpen(false)}
+          />
+        )}
         {locOpen && (
           <LocationPicker
             manualLabel={manualLabel}
@@ -814,6 +858,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           ) : selected ? (
             <PlaceDetail
               place={selected}
+              onFixLocation={isAdmin ? () => setFixOpen(true) : undefined}
               goPanel={
                 <NavPanel
                   place={selected}

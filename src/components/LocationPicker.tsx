@@ -14,10 +14,12 @@ interface Props {
   manualLabel: string | null;
   /** results close to this point come first */
   near: LatLng;
+  /** admin mode: fixing a place's location instead of choosing mine */
+  fixing?: boolean;
 }
 
 /** "Where am I?" menu: GPS, pick on the map, or type an address / city / place. */
-export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, manualLabel, near }: Props) {
+export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, manualLabel, near, fixing = false }: Props) {
   const L = useL();
   const [q, setQ] = useState('');
   const [results, setResults] = useState<GeoResult[]>([]);
@@ -61,12 +63,12 @@ export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, 
   return (
     <div className="loc-pop" ref={box} role="dialog" aria-label={L('בחירת המיקום שלי', 'Choose my location')}>
       <div className="loc-head">
-        <b>{L('איפה אתם עכשיו?', 'Where are you now?')}</b>
+        <b>{fixing ? L('איפה המקום נמצא באמת?', 'Where is this place really?') : L('איפה אתם עכשיו?', 'Where are you now?')}</b>
         <button type="button" className="loc-x" onClick={onClose} aria-label={L('סגירה', 'Close')}>✕</button>
       </div>
       {manualLabel && <p className="loc-now">{L('המיקום שבחרתם:', 'Your chosen location:')} {manualLabel}</p>}
       <div className="loc-acts">
-        <button type="button" onClick={onGps}><span aria-hidden="true">📡</span> {L('לפי ה-GPS', 'Use GPS')}</button>
+        {!fixing && <button type="button" onClick={onGps}><span aria-hidden="true">📡</span> {L('לפי ה-GPS', 'Use GPS')}</button>}
         <button type="button" onClick={onPickOnMap}><span aria-hidden="true">🗺️</span> {L('בחירה על המפה', 'Pick on the map')}</button>
       </div>
       <label htmlFor="loc-q" className="loc-label">{L('או חיפוש כתובת, עיר או מקום', 'Or search for an address, city or place')}</label>

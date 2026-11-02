@@ -353,6 +353,12 @@ export interface PublicProfile {
   confirmations: number;
 }
 
+/** Site admins only: put a place at its real location, and keep it there. */
+export async function fixPlaceLocation(sb: SupabaseClient, id: string, point: LatLng, address: string | null): Promise<void> {
+  const { error } = await sb.rpc('admin_fix_place', { p_place: id, p_lat: point.lat, p_lng: point.lng, p_address: address });
+  if (error) throw error;
+}
+
 /** Site admins only; the database refuses anyone else. */
 export async function setUserRole(sb: SupabaseClient, id: string, role: PublicProfile['role']): Promise<void> {
   const { error } = await sb.rpc('set_user_role', { p_user: id, p_role: role });
