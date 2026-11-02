@@ -430,12 +430,33 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     if (selected && me) loadRoute(selected, me, m);
   };
 
+  // The route waits for the location, and gets one more try if the network failed.
+  const routeTried = useRef('');
+  useEffect(() => {
+    if (!selected || !me || directions || dirLoading || navigating) return;
+    if (haversine(me, selected) > 60000) return;
+    const m = modeChosen.current ? mode : modeFor(haversine(me, selected));
+    const key = `${selected.id}-${m}`;
+    if (routeTried.current === key) return;
+    routeTried.current = key;
+    loadRoute(selected, me, m);
+  }, [selected, me, directions, dirLoading, navigating, mode, loadRoute]);
+
+  // After moving the map by hand, the view returns to the person by itself.
+  const followTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const pauseFollow = () => {
+    setFollowPaused(true);
+    clearTimeout(followTimer.current);
+    followTimer.current = setTimeout(() => setFollowPaused(false), 10000);
+  };
+
   const startNav = () => {
     if (!directions || !selected) return;
     setNavigating(true);
     weakGpsWarned.current = false;
     setFollowPaused(false);
-    lastReroute.current = Date.now();
+    // The first GPS fix on a phone is rough, so the next one may fix the route right away.
+    lastReroute.current = 0;
     setStepIndex(1);
     spokenStep.current = -1;
     if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${directions.minutes} דקות. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${directions.minutes} minutes. ${directions.steps[0]?.instruction ?? ''}`));
@@ -721,7 +742,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             onCenter={setViewCenter}
             centerGetter={centerGetter}
             follow={navigating && !followPaused}
-            onUserDrag={() => navigating && setFollowPaused(true)}
+            onUserDrag={() => navigating && pauseFollow()}
             lang={lang}
           />
         )}
@@ -916,10 +937,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               goPanel={
                 <NavPanel
                   place={selected}
-                  hasLocation={!!me}
+                  hasLocation={!!me || located === 'pending'}
                   mode={mode}
                   directions={directions}
-                  loading={dirLoading}
+                  loading={dirLoading || located === 'pending'}
                   navigating={navigating}
                   stepIndex={stepIndex}
                   toNext={toNext}
