@@ -29,7 +29,7 @@ function StatementHe() {
   return (
     <>
           <h1>הצהרת נגישות</h1>
-          <p>אנחנו רוצים ש-Okeat יהיה נוח לכל אחד, כולל אנשים עם מוגבלות. האתר נבנה לפי התקן הישראלי 5568 וההנחיות הבינלאומיות WCAG 2.1 ברמה AA, במידה האפשרית.</p>
+          <p>אנחנו רוצים ש-Okeat יהיה נוח לכל אחד, כולל אנשים עם מוגבלות. אנחנו פועלים להתאים את האתר לתקן הישראלי 5568 ולהנחיות הבינלאומיות WCAG 2.1 ברמה AA, במידה האפשרית. האתר לא עבר בדיקה של מורשה נגישות חיצוני, ולכן ייתכן שיש בו דברים שעדיין לא נגישים.</p>
   
           <h2>מה יש באתר</h2>
           <ul>
@@ -61,7 +61,7 @@ function StatementEn() {
   return (
     <>
           <h1>Accessibility statement</h1>
-          <p>We want Okeat to be comfortable for everyone, including people with disabilities. The site was built to follow the Israeli standard IS 5568 and the international WCAG 2.1 guidelines at level AA, as far as possible.</p>
+          <p>We want Okeat to be comfortable for everyone, including people with disabilities. We work to bring the site in line with the Israeli standard IS 5568 and the international WCAG 2.1 guidelines at level AA, as far as possible. The site has not been reviewed by an outside accessibility expert, so some things may not be accessible yet.</p>
 
           <h2>What the site offers</h2>
           <ul>

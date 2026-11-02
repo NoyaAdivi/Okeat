@@ -56,7 +56,7 @@ function TermsHe() {
           <p>התוכן שאתם מעלים נשאר שלכם. כשאתם מעלים אותו, אתם נותנים לנו רישיון חינמי, לא בלעדי ולכל העולם להציג אותו באתר ולשתף אותו עם משתמשים אחרים.</p>
   
           <h2>מידע של צד שלישי</h2>
-          <p>חלק מנתוני המפה והמקומות © תורמי OpenStreetMap, ברישיון ODbL. המפה מוצגת באמצעות Mapbox. קישורים לאתרים אחרים, כמו Waze או אתר של מסעדה, הם לנוחותכם, ואיננו אחראים לתוכן שלהם.</p>
+          <p>חלק מנתוני המפה והמקומות © תורמי OpenStreetMap, ברישיון ODbL, וחלק מגיעים מ-Overture Maps Foundation. המפה מוצגת באמצעות Mapbox. קישורים לאתרים אחרים, כמו Waze או אתר של מסעדה, הם לנוחותכם, ואיננו אחראים לתוכן שלהם.</p>
   
           <h2>אחריות</h2>
           <p>האתר ניתן כמות שהוא (AS IS). במידה המרבית שהחוק מתיר, לא נהיה אחראים לנזק שנגרם משימוש באתר או מהסתמכות על המידע בו.</p>
@@ -107,7 +107,7 @@ function TermsEn() {
           <p>The content you upload stays yours. By uploading it, you give us a free, non-exclusive, worldwide licence to show it on the site and share it with other users.</p>
 
           <h2>Third-party information</h2>
-          <p>Some map and place data © OpenStreetMap contributors, under the ODbL licence. The map is shown using Mapbox. Links to other sites, such as Waze or a restaurant&apos;s website, are for your convenience, and we are not responsible for their content.</p>
+          <p>Some map and place data © OpenStreetMap contributors, under the ODbL licence, and some comes from the Overture Maps Foundation. The map is shown using Mapbox. Links to other sites, such as Waze or a restaurant&apos;s website, are for your convenience, and we are not responsible for their content.</p>
 
           <h2>Liability</h2>
           <p>The site is provided as is. To the fullest extent the law allows, we are not liable for damage caused by using the site or relying on its information.</p>
