@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Fredoka, Rubik } from 'next/font/google';
 import A11yMenu from '@/components/A11yMenu';
+import ErrorWatcher from '@/components/ErrorWatcher';
 import CookieNotice from '@/components/CookieNotice';
 import { PREFS_BOOT_SCRIPT } from '@/lib/prefs';
 import { LangProvider } from '@/components/LangProvider';
@@ -60,6 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <a href="#main" className="skip">{lang === 'en' ? 'Skip to content' : 'דילוג לתוכן'}</a>
           {children}
           <A11yMenu />
+          <ErrorWatcher />
           <CookieNotice />
         </LangProvider>
       </body>

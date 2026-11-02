@@ -6,6 +6,7 @@ import { useL } from './LangProvider';
 import { EXTRA_NEEDS, MAIN_NEEDS, NEED_CLASS, NEED_ORDER, isImported, isWeakKosher, pendingClaims, verifiedClaim } from '@/lib/claims';
 import { openStatus } from '@/lib/hours';
 import { ago, formatDate } from '@/lib/geo';
+import { expiresSoon, isStale } from '@/lib/checks';
 import CertificateCard from './CertificateCard';
 import { NEED_EMOJI, placeEmoji } from '@/lib/emoji';
 import { cuisineEmoji, cuisineLabel } from '@/lib/cuisine';
@@ -161,6 +162,12 @@ export default function PlaceDetail({
         </div>
       )}
 
+      {kosher?.certificate && !kosher.certificate.expired && expiresSoon(kosher.certificate.validUntil) && (
+        <div className="warnbox">
+          <span><b>{L(`תעודת הכשרות בתוקף עד ${formatDate(kosher.certificate.validUntil)}.`, `The kosher certificate is valid until ${formatDate(kosher.certificate.validUntil)}.`)}</b> {L('אם התחדשה, אפשר לצלם את החדשה.', 'If it was renewed, you can add a photo of the new one.')}</span>
+        </div>
+      )}
+
       <section className="sec" aria-labelledby="verified-h">
         <h3 id="verified-h">{L('מה ידוע על המקום', 'What we know about this place')}</h3>
         {verified.length === 0 && (
@@ -187,6 +194,7 @@ export default function PlaceDetail({
                       <>
                         <span>{L(`אושר על ידי ${c.confirmCount} אנשים`, `Confirmed by ${c.confirmCount} people`)}</span>
                         <span>{L('אישור אחרון', 'Last confirmed')} {ago(c.lastConfirmedAt, lang)}</span>
+                        {isStale(c.lastConfirmedAt) && <span className="stale-note">{L('אושר לפני יותר משנה, כדאי לוודא', 'Confirmed over a year ago, worth checking')}</span>}
                       </>
                     )}
                   </div>

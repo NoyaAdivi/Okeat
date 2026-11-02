@@ -31,6 +31,7 @@ import PlaceCommunity from './PlaceCommunity';
 import LocationPicker from './LocationPicker';
 import PlaceExtras from './PlaceExtras';
 import { findCity } from '@/lib/geocode';
+import { isCityName } from '@/lib/checks';
 import DisplayToggles from './DisplayToggles';
 import { useL } from './LangProvider';
 import type { FocusRequest, RouteLine } from './MapView';
@@ -561,14 +562,21 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   // Desktop: the side panel can fold away. Opening a place brings it back.
   const [panelClosed, setPanelClosed] = useState(false);
   useEffect(() => { if (selectedId) setPanelClosed(false); }, [selectedId]);
-  // Typing a city offers to move the map there.
+  // Typing a city moves the map there. A close match only offers to.
   const [cityHit, setCityHit] = useState<{ name: string; point: LatLng } | null>(null);
   useEffect(() => {
     const text = debouncedQuery.trim();
     setCityHit(null);
     if (text.length < 2) return;
     const ctrl = new AbortController();
-    findCity(text, lang, ctrl.signal).then(setCityHit).catch(() => undefined);
+    findCity(text, lang, ctrl.signal).then((hit) => {
+      if (!hit) return;
+      if (!isCityName(text, hit.name) || selectedId) { setCityHit(hit); return; }
+      setFocus({ key: Date.now(), points: [hit.point], zoom: 13 });
+      setQuery('');
+      setSheet('peek');
+      showToast(L(`עברנו ל${hit.name}`, `Moved to ${hit.name}`));
+    }).catch(() => undefined);
     return () => ctrl.abort();
   }, [debouncedQuery, lang]);
   const fixAddress = useRef<string | null>(null);

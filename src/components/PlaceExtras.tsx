@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Place } from '@/lib/types';
 import {
-  deleteReview, fetchPlacePhotos, fetchReviews, isFavorite, saveReview, setFavorite, uploadPlacePhoto,
+  deleteReview, fetchPlacePhotos, fetchReviews, isFavorite, reportReview, saveReview, setFavorite, uploadPlacePhoto,
   type PlacePhoto, type PlaceReview,
 } from '@/lib/places';
 import { friendly } from '@/lib/errors';
@@ -37,6 +37,7 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [busy, setBusy] = useState(false);
+  const [reported, setReported] = useState<string[]>([]);
   const file = useRef<HTMLInputElement>(null);
 
   const load = useCallback(() => {
@@ -108,6 +109,16 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
                 {r.comment && <p>{r.comment}</p>}
                 {(r.user_id === userId || isAdmin) && (
                   <button type="button" className="link" disabled={busy} onClick={() => run(async () => { await deleteReview(sb, place.id, r.user_id); load(); })}>{L('מחיקה', 'Delete')}</button>
+                )}
+                {r.user_id !== userId && !isAdmin && (
+                  <button type="button" className="link" disabled={busy || reported.includes(r.user_id)} onClick={() => {
+                    if (needAccount(L('כדי לדווח צריך להתחבר עם חשבון.', 'To report, sign in with an account.'))) return;
+                    run(async () => {
+                      await reportReview(sb, place.id, r.user_id, userId!);
+                      setReported((list) => [...list, r.user_id]);
+                      onToast(L('תודה, הדיווח נשלח למנהלים.', 'Thanks, moderators will take a look.'));
+                    });
+                  }}>{reported.includes(r.user_id) ? L('דווח', 'Reported') : L('דיווח על הביקורת', 'Report this review')}</button>
                 )}
               </div>
             </li>

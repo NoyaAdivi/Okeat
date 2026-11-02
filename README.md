@@ -25,6 +25,7 @@
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
 - **Reviews, saved places and photos** – 1–5 star reviews with a short comment, a private saved list on your profile, and place photos that appear after moderator approval
+- **Tests** – automated tests run on GitHub on every push, and browser errors are collected privately for the admin
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
 - **Public profiles** – join date, places added and confirmations, never an e-mail address
 - **Business owner approval** – owners prove ownership with a code and an admin approves them

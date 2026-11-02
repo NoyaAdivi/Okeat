@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import Logo from '@/components/Logo';
+import { logClientError } from '@/lib/errorLog';
 import { useL } from '@/components/LangProvider';
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const L = useL();
   useEffect(() => {
     console.error(error);
+    logClientError(error.message);
   }, [error]);
 
   return (

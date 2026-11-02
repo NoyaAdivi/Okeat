@@ -481,3 +481,37 @@ export async function moderatePhoto(sb: SupabaseClient, photo: PendingPhoto, app
   if (error) throw error;
   if (!approve) await sb.storage.from('place-photos').remove([photo.path]);
 }
+
+// ---------- reported reviews and site errors ----------
+export interface ReportedReview { place_id: string; place_name: string; user_id: string; author: string; rating: number; comment: string | null; reports: number }
+export interface ClientError { message: string; path: string | null; times: number; last_seen: string }
+
+export async function reportReview(sb: SupabaseClient, placeId: string, reviewUser: string, reporter: string) {
+  const { error } = await sb.from('review_reports').upsert(
+    { place_id: placeId, review_user: reviewUser, reporter },
+    { ignoreDuplicates: true },
+  );
+  if (error) throw error;
+}
+
+export async function fetchReportedReviews(sb: SupabaseClient): Promise<ReportedReview[]> {
+  const { data, error } = await sb.rpc('reported_reviews');
+  if (error) return [];
+  return data as ReportedReview[];
+}
+
+export async function dismissReviewReports(sb: SupabaseClient, r: ReportedReview) {
+  const { error } = await sb.from('review_reports').delete().eq('place_id', r.place_id).eq('review_user', r.user_id);
+  if (error) throw error;
+}
+
+export async function fetchClientErrors(sb: SupabaseClient): Promise<ClientError[]> {
+  const { data, error } = await sb.from('client_errors').select('*').order('last_seen', { ascending: false }).limit(50);
+  if (error) return [];
+  return data as ClientError[];
+}
+
+export async function clearClientError(sb: SupabaseClient, message: string) {
+  const { error } = await sb.from('client_errors').delete().eq('message', message);
+  if (error) throw error;
+}

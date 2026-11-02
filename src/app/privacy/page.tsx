@@ -37,6 +37,7 @@ function PrivacyHe() {
             <li><b>פרופיל ציבורי.</b> אם התחברתם עם חשבון, אחרים רואים את השם ותמונת הפרופיל שלו, מתי הצטרפתם ומה הוספתם ואישרתם. כתובת המייל לא מוצגת אף פעם.</li>
             <li><b>מה שהוספתם.</b> מקומות, אישורים, ביקורות ותמונות של תעודות כשרות ושל המקומות. התוכן הזה מוצג לכל המשתמשים, יחד עם השם של מי שהוסיף אותו. תמונה של מקום מוצגת רק אחרי אישור של מנהל.</li>
             <li><b>מקומות ששמרתם.</b> רשימת המקומות ששמרתם גלויה רק לכם.</li>
+            <li><b>תקלות באתר.</b> אם משהו נשבר, נשמרים הודעת השגיאה והעמוד שבו קרתה, בלי פרטים עליכם.</li>
             <li><b>מיקום.</b> אם אישרתם בדפדפן, המיקום משמש כדי להראות מקומות קרובים ולנווט. הוא לא נשמר אצלנו.</li>
             <li><b>הגדרות באתר.</b> העדפות נגישות, תצוגה ושפה נשמרות בדפדפן שלכם.</li>
           </ul>
@@ -86,6 +87,7 @@ function PrivacyEn() {
             <li><b>A public profile.</b> If you signed in with an account, others see its name and picture, when you joined, and what you added and confirmed. Your e-mail address is never shown.</li>
             <li><b>What you added.</b> Places, confirmations, reviews, and photos of kosher certificates and of places. This content is shown to all users, together with the name of whoever added it. A photo of a place is shown only after a moderator approves it.</li>
             <li><b>Places you saved.</b> Your list of saved places is visible only to you.</li>
+            <li><b>Site errors.</b> If something breaks, we keep the error message and the page it happened on, with no details about you.</li>
             <li><b>Location.</b> If you allow it in your browser, your location is used to show nearby places and to navigate. We don&apos;t store it.</li>
             <li><b>Site settings.</b> Accessibility, display and language preferences are kept in your browser.</li>
           </ul>

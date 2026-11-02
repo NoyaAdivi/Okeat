@@ -5,7 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
 import {
-  decideOwnership, fetchModerationQueue, moderateClaim, moderatePlace, type ModerationQueue, fetchPendingPhotos, moderatePhoto, placePhotoUrl, type PendingPhoto } from '@/lib/places';
+  decideOwnership, fetchModerationQueue, moderateClaim, moderatePlace, type ModerationQueue, fetchPendingPhotos, moderatePhoto, placePhotoUrl, type PendingPhoto,
+  clearClientError, deleteReview, dismissReviewReports, fetchClientErrors, fetchReportedReviews, type ClientError, type ReportedReview,
+} from '@/lib/places';
 import { levelInfo, levelText, needLabel } from '@/lib/types';
 import { friendly } from '@/lib/errors';
 import { SiteFooter, SiteHeader } from './SiteChrome';
@@ -20,10 +22,14 @@ export default function AdminView() {
   const [q, setQ] = useState<ModerationQueue | null>(null);
   const [error, setError] = useState('');
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
+  const [badReviews, setBadReviews] = useState<ReportedReview[]>([]);
+  const [siteErrors, setSiteErrors] = useState<ClientError[]>([]);
 
   const load = useCallback(() => {
     fetchModerationQueue(sb).then(setQ).catch((e) => setError(friendly(e, lang)));
     fetchPendingPhotos(sb).then(setPhotos);
+    fetchReportedReviews(sb).then(setBadReviews);
+    fetchClientErrors(sb).then(setSiteErrors);
   }, [sb, lang]);
   useEffect(() => { if (ready && user && !user.is_anonymous) load(); }, [ready, user, load]);
 
@@ -51,6 +57,22 @@ export default function AdminView() {
                 <div className="acts">
                   <button type="button" className="btn small" onClick={() => act(() => moderatePhoto(sb, p, true))}>{L('אישור', 'Approve')}</button>
                   <button type="button" className="btn small ghost danger" onClick={() => act(() => moderatePhoto(sb, p, false))}>{L('הסרה', 'Remove')}</button>
+                </div>
+              </div>
+            ))}
+
+            <h2>{L('ביקורות שדווחו', 'Reported reviews')} ({badReviews.length})</h2>
+            {badReviews.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
+            {badReviews.map((r) => (
+              <div key={`${r.place_id}-${r.user_id}`} className="admin-row">
+                <div>
+                  <Link href={`/map?place=${r.place_id}`}><b>{r.place_name}</b></Link>
+                  <p>{'★'.repeat(r.rating)} {r.author}: {r.comment ?? L('(בלי תגובה)', '(no comment)')}</p>
+                  <small className="muted">{L(`${r.reports} דיווחים`, `${r.reports} reports`)}</small>
+                </div>
+                <div className="acts">
+                  <button type="button" className="btn small ghost danger" onClick={() => act(() => deleteReview(sb, r.place_id, r.user_id))}>{L('מחיקת הביקורת', 'Delete review')}</button>
+                  <button type="button" className="btn small" onClick={() => act(() => dismissReviewReports(sb, r))}>{L('הביקורת בסדר', 'Review is fine')}</button>
                 </div>
               </div>
             ))}
@@ -103,6 +125,20 @@ export default function AdminView() {
                 <div className="acts">
                   <button type="button" className="btn small" onClick={() => act(() => decideOwnership(sb, o.id, true))}>{L('אישור', 'Approve')}</button>
                   <button type="button" className="btn small ghost danger" onClick={() => act(() => decideOwnership(sb, o.id, false))}>{L('דחייה', 'Reject')}</button>
+                </div>
+              </div>
+            ))}
+
+            <h2>{L('שגיאות באתר', 'Site errors')} ({siteErrors.length})</h2>
+            {siteErrors.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
+            {siteErrors.map((e) => (
+              <div key={e.message} className="admin-row">
+                <div>
+                  <code dir="ltr">{e.message}</code>
+                  <div className="muted small">{e.path} · {e.times}×</div>
+                </div>
+                <div className="acts">
+                  <button type="button" className="btn small" onClick={() => act(() => clearClientError(sb, e.message))}>{L('טופל', 'Handled')}</button>
                 </div>
               </div>
             ))}
