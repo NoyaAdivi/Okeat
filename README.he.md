@@ -6,7 +6,7 @@
 
 <h1 align="center">Okeat</h1>
 
-<p align="center"><a href="README.md">English</a> · <b>עברית</b></p>
+<p align="center"><a href="https://github.com/NoyaAdivi/Okeat#readme">English</a> · <b>עברית</b></p>
 
 <p align="center"><b>OK to eat</b> · מפה של מקומות אוכל כשרים, טבעוניים, צמחוניים וללא גלוטן בישראל,<br>שבה כל פרט מאושר על ידי אנשים שהיו במקום בעצמם.</p>
 

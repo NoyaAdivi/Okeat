@@ -804,3 +804,6 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .map-tool.manual { background: var(--kosher-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--kosher), 0 8px 22px rgba(60, 40, 90, .18); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .go-btn { color: #241B33; } }
 :root[data-theme="dark"] .go-btn { color: #241B33; }
+
+/* the source note: full width, no single word alone on the last line */
+.foot-note { max-width: 920px; margin-inline: auto; text-wrap: balance; }
