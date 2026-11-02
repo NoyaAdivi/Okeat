@@ -24,7 +24,7 @@ interface PhotonProps {
  * street addresses in Hebrew, and it understands house numbers. Results are biased to `near`.
  */
 async function photon(q: string, near: LatLng, lang: 'he' | 'en', signal: AbortSignal): Promise<GeoResult[]> {
-  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=12&lat=${near.lat.toFixed(4)}&lon=${near.lng.toFixed(4)}&bbox=${IL_BBOX}${lang === 'en' ? '&lang=en' : ''}`;
+  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=12&lat=${near.lat.toFixed(4)}&lon=${near.lng.toFixed(4)}&bbox=${IL_BBOX}&lang=${lang === 'en' ? 'en' : 'default'}`;
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error('photon ' + res.status);
   const json = (await res.json()) as { features?: { properties: PhotonProps; geometry: { coordinates: [number, number] } }[] };
@@ -63,8 +63,13 @@ async function mapbox(q: string, near: LatLng, lang: 'he' | 'en', signal: AbortS
 export async function searchPlaces(q: string, near: LatLng, lang: 'he' | 'en', signal: AbortSignal): Promise<GeoResult[]> {
   let results: GeoResult[] = [];
   try { results = await photon(q, near, lang, signal); } catch (e) { if (signal.aborted) throw e; }
-  if (results.length === 0) {
-    try { results = await mapbox(q, near, lang, signal); } catch (e) { if (signal.aborted) throw e; }
+  // On Hebrew pages, a result without Hebrew letters is replaced by Mapbox's Hebrew one when there is one.
+  const notHebrew = lang === 'he' && results.length > 0 && !/[\u0590-\u05FF]/.test(results[0].name);
+  if (results.length === 0 || notHebrew) {
+    try {
+      const other = await mapbox(q, near, lang, signal);
+      if (results.length === 0 || other.some((r) => /[\u0590-\u05FF]/.test(r.name))) results = other;
+    } catch (e) { if (signal.aborted) throw e; }
   }
   const unique: GeoResult[] = [];
   for (const r of results) {
