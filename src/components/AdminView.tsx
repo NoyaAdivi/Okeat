@@ -5,8 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
 import {
-  decideOwnership, fetchModerationQueue, moderateClaim, moderatePlace, type ModerationQueue,
-} from '@/lib/places';
+  decideOwnership, fetchModerationQueue, moderateClaim, moderatePlace, type ModerationQueue, fetchPendingPhotos, moderatePhoto, placePhotoUrl, type PendingPhoto } from '@/lib/places';
 import { levelInfo, levelText, needLabel } from '@/lib/types';
 import { friendly } from '@/lib/errors';
 import { SiteFooter, SiteHeader } from './SiteChrome';
@@ -20,9 +19,11 @@ export default function AdminView() {
   const { user, ready } = useUser(sb);
   const [q, setQ] = useState<ModerationQueue | null>(null);
   const [error, setError] = useState('');
+  const [photos, setPhotos] = useState<PendingPhoto[]>([]);
 
   const load = useCallback(() => {
     fetchModerationQueue(sb).then(setQ).catch((e) => setError(friendly(e, lang)));
+    fetchPendingPhotos(sb).then(setPhotos);
   }, [sb, lang]);
   useEffect(() => { if (ready && user && !user.is_anonymous) load(); }, [ready, user, load]);
 
@@ -38,6 +39,22 @@ export default function AdminView() {
 
         {q && (
           <>
+            <h2>{L('תמונות לאישור', 'Photos to approve')} ({photos.length})</h2>
+            {photos.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
+            {photos.map((p) => (
+              <div key={p.id} className="admin-row">
+                <div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="admin-photo" src={placePhotoUrl(sb, p.path)} alt="" />
+                  <Link href={`/map?place=${p.place_id}`}><b>{p.place_name}</b></Link>
+                </div>
+                <div className="acts">
+                  <button type="button" className="btn small" onClick={() => act(() => moderatePhoto(sb, p, true))}>{L('אישור', 'Approve')}</button>
+                  <button type="button" className="btn small ghost danger" onClick={() => act(() => moderatePhoto(sb, p, false))}>{L('הסרה', 'Remove')}</button>
+                </div>
+              </div>
+            ))}
+
             <h2>{L('מקומות שדווחו', 'Reported places')} ({q.reported.length})</h2>
             {q.reported.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
             {q.reported.map((p) => (

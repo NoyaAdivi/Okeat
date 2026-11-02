@@ -79,6 +79,16 @@ export async function searchPlaces(q: string, near: LatLng, lang: 'he' | 'en', s
   return unique;
 }
 
+/** A city, town or village by name, to move the map there. */
+export async function findCity(q: string, lang: 'he' | 'en', signal: AbortSignal): Promise<{ name: string; point: LatLng } | null> {
+  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=5&bbox=${IL_BBOX}&lang=${lang === 'en' ? 'en' : 'default'}&osm_tag=place`;
+  const res = await fetch(url, { signal });
+  if (!res.ok) return null;
+  const json = (await res.json()) as { features?: { properties: PhotonProps; geometry: { coordinates: [number, number] } }[] };
+  const f = json.features?.find((x) => ['city', 'town', 'village'].includes(x.properties.osm_value ?? ''));
+  return f?.properties.name ? { name: f.properties.name, point: { lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] } } : null;
+}
+
 /** The street and city nearest to a point, for places saved without a full address. */
 export async function addressAt(point: LatLng, lang: 'he' | 'en'): Promise<string | null> {
   const res = await fetch(`https://photon.komoot.io/reverse?lat=${point.lat}&lon=${point.lng}&limit=1&lang=${lang === 'en' ? 'en' : 'default'}`);

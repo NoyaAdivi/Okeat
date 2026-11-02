@@ -836,3 +836,43 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 /* reporting a place: choose what is wrong */
 .report-kinds { display: flex; flex-wrap: wrap; gap: 6px; }
 .report-kinds .btn[aria-checked="true"] { background: var(--peach-deep); color: var(--on-peach); }
+
+/* desktop: fold the side panel */
+.panel { transition: transform .3s cubic-bezier(.2, .7, .2, 1), visibility .3s; }
+.panel-toggle { position: fixed; z-index: 6; top: 28px; inset-inline-start: 444px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); cursor: pointer; transition: inset-inline-start .3s cubic-bezier(.2, .7, .2, 1), transform .15s; }
+.panel-toggle:hover { transform: scale(1.08); }
+.app[data-panel="closed"] .panel-toggle { inset-inline-start: 16px; }
+.app[data-panel="closed"] .panel { visibility: hidden; transform: translateX(calc(100% + 24px)); }
+[dir="ltr"] .app[data-panel="closed"] .panel { transform: translateX(calc(-100% - 24px)); }
+@media (max-width: 760px) {
+  .panel-toggle { display: none; }
+  .app[data-panel="closed"] .panel { visibility: visible; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .panel, .panel-toggle { transition: none; } }
+
+/* route message */
+.nav-noroute { display: grid; gap: 4px; justify-items: start; font-weight: 600; font-size: 15px; line-height: 1.35; }
+
+/* jump to a city */
+.city-jump { display: flex; width: 100%; align-items: center; gap: 8px; margin-bottom: 12px; border: 0; border-radius: 14px; padding: 10px 12px; background: var(--peach-soft); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+
+/* save, photos, reviews */
+.extras-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+.extras-bar .btn[aria-pressed="true"] { background: var(--peach-soft); }
+.place-photos { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.place-photos figure { position: relative; margin: 0; flex: none; }
+.place-photos img { display: block; width: 132px; height: 100px; object-fit: cover; border-radius: 14px; }
+.place-photos .waiting img { opacity: .55; }
+.place-photos figcaption { position: absolute; inset-inline: 6px; bottom: 6px; padding: 2px 6px; border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 11px; font-weight: 600; text-align: center; }
+.reviews h3 small { font-size: 14px; font-weight: 500; color: var(--muted); }
+.reviews ul { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 10px; }
+.reviews li { display: flex; gap: 10px; align-items: flex-start; }
+.reviews li p { margin: 3px 0 0; font-size: 14px; }
+.reviews li small { color: var(--muted); }
+.stars span { color: var(--line); }
+.stars span.on { color: #E9A820; }
+.star-pick { display: flex; gap: 2px; }
+.star-pick button { border: 0; background: none; padding: 0 2px; font-size: 26px; line-height: 1; color: var(--line); cursor: pointer; transition: transform .15s; }
+.star-pick button.on { color: #E9A820; }
+.star-pick button:hover { transform: scale(1.15); }
+.admin-photo { display: block; width: 120px; height: 90px; object-fit: cover; border-radius: 12px; margin-bottom: 6px; }

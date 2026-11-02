@@ -84,7 +84,12 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
 
       <div className="nav-sum" aria-live="polite">
         {loading || !directions ? (
-          <span className="nav-time">{loading ? L('מחשב מסלול…', 'Finding a route…') : L('לא נמצא מסלול', 'No route found')}</span>
+          loading ? <span className="nav-time">{L('מחשב מסלול…', 'Finding a route…')}</span> : (
+            <span className="nav-noroute">
+              {mode === 'driving' ? L('לא מצאנו מסלול מהמיקום שלך. אפשר לפתוח באפליקציית ניווט.', "We couldn't find a route from your location. Try a navigation app.") : L('אין מסלול מתאים בדרך הזו, אולי המקום רחוק מדי.', 'No suitable route this way. The place may be too far.')}
+              {mode !== 'driving' && <button type="button" className="link" onClick={() => onMode('driving')}>{L('לחישוב ברכב', 'Try by car')}</button>}
+            </span>
+          )
         ) : (
           <>
             <span className="nav-time">{directions.minutes}<small> {L('דק׳', 'min')}</small></span>

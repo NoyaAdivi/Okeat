@@ -29,6 +29,8 @@ import CertificateDialog from './CertificateDialog';
 import AddInfoDialog from './AddInfoDialog';
 import PlaceCommunity from './PlaceCommunity';
 import LocationPicker from './LocationPicker';
+import PlaceExtras from './PlaceExtras';
+import { findCity } from '@/lib/geocode';
 import DisplayToggles from './DisplayToggles';
 import { useL } from './LangProvider';
 import type { FocusRequest, RouteLine } from './MapView';
@@ -556,6 +558,19 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [isAdmin, setIsAdmin] = useState(false);
   const [fixOpen, setFixOpen] = useState(false);
   const [fixingPin, setFixingPin] = useState(false);
+  // Desktop: the side panel can fold away. Opening a place brings it back.
+  const [panelClosed, setPanelClosed] = useState(false);
+  useEffect(() => { if (selectedId) setPanelClosed(false); }, [selectedId]);
+  // Typing a city offers to move the map there.
+  const [cityHit, setCityHit] = useState<{ name: string; point: LatLng } | null>(null);
+  useEffect(() => {
+    const text = debouncedQuery.trim();
+    setCityHit(null);
+    if (text.length < 2) return;
+    const ctrl = new AbortController();
+    findCity(text, lang, ctrl.signal).then(setCityHit).catch(() => undefined);
+    return () => ctrl.abort();
+  }, [debouncedQuery, lang]);
   const fixAddress = useRef<string | null>(null);
   useEffect(() => {
     if (!user || user.is_anonymous) { setIsAdmin(false); return; }
@@ -673,7 +688,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const currentStep = navigating && directions ? directions.steps[Math.min(stepIndex, directions.steps.length - 1)] : null;
 
   return (
-    <div className="app" data-sheet={sheet} ref={appRef}>
+    <div className="app" data-sheet={sheet} data-panel={panelClosed ? 'closed' : 'open'} ref={appRef}>
+      <button type="button" className="panel-toggle" aria-expanded={!panelClosed} aria-label={panelClosed ? L('פתיחת התפריט', 'Open the menu') : L('קיפול התפריט', 'Fold the menu')} onClick={() => setPanelClosed((v) => !v)}>
+        <span aria-hidden="true">{panelClosed ? '☰' : '✕'}</span>
+      </button>
       <div className="map-wrap">
         {!TOKEN ? (
           <div className="map-msg">חסר NEXT_PUBLIC_MAPBOX_TOKEN בקובץ ‎.env.local</div>
@@ -860,6 +878,15 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
 
         <div className="panel-body" ref={bodyRef}>
+          {cityHit && !selected && (
+            <button type="button" className="city-jump" onClick={() => {
+              setFocus({ key: Date.now(), points: [cityHit.point], zoom: 13 });
+              setQuery('');
+              setSheet('peek');
+            }}>
+              <span aria-hidden="true">📍</span> {L(`הצגת האזור של ${cityHit.name} במפה`, `Show ${cityHit.name} on the map`)}
+            </button>
+          )}
           {tab === 'queue' ? (
             <CommunityQueue
               signedIn
@@ -898,6 +925,16 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               onAddInfo={(need) => setInfoFor({ place: selected, need })}
               onShare={() => share(selected)}
               extra={
+                <>
+                <PlaceExtras
+                  key={`extras-${selected.id}`}
+                  sb={sb}
+                  place={selected}
+                  userId={user && !user.is_anonymous ? user.id : null}
+                  isAdmin={isAdmin}
+                  onSignIn={(reason) => setAuth({ reason })}
+                  onToast={showToast}
+                />
                 <PlaceCommunity
                   key={selected.id}
                   sb={sb}
@@ -907,6 +944,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                   onToast={showToast}
                   onChanged={() => { setRefreshKey((k) => k + 1); refreshSelected(); }}
                 />
+                </>
               }
             />
           ) : (

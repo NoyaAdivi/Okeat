@@ -13,8 +13,8 @@ import { placeEmoji } from '@/lib/emoji';
 
 export type RouteLine = { type: 'LineString'; coordinates: [number, number][] };
 /** Change `key` to make the map frame these points. */
-/** exact: put the point in the very middle of the map box (under the pick pin), ignoring the panels. */
-export type FocusRequest = { key: number; points: LatLng[]; exact?: boolean };
+/** zoom: how close to go. exact: put the point in the very middle of the map box (under the pick pin), ignoring the panels. */
+export type FocusRequest = { key: number; points: LatLng[]; exact?: boolean; zoom?: number };
 
 interface Props {
   initialCenter: LatLng;
@@ -525,7 +525,7 @@ export default function MapView({
     if (focus.points.length === 1) {
       const [p] = focus.points;
       // picking needs street level: at a low zoom one pixel is many meters
-      map.easeTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), focus.exact ? 17.5 : 15.5), padding, duration: reducedMotion() ? 0 : 700 });
+      map.easeTo({ center: [p.lng, p.lat], zoom: focus.zoom ?? Math.max(map.getZoom(), focus.exact ? 17.5 : 15.5), padding, duration: reducedMotion() ? 0 : 700 });
       return;
     }
     const b = new mapboxgl.LngLatBounds();

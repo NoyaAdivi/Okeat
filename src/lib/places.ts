@@ -403,3 +403,81 @@ export async function decideOwnership(sb: SupabaseClient, requestId: string, app
   const { error } = await sb.rpc('decide_ownership', { p_request: requestId, p_approve: approve });
   if (error) throw error;
 }
+
+// ---------- reviews, saved places and photos ----------
+export interface PlaceReview { user_id: string; name: string; avatar_url: string | null; rating: number; comment: string | null; created_at: string }
+export interface PlacePhoto { id: string; url: string; approved: boolean }
+export interface PendingPhoto { id: string; place_id: string; place_name: string; path: string }
+
+export const placePhotoUrl = (sb: SupabaseClient, path: string) => sb.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+
+export async function fetchReviews(sb: SupabaseClient, placeId: string): Promise<PlaceReview[]> {
+  const { data, error } = await sb.rpc('place_reviews', { p_id: placeId });
+  if (error) return [];
+  return data as PlaceReview[];
+}
+
+export async function saveReview(sb: SupabaseClient, placeId: string, userId: string, rating: number, comment: string) {
+  const { error } = await sb.from('reviews').upsert({ place_id: placeId, user_id: userId, rating, comment: comment.trim().slice(0, 300) || null });
+  if (error) throw error;
+}
+
+export async function deleteReview(sb: SupabaseClient, placeId: string, userId: string) {
+  const { error } = await sb.from('reviews').delete().eq('place_id', placeId).eq('user_id', userId);
+  if (error) throw error;
+}
+
+export async function isFavorite(sb: SupabaseClient, placeId: string, userId: string): Promise<boolean> {
+  const { data } = await sb.from('favorites').select('place_id').eq('place_id', placeId).eq('user_id', userId).maybeSingle();
+  return !!data;
+}
+
+export async function setFavorite(sb: SupabaseClient, placeId: string, userId: string, on: boolean) {
+  const q = sb.from('favorites');
+  const { error } = on ? await q.insert({ place_id: placeId, user_id: userId }) : await q.delete().eq('place_id', placeId).eq('user_id', userId);
+  if (error) throw error;
+}
+
+export async function fetchMyFavorites(sb: SupabaseClient): Promise<{ id: string; name: string; place_type: string }[]> {
+  const { data, error } = await sb.rpc('my_favorites');
+  if (error) return [];
+  return data ?? [];
+}
+
+export async function fetchPlacePhotos(sb: SupabaseClient, placeId: string): Promise<PlacePhoto[]> {
+  const { data, error } = await sb.from('place_photos').select('id, path, approved').eq('place_id', placeId).order('created_at', { ascending: false }).limit(12);
+  if (error) return [];
+  return (data ?? []).map((p) => ({ id: p.id, approved: p.approved, url: placePhotoUrl(sb, p.path) }));
+}
+
+/** Photos are made smaller in the browser, to keep the free storage for longer. */
+async function shrinkPhoto(file: File): Promise<Blob> {
+  const image = await createImageBitmap(file);
+  const scale = Math.min(1, 1280 / Math.max(image.width, image.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(image.width * scale);
+  canvas.height = Math.round(image.height * scale);
+  canvas.getContext('2d')?.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('שמירת התמונה נכשלה'))), 'image/jpeg', 0.82));
+}
+
+export async function uploadPlacePhoto(sb: SupabaseClient, placeId: string, userId: string, file: File) {
+  const path = `${userId}/${crypto.randomUUID()}.jpg`;
+  const blob = await shrinkPhoto(file);
+  const { error } = await sb.storage.from('place-photos').upload(path, blob, { contentType: 'image/jpeg' });
+  if (error) throw error;
+  const { error: rowError } = await sb.from('place_photos').insert({ place_id: placeId, user_id: userId, path });
+  if (rowError) throw rowError;
+}
+
+export async function fetchPendingPhotos(sb: SupabaseClient): Promise<PendingPhoto[]> {
+  const { data, error } = await sb.rpc('pending_photos');
+  if (error) return [];
+  return data as PendingPhoto[];
+}
+
+export async function moderatePhoto(sb: SupabaseClient, photo: PendingPhoto, approve: boolean) {
+  const { error } = await sb.rpc('moderate_photo', { p_photo: photo.id, p_approve: approve });
+  if (error) throw error;
+  if (!approve) await sb.storage.from('place-photos').remove([photo.path]);
+}

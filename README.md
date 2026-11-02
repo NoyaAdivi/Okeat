@@ -24,6 +24,7 @@
 - **No sign-up needed** – anonymous accounts; optional Google / email sign-in
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
+- **Reviews, saved places and photos** – 1–5 star reviews with a short comment, a private saved list on your profile, and place photos that appear after moderator approval
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
 - **Public profiles** – join date, places added and confirmations, never an e-mail address
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
@@ -63,11 +64,11 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0012 (schema, RLS, functions)
+│   ├── migrations/          0001 … 0016 (schema, RLS, functions)
 │   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
 │   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
 │   ├── RUN-ME-3-IN-SUPABASE.sql same as 0009
-│   └── RUN-ME-4/5/6-IN-SUPABASE.sql same as 0010 – 0012
+│   └── RUN-ME-4 … 10-IN-SUPABASE.sql same as the later migrations
 └── scripts/
     ├── import-osm.mjs       import eateries from OpenStreetMap
     ├── import-overture.mjs  import more eateries from Overture Maps

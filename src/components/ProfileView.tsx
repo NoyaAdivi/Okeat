@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
-import { fetchPlacesAddedBy, fetchProfile, setUserRole, type PublicProfile } from '@/lib/places';
+import { fetchMyFavorites, fetchPlacesAddedBy, fetchProfile, setUserRole, type PublicProfile } from '@/lib/places';
 import { placeTypeLabel } from '@/lib/types';
 import { placeEmoji } from '@/lib/emoji';
 import { formatDate } from '@/lib/geo';
@@ -37,6 +37,8 @@ export default function ProfileView({ id }: { id: string }) {
   // Site admins see role buttons on other people's profiles.
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
+  const [saved, setSaved] = useState<{ id: string; name: string; place_type: string }[]>([]);
+  useEffect(() => { if (mine) fetchMyFavorites(sb).then(setSaved); }, [sb, mine]);
   useEffect(() => {
     if (!user || user.is_anonymous) { setViewerAdmin(false); return; }
     fetchProfile(sb, user.id).then((p) => setViewerAdmin(p?.role === 'admin')).catch(() => setViewerAdmin(false));
@@ -93,6 +95,18 @@ export default function ProfileView({ id }: { id: string }) {
             )}
             {mine && profile.role !== 'user' && (
               <p className="center"><Link className="btn" href="/admin">{L('לדיווחים ולבקשות', 'Reports and requests')}</Link></p>
+            )}
+            {mine && (
+              <section className="sec">
+                <h2>{L('מקומות ששמרתי', 'Saved places')}</h2>
+                {saved.length === 0 ? <p className="muted">{L('עוד אין. לחצו על הלב במקום שאהבתם.', 'None yet. Press the heart on a place you like.')}</p> : (
+                  <ul className="profile-places">
+                    {saved.map((p) => (
+                      <li key={p.id}><Link href={`/map?place=${p.id}`}><span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b></Link></li>
+                    ))}
+                  </ul>
+                )}
+              </section>
             )}
             <section className="sec">
               <h2>{L('מקומות שהוסיף/ה', 'Places added')}</h2>
