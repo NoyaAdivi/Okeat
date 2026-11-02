@@ -876,3 +876,6 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .star-pick button.on { color: #E9A820; }
 .star-pick button:hover { transform: scale(1.15); }
 .admin-photo { display: block; width: 120px; height: 90px; object-fit: cover; border-radius: 12px; margin-bottom: 6px; }
+
+/* stop reading aloud, shown from anywhere on the site */
+.stop-reading { position: fixed; z-index: 60; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); border: 0; border-radius: 999px; padding: 11px 20px; background: var(--ink); color: var(--bg); font: inherit; font-weight: 700; box-shadow: var(--shadow-sm); cursor: pointer; }

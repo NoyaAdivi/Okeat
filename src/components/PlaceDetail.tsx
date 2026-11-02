@@ -11,7 +11,7 @@ import { NEED_EMOJI, placeEmoji } from '@/lib/emoji';
 import { cuisineEmoji, cuisineLabel } from '@/lib/cuisine';
 import HoursTable from './HoursTable';
 import GoogleInfo from './GoogleInfo';
-import { readableText, speak, speechSupported } from '@/lib/speech';
+import { readableText, readAloud, speechSupported } from '@/lib/speech';
 import { useEffect, useRef, useState } from 'react';
 import { addressAt } from '@/lib/geocode';
 
@@ -84,7 +84,7 @@ export default function PlaceDetail({
           <button type="button" className="link" onClick={onBack}>{back}</button>
           <span className="detail-tools">
             {speechSupported() && (
-              <button type="button" className="link" onClick={() => root.current && speak(readableText(root.current))}>
+              <button type="button" className="link" onClick={() => root.current && readAloud(readableText(root.current))}>
                 <span aria-hidden="true">🔊</span> {L('הקראה', 'Read aloud')}
               </button>
             )}

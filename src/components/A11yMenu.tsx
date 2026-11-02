@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_PREFS, applyPrefs, loadPrefs, savePrefs, type Prefs, type ThemePref } from '@/lib/prefs';
-import { hasHebrewVoice, readableText, speak, speechSupported, stopSpeaking } from '@/lib/speech';
+import { hasHebrewVoice, isReadingAloud, readAloud, readableText, speechSupported, stopSpeaking } from '@/lib/speech';
 import { useL } from './LangProvider';
 
 const SIZES = [1, 1.15, 1.3, 1.5];
@@ -15,6 +15,12 @@ export default function A11yMenu() {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
   const [clickToRead, setClickToRead] = useState(false);
   const [reading, setReading] = useState(false);
+  // Any reading, from anywhere on the site, shows a stop button.
+  const [speaking, setSpeaking] = useState(false);
+  useEffect(() => {
+    const poll = setInterval(() => setSpeaking(isReadingAloud()), 400);
+    return () => clearInterval(poll);
+  }, []);
   const [noVoice, setNoVoice] = useState(false);
   // voices load late in some browsers: ask early, so they are ready for the first press
   useEffect(() => { if (speechSupported()) window.speechSynthesis.getVoices(); }, []);
@@ -59,7 +65,7 @@ export default function A11yMenu() {
       const t = e.target as HTMLElement;
       if (t.closest('.a11y')) return;
       const el = t.closest('h1, h2, h3, h4, p, li, button, a, label, dd, dt, summary, .nm, .lv, .note, .badge, .chip, span') as HTMLElement | null;
-      if (el) speak(readableText(el));
+      if (el) readAloud(readableText(el));
     };
     document.addEventListener('click', onClick, true);
     return () => {
@@ -76,7 +82,7 @@ export default function A11yMenu() {
     }
     setNoVoice(L.lang === 'he' && !hasHebrewVoice());
     const root = document.querySelector('[data-read-root]') ?? document.querySelector('main') ?? document.body;
-    speak(readableText(root));
+    readAloud(readableText(root));
     setReading(true);
     const poll = setInterval(() => {
       if (!window.speechSynthesis.speaking) {
@@ -95,6 +101,11 @@ export default function A11yMenu() {
 
   return (
     <div className="a11y">
+      {speaking && (
+        <button type="button" className="stop-reading" onClick={() => { stopSpeaking(); setReading(false); setSpeaking(false); }}>
+          <span aria-hidden="true">⏹️</span> {L('הפסקת הקראה', 'Stop reading')}
+        </button>
+      )}
       <button
         ref={button}
         type="button"

@@ -18,8 +18,19 @@ export function hasHebrewVoice(): boolean {
   return speechSupported() && !!hebrewVoice();
 }
 
+// True while text the person asked to hear is being read, not the navigation voice.
+let readingAloud = false;
+export const isReadingAloud = () => speechSupported() && readingAloud && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
+
+/** Reads text the person asked to hear. The site then shows a stop button. */
+export function readAloud(text: string) {
+  speak(text);
+  readingAloud = !!text.trim();
+}
+
 export function speak(text: string, opts: { interrupt?: boolean; rate?: number } = {}) {
   if (!speechSupported() || !text.trim()) return;
+  readingAloud = false;
   const synth = window.speechSynthesis;
   const say = () => {
     // Long text is split into sentences: some browsers stop reading long utterances.
@@ -45,6 +56,7 @@ export function speak(text: string, opts: { interrupt?: boolean; rate?: number }
 }
 
 export function stopSpeaking() {
+  readingAloud = false;
   if (speechSupported()) window.speechSynthesis.cancel();
 }
 
