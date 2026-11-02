@@ -57,7 +57,8 @@ export default function GoogleInfo({ name, lat, lng }: { name: string; lat: numb
     return () => { cancelled = true; };
   }, [name, lat, lng, lang]);
 
-  if (state === 'off') return null;
+  // nothing at all until there is real information: no "loading" title for a feature that may be off
+  if (state !== 'ok') return null;
   if (state === 'loading') return <section className="sec ginfo"><h3>{L('מידע נוסף מגוגל', 'More from Google')}</h3><p className="muted">{L('טוען…', 'Loading…')}</p></section>;
   if (state === 'error') return null;
   if (!info?.found) return <section className="sec ginfo"><h3>{L('מידע נוסף מגוגל', 'More from Google')}</h3><p className="muted">{L('לא מצאנו את המקום בגוגל.', "We couldn't find this place on Google.")}</p></section>;
