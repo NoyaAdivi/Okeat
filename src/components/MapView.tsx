@@ -104,6 +104,13 @@ function styleMap(map: mapboxgl.Map, dark: boolean, lang: Lang = markerLang) {
         safe(() => map.setLayoutProperty(id, 'text-field', lang === 'en' ? ENGLISH_FIRST : HEBREW_ONLY));
       }
       if (/(road|street|place|settlement|poi)/.test(id)) safe(() => map.setPaintProperty(id, 'text-color', c.label));
+      // City and town names: clear enough to see where you are on the map.
+      if (/settlement-(major|minor)-label/.test(id)) {
+        safe(() => map.setPaintProperty(id, 'text-color', dark ? '#F4ECFA' : '#2B2140'));
+        safe(() => map.setPaintProperty(id, 'text-halo-color', dark ? '#1D1729' : '#FFFFFF'));
+        safe(() => map.setPaintProperty(id, 'text-halo-width', 1.8));
+        safe(() => map.setLayoutProperty(id, 'text-size', ['interpolate', ['linear'], ['zoom'], 6, 13, 9, 16, 12, 19, 15, 22]));
+      }
       continue;
     }
     if (layer.type === 'background') safe(() => map.setPaintProperty(id, 'background-color', c.land));
@@ -411,6 +418,10 @@ export default function MapView({
     if (!map) return;
     const setup = () => {
       addPlaceLayers(map, isDarkNow());
+      // city names stay readable above the round place counts
+      for (const layer of map.getStyle()?.layers ?? []) {
+        if (/settlement-(major|minor)-label/.test(layer.id)) safe(() => map.moveLayer(layer.id));
+      }
       (map.getSource('places') as mapboxgl.GeoJSONSource).setData(placesGeoJSON(placesRef.current, selectedRef.current));
       queueSync();
     };

@@ -554,6 +554,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [isAdmin, setIsAdmin] = useState(false);
   const [fixOpen, setFixOpen] = useState(false);
   const [fixingPin, setFixingPin] = useState(false);
+  const fixAddress = useRef<string | null>(null);
   useEffect(() => {
     if (!user || user.is_anonymous) { setIsAdmin(false); return; }
     fetchProfile(sb, user.id).then((p) => setIsAdmin(p?.role === 'admin')).catch(() => setIsAdmin(false));
@@ -703,7 +704,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             <div className="pickbar" role="dialog" aria-label={L('תיקון מיקום המקום', "Fix the place's location")}>
               <span>{L('הזיזו את המפה או לחצו עליה, עד שחוד הסיכה נמצא בדיוק על המקום', 'Move or click the map until the tip of the pin is exactly on the place')}</span>
               <span className="pick-acts">
-                <button type="button" className="ok" onClick={() => saveFix(pinPoint(), null)}>{L('זה המקום', "That's the place")}</button>
+                <button type="button" className="ok" onClick={() => saveFix(pinPoint(), fixAddress.current)}>{L('זה המקום', "That's the place")}</button>
                 <button type="button" onClick={() => setFixingPin(false)}>{L('ביטול', 'Cancel')}</button>
               </span>
             </div>
@@ -744,7 +745,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             manualLabel={null}
             near={selected}
             onGps={() => undefined}
-            onPickOnMap={() => { setFixOpen(false); setFixingPin(true); setSheet('peek'); setFocus({ key: Date.now(), points: [selected], exact: true }); }}
+            onPickOnMap={(typed) => { fixAddress.current = typed || null; setFixOpen(false); setFixingPin(true); setSheet('peek'); setFocus({ key: Date.now(), points: [selected], exact: true }); }}
             onChoose={(point, label) => saveFix(point, label)}
             onClose={() => setFixOpen(false)}
           />

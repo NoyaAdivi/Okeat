@@ -7,7 +7,8 @@ import { useL } from './LangProvider';
 
 interface Props {
   onGps: () => void;
-  onPickOnMap: () => void;
+  /** in fixing mode, gets the address typed so far */
+  onPickOnMap: (typed?: string) => void;
   onChoose: (point: LatLng, label: string) => void;
   onClose: () => void;
   /** set when the person chose a location by hand */
@@ -69,9 +70,9 @@ export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, 
       {manualLabel && <p className="loc-now">{L('המיקום שבחרתם:', 'Your chosen location:')} {manualLabel}</p>}
       <div className="loc-acts">
         {!fixing && <button type="button" onClick={onGps}><span aria-hidden="true">📡</span> {L('לפי ה-GPS', 'Use GPS')}</button>}
-        <button type="button" onClick={onPickOnMap}><span aria-hidden="true">🗺️</span> {L('בחירה על המפה', 'Pick on the map')}</button>
+        <button type="button" onClick={() => onPickOnMap(q.trim())}><span aria-hidden="true">🗺️</span> {fixing ? L('בחירה על המפה עם הכתובת שכתבתי', 'Pick on the map with this address') : L('בחירה על המפה', 'Pick on the map')}</button>
       </div>
-      <label htmlFor="loc-q" className="loc-label">{L('או חיפוש כתובת, עיר או מקום', 'Or search for an address, city or place')}</label>
+      <label htmlFor="loc-q" className="loc-label">{fixing ? L('כתבו את הכתובת המדויקת: בחרו תוצאה, או סמנו אותה על המפה', 'Type the exact address, then choose a result or mark it on the map') : L('או חיפוש כתובת, עיר או מקום', 'Or search for an address, city or place')}</label>
       <input
         id="loc-q"
         ref={input}
