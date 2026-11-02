@@ -21,7 +21,7 @@ const faqOf = (L: T) => [
   {
     q: L('מאיפה מגיע המידע?', 'Where does the information come from?'),
     a: L('משלושה מקורות: אנשים שמוסיפים ומאשרים מידע באתר, המאגרים הפתוחים OpenStreetMap ו-Overture Maps, וסיווג אוטומטי לפי שם המקום וסוגו. מידע שעוד לא אושר באתר מסומן במפורש.',
-      'Three sources: people who add and confirm information on the site, the open databases OpenStreetMap and Overture Maps, and automatic classification by a place's name and type. Anything not yet confirmed on the site is clearly labelled.'),
+      'Three sources: people who add and confirm information on the site, the open databases OpenStreetMap and Overture Maps, and automatic classification by the name and type of each place. Anything not yet confirmed on the site is clearly labelled.'),
   },
   {
     q: L('למה אין כאן את כל המסעדות שיש בגוגל או באיזי?', "Why aren't all the restaurants from Google or other apps here?"),
