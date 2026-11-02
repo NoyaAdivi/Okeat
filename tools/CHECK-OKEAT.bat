@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0.."
 echo Checking Okeat (types + production build)... > check-output.log
 echo ===== TYPESCRIPT ===== >> check-output.log
 call npx tsc --noEmit >> check-output.log 2>&1

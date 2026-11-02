@@ -1,6 +1,6 @@
 @echo off
 title Okeat - update all places
-cd /d "%~dp0"
+cd /d "%~dp0.."
 if not exist .env.local (
   echo.
   echo   .env.local is missing from this folder. Copy it here from your Okeat folder and run again.
