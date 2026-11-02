@@ -47,6 +47,7 @@ export default function AdminView() {
                   <div className="muted small">{L(`${p.reports} דיווחים`, `${p.reports} reports`)}{p.reasons?.length ? ': ' + p.reasons.join(' · ') : ''}</div>
                 </div>
                 <div className="acts">
+                  <Link className="btn small" href={`/map?place=${p.id}`}>{L('תיקון כתובת', 'Fix address')}</Link>
                   <button type="button" className="btn small" onClick={() => act(() => moderatePlace(sb, p.id, false))}>{L('המקום בסדר', 'Keep it')}</button>
                   <button type="button" className="btn small ghost danger" onClick={() => act(() => moderatePlace(sb, p.id, true))}>{L('הסרה', 'Remove')}</button>
                 </div>

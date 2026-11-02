@@ -23,12 +23,20 @@ interface Props {
 }
 
 /** Bottom of a place: who added it, the owner's badge, "report", "I own this business", and moderator tools. */
+const REPORT_KINDS = [
+  { id: 'closed', he: 'המקום נסגר', en: 'It closed' },
+  { id: 'gone', he: 'המקום לא קיים', en: "It doesn't exist" },
+  { id: 'address', he: 'הכתובת לא נכונה', en: 'Wrong address' },
+  { id: 'other', he: 'אחר', en: 'Something else' },
+] as const;
+
 export default function PlaceCommunity({ sb, place, signedIn, onSignIn, onToast, onChanged }: Props) {
   const L = useL();
   const lang = L.lang;
   const [meta, setMeta] = useState<PlaceMeta | null>(null);
   const [panel, setPanel] = useState<'none' | 'report' | 'owner'>('none');
   const [reason, setReason] = useState('');
+  const [kind, setKind] = useState<(typeof REPORT_KINDS)[number]['id']>('closed');
   const [code, setCode] = useState('');
   const [proof, setProof] = useState('');
   const [note, setNote] = useState('');
@@ -119,11 +127,18 @@ export default function PlaceCommunity({ sb, place, signedIn, onSignIn, onToast,
 
       {panel === 'report' && (
         <div className="mini-form">
-          <label htmlFor="rep">{L('מה לא בסדר? (למשל: המקום נסגר, לא קיים, ספאם)', "What's wrong? (e.g. closed, doesn't exist, spam)")}</label>
-          <input id="rep" type="text" maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
-          <p className="hint">{L('אחרי 3 דיווחים המקום עובר לבדיקה של מנהל, ורק מנהל יכול למחוק אותו.', 'After 3 reports the place goes to a moderator, and only a moderator can remove it.')}</p>
-          <button type="button" className="btn small" disabled={busy} onClick={() => run(async () => {
-            await reportPlace(sb, place.id, reason.trim());
+          <span className="lab">{L('מה לא בסדר?', "What's wrong?")}</span>
+          <div className="report-kinds" role="radiogroup" aria-label={L('סוג הדיווח', 'Type of report')}>
+            {REPORT_KINDS.map((k) => (
+              <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} className="btn small ghost" onClick={() => setKind(k.id)}>{L(k.he, k.en)}</button>
+            ))}
+          </div>
+          <label htmlFor="rep">{kind === 'address' ? L('מה הכתובת הנכונה?', 'What is the correct address?') : L('פרטים נוספים (לא חובה)', 'More details (optional)')}</label>
+          <input id="rep" type="text" maxLength={260} value={reason} onChange={(e) => setReason(e.target.value)} />
+          <p className="hint">{L('הדיווח מגיע למנהל האתר, והמקום משתנה רק אחרי אישור.', 'Your report goes to the site admin, and the place changes only after approval.')}</p>
+          <button type="button" className="btn small" disabled={busy || (kind === 'address' && !reason.trim())} onClick={() => run(async () => {
+            const chosen = REPORT_KINDS.find((k) => k.id === kind)!;
+            await reportPlace(sb, place.id, `[${chosen.he}] ${reason.trim()}`.trim());
             setPanel('none');
             onToast(L('הדיווח נשלח. תודה!', 'Report sent. Thanks!'));
             await load();

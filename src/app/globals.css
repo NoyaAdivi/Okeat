@@ -832,3 +832,7 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .role-buttons .btn[aria-pressed="true"] { background: var(--peach-deep); color: var(--on-peach); }
 
 .a11y-note { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+
+/* reporting a place: choose what is wrong */
+.report-kinds { display: flex; flex-wrap: wrap; gap: 6px; }
+.report-kinds .btn[aria-checked="true"] { background: var(--peach-deep); color: var(--on-peach); }
