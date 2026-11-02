@@ -21,16 +21,26 @@ export function hasHebrewVoice(): boolean {
 export function speak(text: string, opts: { interrupt?: boolean; rate?: number } = {}) {
   if (!speechSupported() || !text.trim()) return;
   const synth = window.speechSynthesis;
-  if (opts.interrupt ?? true) synth.cancel();
-  // Long text is split into sentences: some browsers stop reading long utterances.
-  const parts = text.replace(/\s+/g, ' ').match(/[^.!?\n]+[.!?]?/g) ?? [text];
-  for (const part of parts) {
-    const u = new SpeechSynthesisUtterance(part.trim());
-    u.lang = pageIsEnglish() ? 'en-US' : 'he-IL';
-    const v = pageIsEnglish() ? englishVoice() : hebrewVoice();
-    if (v) u.voice = v;
-    u.rate = opts.rate ?? 1;
-    synth.speak(u);
+  const say = () => {
+    // Long text is split into sentences: some browsers stop reading long utterances.
+    const parts = text.replace(/\s+/g, ' ').match(/[^.!?\n]+[.!?]?/g) ?? [text];
+    for (const part of parts) {
+      const u = new SpeechSynthesisUtterance(part.trim());
+      u.lang = pageIsEnglish() ? 'en-US' : 'he-IL';
+      const v = pageIsEnglish() ? englishVoice() : hebrewVoice();
+      if (v) u.voice = v;
+      u.rate = opts.rate ?? 1;
+      synth.speak(u);
+    }
+  };
+  synth.resume(); // Chrome can stay paused after a tab sleeps
+  const busy = synth.speaking || synth.pending;
+  if ((opts.interrupt ?? true) && busy) {
+    // Some browsers drop what is spoken right after cancel(), so wait a moment.
+    synth.cancel();
+    setTimeout(say, 80);
+  } else {
+    say();
   }
 }
 

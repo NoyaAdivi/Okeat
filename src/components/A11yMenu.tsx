@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_PREFS, applyPrefs, loadPrefs, savePrefs, type Prefs, type ThemePref } from '@/lib/prefs';
-import { readableText, speak, speechSupported, stopSpeaking } from '@/lib/speech';
+import { hasHebrewVoice, readableText, speak, speechSupported, stopSpeaking } from '@/lib/speech';
 import { useL } from './LangProvider';
 
 const SIZES = [1, 1.15, 1.3, 1.5];
@@ -15,6 +15,9 @@ export default function A11yMenu() {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
   const [clickToRead, setClickToRead] = useState(false);
   const [reading, setReading] = useState(false);
+  const [noVoice, setNoVoice] = useState(false);
+  // voices load late in some browsers: ask early, so they are ready for the first press
+  useEffect(() => { if (speechSupported()) window.speechSynthesis.getVoices(); }, []);
   const panel = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
 
@@ -71,6 +74,7 @@ export default function A11yMenu() {
       setReading(false);
       return;
     }
+    setNoVoice(L.lang === 'he' && !hasHebrewVoice());
     const root = document.querySelector('[data-read-root]') ?? document.querySelector('main') ?? document.body;
     speak(readableText(root));
     setReading(true);
@@ -141,6 +145,7 @@ export default function A11yMenu() {
                   <span aria-hidden="true">👆</span> {L('הקראה בלחיצה', 'Read what I click')}
                 </button>
               </div>
+              {noVoice && <p className="a11y-note">{L('במכשיר הזה אין קול בעברית, אז ייתכן שלא תשמעו כלום. אפשר להוסיף אותו בהגדרות השפה של המכשיר.', 'This device has no Hebrew voice, so you may not hear anything. You can add one in the device language settings.')}</p>}
             </div>
           )}
 

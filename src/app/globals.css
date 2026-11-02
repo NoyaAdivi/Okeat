@@ -830,3 +830,5 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .role-admin p { margin: 0; font-size: 14px; }
 .role-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .role-buttons .btn[aria-pressed="true"] { background: var(--peach-deep); color: var(--on-peach); }
+
+.a11y-note { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
