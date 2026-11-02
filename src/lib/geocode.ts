@@ -78,3 +78,15 @@ export async function searchPlaces(q: string, near: LatLng, lang: 'he' | 'en', s
   }
   return unique;
 }
+
+/** The street and city nearest to a point, for places saved without a full address. */
+export async function addressAt(point: LatLng, lang: 'he' | 'en'): Promise<string | null> {
+  const res = await fetch(`https://photon.komoot.io/reverse?lat=${point.lat}&lon=${point.lng}&limit=1&lang=${lang === 'en' ? 'en' : 'default'}`);
+  if (!res.ok) return null;
+  const json = (await res.json()) as { features?: { properties: PhotonProps }[] };
+  const p = json.features?.[0]?.properties;
+  if (!p) return null;
+  const street = p.street && p.housenumber ? `${p.street} ${p.housenumber}` : p.street;
+  const city = p.city || p.locality || p.district || '';
+  return [street, city].filter(Boolean).join(', ') || null;
+}

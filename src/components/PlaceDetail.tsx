@@ -12,7 +12,8 @@ import { cuisineEmoji, cuisineLabel } from '@/lib/cuisine';
 import HoursTable from './HoursTable';
 import GoogleInfo from './GoogleInfo';
 import { readableText, speak, speechSupported } from '@/lib/speech';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { addressAt } from '@/lib/geocode';
 
 interface Props {
   place: Place;
@@ -51,6 +52,15 @@ export default function PlaceDetail({
   place, goPanel, voted, certificateUrl, onBack, backLabel, onVote, onAddCertificate, onAddInfo, onShare, onFixLocation, extra,
 }: Props) {
   const L = useL();
+  // Saved without a street: show the nearest one, marked as approximate.
+  const [nearby, setNearby] = useState<string | null>(null);
+  useEffect(() => {
+    setNearby(null);
+    if (place.address && /\d/.test(place.address)) return;
+    let live = true;
+    addressAt(place, L.lang).then((a) => { if (live && a) setNearby(a); }).catch(() => undefined);
+    return () => { live = false; };
+  }, [place.id, place.lat, place.lng, place.address, L.lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const lang = L.lang;
   const back = backLabel ?? L('חזרה לרשימה', 'Back to the list');
   const st = openStatus(place.hours, lang);
@@ -85,6 +95,7 @@ export default function PlaceDetail({
         <div className="meta">
           <span className="tag">{placeTypeLabel(place.place_type, lang)}</span>
           {place.address && <span>{place.address}</span>}
+          {nearby && <span>{L(`בערך: ${nearby}`, `About: ${nearby}`)}</span>}
           <span className={st.open ? 'st-open' : undefined}>{st.text}</span>
         </div>
       </div>
