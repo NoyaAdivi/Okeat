@@ -570,11 +570,61 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const activeNeeds = Object.values(filter).filter((v) => v !== null && v !== undefined).length;
   const showSearchHere = false;
   const swipe = useRef<{ y: number; t: number; scrolled: boolean } | null>(null);
-  const cycleSheet = () => setSheet((s) => (s === 'peek' ? 'half' : s === 'half' ? 'full' : 'peek'));
+  const cycleSheet = () => {
+    if (dragged.current) { dragged.current = false; return; }
+    setSheet((s) => (s === 'peek' ? 'half' : s === 'half' ? 'full' : 'peek'));
+  };
+
+  // Phone: the list follows the finger on the handle and the header, then settles on the closest size.
+  const appRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ y: number; h: number; t: number; moved: boolean } | null>(null);
+  const dragged = useRef(false);
+  const sheetDrag = {
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      const panel = e.currentTarget.closest('.panel') as HTMLElement | null;
+      if (!panel || !panel.querySelector<HTMLElement>('.sheet-handle')?.offsetParent) return; // desktop
+      if ((e.target as HTMLElement).closest('input, a, [role="tab"], button:not(.sheet-handle)')) return;
+      drag.current = { y: e.clientY, h: panel.getBoundingClientRect().height, t: Date.now(), moved: false };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+      const d = drag.current;
+      if (!d) return;
+      const dy = d.y - e.clientY;
+      if (!d.moved && Math.abs(dy) < 6) return;
+      d.moved = true;
+      appRef.current?.classList.add('sheet-dragging');
+      const h = Math.min(window.innerHeight * 0.9, Math.max(150, d.h + dy));
+      appRef.current?.style.setProperty('--sheet-h', `${h}px`);
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
+      const d = drag.current;
+      drag.current = null;
+      if (!d?.moved) return;
+      dragged.current = true;
+      setTimeout(() => { dragged.current = false; }, 300);
+      const vh = window.innerHeight;
+      const dy = d.y - e.clientY;
+      const end = d.h + dy;
+      const sizes: [Sheet, number][] = [['peek', 236], ['half', vh * 0.56], ['full', vh * 0.9]];
+      // a quick flick goes one size further in that direction
+      const flick = Math.abs(dy) / Math.max(1, Date.now() - d.t) > 0.5;
+      const aim = flick ? end + Math.sign(dy) * vh * 0.2 : end;
+      const next = sizes.reduce((a, b) => (Math.abs(b[1] - aim) < Math.abs(a[1] - aim) ? b : a))[0];
+      appRef.current?.classList.remove('sheet-dragging');
+      appRef.current?.style.removeProperty('--sheet-h');
+      setSheet(next);
+    },
+    onPointerCancel: () => {
+      drag.current = null;
+      appRef.current?.classList.remove('sheet-dragging');
+      appRef.current?.style.removeProperty('--sheet-h');
+    },
+  };
   const currentStep = navigating && directions ? directions.steps[Math.min(stepIndex, directions.steps.length - 1)] : null;
 
   return (
-    <div className="app" data-sheet={sheet}>
+    <div className="app" data-sheet={sheet} ref={appRef}>
       <div className="map-wrap">
         {!TOKEN ? (
           <div className="map-msg">חסר NEXT_PUBLIC_MAPBOX_TOKEN בקובץ ‎.env.local</div>
@@ -666,7 +716,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       </div>
 
       <aside className="panel" aria-label={L('מקומות', 'Places')} id="main" data-read-root
-        onTouchStart={(e) => { swipe.current = { y: e.touches[0].clientY, t: Date.now(), scrolled: (bodyRef.current?.scrollTop ?? 0) > 0 }; }}
+        onTouchStart={(e) => { if ((e.target as HTMLElement).closest('.sheet-handle, .panel-head')) return; swipe.current = { y: e.touches[0].clientY, t: Date.now(), scrolled: (bodyRef.current?.scrollTop ?? 0) > 0 }; }}
         onTouchEnd={(e) => {
           const s0 = swipe.current;
           swipe.current = null;
@@ -676,10 +726,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           if (dy < -40) setSheet((v) => (v === 'peek' ? 'half' : 'full'));
           else if (dy > 40 && !s0.scrolled) setSheet((v) => (v === 'full' ? 'half' : 'peek'));
         }}>
-        <button type="button" className="sheet-handle" onClick={cycleSheet} aria-label={L('הגדלה או הקטנה של הרשימה', 'Make the list bigger or smaller')}>
+        <button type="button" className="sheet-handle" {...sheetDrag} onClick={cycleSheet} aria-label={L('הגדלה או הקטנה של הרשימה', 'Make the list bigger or smaller')}>
           <span />
         </button>
-        <div className="panel-head">
+        <div className="panel-head" {...sheetDrag}>
           <div className="brand">
             <Link href="/" className="brand-home" aria-label={L('Okeat, לדף הבית', 'Okeat, home page')}>
               <Logo size={44} />

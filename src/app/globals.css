@@ -521,7 +521,7 @@ span.account { background: var(--surface); }
 .site-foot a { color: var(--ink); }
 .foot-note { margin: 0; font-size: 13px; color: var(--muted); max-width: 60ch; }
 
-@media (max-width: 860px) {
+@media (max-width: 760px) {
   .need-cards, .steps-row { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
 }
@@ -807,3 +807,11 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 
 /* the source note: full width, no single word alone on the last line */
 .foot-note { max-width: 920px; margin-inline: auto; text-wrap: balance; }
+
+/* phone: the list follows the finger; a big, easy handle */
+.app.sheet-dragging .panel, .app.sheet-dragging .map-tools, .app.sheet-dragging .fab { transition: none; }
+@media (max-width: 760px) {
+  .sheet-handle { padding: 14px 0 12px; min-height: 36px; touch-action: none; cursor: grab; }
+  .panel-head { touch-action: none; user-select: none; }
+  .panel-head input { user-select: text; }
+}
