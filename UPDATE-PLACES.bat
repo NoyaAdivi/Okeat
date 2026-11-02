@@ -11,17 +11,14 @@ if not exist .env.local (
 if not exist node_modules call npm install
 call npm install --no-save @duckdb/node-api
 echo.
-echo   1 of 4: places from OpenStreetMap
+echo   1 of 3: places from OpenStreetMap
 call npm run import:osm || goto failed
 echo.
-echo   2 of 4: places from Overture Maps
+echo   2 of 3: places from Overture Maps
 call npm run import:overture -- --min-confidence 0.4 || goto failed
 echo.
-echo   3 of 4: food types
-call npm run classify || goto failed
-echo.
-echo   4 of 4: vegan, vegetarian and gluten-free
-call npm run classify:diet || goto failed
+echo   3 of 3: vegan and vegetarian, free rules only
+call npm run classify:diet -- --no-ai || goto failed
 echo.
 echo   Done. Refresh the site.
 echo.

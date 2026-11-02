@@ -6,6 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { LEVELS, levelNote, levelText, type ExtractedCertificate, type KosherLevel } from '@/lib/types';
 import { extractCertificate, uploadCertificatePhoto } from '@/lib/places';
 import { friendly } from '@/lib/errors';
+import { readCertificateLocally } from '@/lib/certificateOcr';
 
 /** What the parent submits to propose_kosher_claim(). */
 export interface CertificateValue {
@@ -107,7 +108,8 @@ export default function CertificateCapture({ sb, onChange }: Props) {
 
     setPhase('reading');
     try {
-      const r = await extractCertificate(path);
+      // the server first; if it can't read, the free reader in the browser
+      const r = await extractCertificate(path).catch(() => readCertificateLocally(file));
       setExtracted(r);
       setBody(r.supervisingBody ?? '');
       setLevel(r.level === 'unknown' ? '' : r.level);
