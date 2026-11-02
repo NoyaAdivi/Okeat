@@ -6,3 +6,5 @@ node_modules/
 UPLOAD-TO-GITHUB/
 client_secret*.json
 *.log
+
+linkedin-images/
