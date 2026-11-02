@@ -6,10 +6,10 @@ export const EXTRA_NEEDS: Need[] = ['dairy_free', 'egg_free', 'peanut_free', 'nu
 export const NEED_ORDER: Need[] = [...MAIN_NEEDS, ...EXTRA_NEEDS];
 /** Needs with the two levels some dishes / the whole place, sent to the database as p_extra. */
 export const TWO_LEVEL_NEEDS: Need[] = ['vegetarian', ...EXTRA_NEEDS];
-/** colour class: k / v / g for the main needs (vegetarian shares vegan's green), e (pastel lilac) for allergies */
-export const NEED_CLASS: Record<Need, 'k' | 'v' | 'g' | 'e'> = {
+/** colour class: k / v / g for the main needs (h is vegetarian's own lime), e (pastel lilac) for allergies */
+export const NEED_CLASS: Record<Need, 'k' | 'v' | 'h' | 'g' | 'e'> = {
   kosher: 'k', vegan: 'v', gluten_free: 'g',
-  vegetarian: 'v', dairy_free: 'e', egg_free: 'e', peanut_free: 'e', nut_free: 'e', sesame_free: 'e', soy_free: 'e',
+  vegetarian: 'h', dairy_free: 'e', egg_free: 'e', peanut_free: 'e', nut_free: 'e', sesame_free: 'e', soy_free: 'e',
 };
 export const isMainNeed = (n: Need) => MAIN_NEEDS.includes(n);
 

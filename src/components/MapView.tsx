@@ -468,6 +468,7 @@ export default function MapView({
     if (!map || !user) return;
     if (!userMarker.current) {
       const el = document.createElement('div');
+      el.dataset.label = lang === 'en' ? 'My location' : 'המיקום שלי';
       el.className = 'me-dot';
       el.setAttribute('aria-label', markerLang === 'en' ? 'Your location' : 'המיקום שלך');
       userMarker.current = new mapboxgl.Marker({ element: el }).setLngLat([user.lng, user.lat]).addTo(map);

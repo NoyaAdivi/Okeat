@@ -28,7 +28,7 @@ const needsOf = (L: T) => [
     go: L('למקומות הטבעוניים', 'Vegan places'),
   },
   {
-    key: 'vegetarian', cls: 'v', letter: L('צ', 'Vg'), emoji: '🥦', title: L('צמחוני', 'Vegetarian'),
+    key: 'vegetarian', cls: 'h', letter: L('צ', 'Vg'), emoji: '🥦', title: L('צמחוני', 'Vegetarian'),
     text: L('מקומות בלי בשר ודגים, או מקומות עם מנות צמחוניות, כדי שתדעו מראש מה מחכה לכם.', 'Places with no meat or fish, or with vegetarian dishes, so you know what to expect.'),
     levels: [L('יש מנות', 'Has dishes'), L('הכול צמחוני', 'All vegetarian')],
     go: L('למקומות הצמחוניים', 'Vegetarian places'),

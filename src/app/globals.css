@@ -462,7 +462,7 @@ span.account { background: var(--surface); }
 .cta.primary { background: var(--peach-deep); color: #fff; box-shadow: 0 12px 28px color-mix(in srgb, var(--peach-deep) 40%, transparent); }
 
 .band { padding: 0 24px; margin-top: -36px; position: relative; }
-.stats { list-style: none; margin: 0 auto; padding: 0; max-width: 960px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.stats { list-style: none; margin: 0 auto; padding: 0; max-width: 960px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
 .stat { background: var(--surface); border-radius: 24px; padding: 18px; display: grid; justify-items: center; gap: 2px; box-shadow: var(--shadow-sm); }
 .stat-emoji { font-size: 26px; }
 .stat-num { font-family: var(--font-display); font-size: 34px; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -787,5 +787,15 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .stat { animation: stat-in .35s ease-out backwards; }
 @keyframes stat-in { from { opacity: 0; transform: translateY(8px); } }
 [data-still] .stat { animation: none; }
-.stats-more { display: block; margin: 12px auto 0; border: 0; border-radius: 999px; padding: 9px 20px; background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .15s; }
-.stats-more:hover { transform: translateY(-1px); }
+
+/* vegetarian: its own lime, so it reads apart from vegan's mint */
+:root { --veg: #6E8B14; --veg-soft: #EFF5CC; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --veg: #C7DD6E; --veg-soft: #3A4220; } }
+:root[data-theme="dark"] { --veg: #C7DD6E; --veg-soft: #3A4220; }
+.h { --c: var(--veg); --cs: var(--veg-soft); }
+.stat.h .stat-num { color: var(--veg); }
+
+/* my location: strong on both the light and the dark map */
+.me-dot::after { content: attr(data-label); position: absolute; top: 27px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 2px 9px; border-radius: 999px; background: var(--ink); color: var(--surface); font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); pointer-events: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .me-dot { background: #FF7A5C; border-color: #fff; } }
+:root[data-theme="dark"] .me-dot { background: #FF7A5C; border-color: #fff; }

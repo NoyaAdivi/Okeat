@@ -121,7 +121,7 @@ export default async function About() {
           <ul className="legend-grid">
             <li><span className="seal k" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('כשר', 'Kosher')}</b> {L('עם צילום תעודה', 'with a certificate photo')}</span></li>
             <li><span className="seal v" aria-hidden="true"><span>{L('ט', 'V')}</span></span><span><b>{L('טבעוני', 'Vegan')}</b></span></li>
-            <li><span className="seal v" aria-hidden="true"><span>{L('צ', 'Vg')}</span></span><span><b>{L('צמחוני', 'Vegetarian')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהמנות.', 'No meat or fish, in the whole place or in some dishes.')}</span></li>
+            <li><span className="seal h" aria-hidden="true"><span>{L('צ', 'Vg')}</span></span><span><b>{L('צמחוני', 'Vegetarian')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהמנות.', 'No meat or fish, in the whole place or in some dishes.')}</span></li>
             <li><span className="seal g" aria-hidden="true"><span>{L('ג', 'G')}</span></span><span><b>{L('ללא גלוטן', 'Gluten-free')}</b></span></li>
             <li><span className="seal k soft" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מ-OpenStreetMap, עוד לא אושר באתר', 'from OpenStreetMap, not confirmed on the site yet')}</span></li>
             <li><span className="seal x pending" aria-hidden="true"><span>?</span></span><span><b>{L('ממתין לאישור', 'Waiting for confirmation')}</b> {L('הקהילה', 'by the community')}</span></li>

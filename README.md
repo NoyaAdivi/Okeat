@@ -16,7 +16,7 @@
 
 ## ✨ Features
 
-- **Nationwide map** of thousands of eateries, clustered for speed, Israel only, in Hebrew and English, with light, dark and automatic themes
+- **Nationwide map** of over 20,000 eateries, clustered for speed, Israel only, in Hebrew and English, with light, dark and automatic themes
 - **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by food type (pizza, sushi, coffee…) and "open now" in Israel time
 - **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
 - **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. Claude reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
@@ -62,7 +62,7 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0009 (schema, RLS, functions)
+│   ├── migrations/          0001 … 0010 (schema, RLS, functions)
 │   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
 │   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
 │   └── RUN-ME-3-IN-SUPABASE.sql same as 0009

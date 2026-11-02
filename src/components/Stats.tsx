@@ -18,7 +18,6 @@ export default function Stats() {
   const L = useL();
   const sb = useMemo(() => createClient(), []);
   const [counts, setCounts] = useState<Counts | null>(null);
-  const [all, setAll] = useState(false);
 
   useEffect(() => {
     const load = () => { fetchAllStats(sb).then(setCounts).catch(() => undefined); };
@@ -28,31 +27,31 @@ export default function Stats() {
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', load); };
   }, [sb]);
 
-  // allergies are counted only on a database that has them
-  const allergies = EXTRA_NEEDS.filter((n) => counts?.[n] !== undefined);
+  // all the allergies in one tile; it appears once there is something to show
+  const allergies = EXTRA_NEEDS.reduce((sum, n) => sum + (counts?.[n] ?? 0), 0);
 
   return (
-    <>
-      <ul className="stats" aria-label={L('המספרים במפה', 'The map in numbers')}>
-        <li className="stat p">
-          <span className="stat-emoji" aria-hidden="true">📍</span>
-          <CountUp value={counts?.places ?? null} />
-          <span className="stat-label">{L('מקומות במפה', 'Places on the map')}</span>
+    <ul className="stats" aria-label={L('המספרים במפה', 'The map in numbers')}>
+      <li className="stat p">
+        <span className="stat-emoji" aria-hidden="true">📍</span>
+        <CountUp value={counts?.places ?? null} />
+        <span className="stat-label">{L('מקומות במפה', 'Places on the map')}</span>
+      </li>
+      {MAIN_NEEDS.map((n) => (
+        <li key={n} className={`stat ${NEED_CLASS[n]}`}>
+          <span className="stat-emoji" aria-hidden="true">{NEED_EMOJI[n]}</span>
+          <CountUp value={counts?.[n] ?? (counts ? 0 : null)} />
+          <span className="stat-label">{needLabel(n, L.lang)}</span>
         </li>
-        {[...MAIN_NEEDS, ...(all ? allergies : [])].map((n) => (
-          <li key={n} className={`stat ${NEED_CLASS[n]}`}>
-            <span className="stat-emoji" aria-hidden="true">{NEED_EMOJI[n]}</span>
-            <CountUp value={counts?.[n] ?? (counts ? 0 : null)} />
-            <span className="stat-label">{needLabel(n, L.lang)}</span>
-          </li>
-        ))}
-      </ul>
-      {allergies.length > 0 && (
-        <button type="button" className="stats-more" aria-expanded={all} onClick={() => setAll((v) => !v)}>
-          {all ? L('הצגת פחות', 'Show less') : L('הצגת הכול', 'Show all')}
-        </button>
+      ))}
+      {allergies > 0 && (
+        <li className="stat e">
+          <span className="stat-emoji" aria-hidden="true">🥜</span>
+          <CountUp value={allergies} />
+          <span className="stat-label">{L('מידע על אלרגיות', 'Allergy details')}</span>
+        </li>
       )}
-    </>
+    </ul>
   );
 }
 
