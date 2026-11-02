@@ -515,3 +515,22 @@ export async function clearClientError(sb: SupabaseClient, message: string) {
   const { error } = await sb.from('client_errors').delete().eq('message', message);
   if (error) throw error;
 }
+
+// ---------- places that appear twice ----------
+export interface DuplicatePair { a_id: string; a_name: string; a_address: string | null; b_id: string; b_name: string; b_address: string | null; meters: number }
+
+export async function fetchDuplicatePairs(sb: SupabaseClient): Promise<DuplicatePair[]> {
+  const { data, error } = await sb.rpc('duplicate_pairs');
+  if (error) throw error;
+  return data as DuplicatePair[];
+}
+
+export async function mergePair(sb: SupabaseClient, pair: DuplicatePair) {
+  const { error } = await sb.rpc('admin_merge_pair', { p_a: pair.a_id, p_b: pair.b_id });
+  if (error) throw error;
+}
+
+export async function dismissPair(sb: SupabaseClient, pair: DuplicatePair) {
+  const { error } = await sb.rpc('dismiss_duplicate', { p_a: pair.a_id, p_b: pair.b_id });
+  if (error) throw error;
+}

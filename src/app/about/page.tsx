@@ -14,7 +14,7 @@ const journeyOf = (L: T) => [
   { emoji: '➕', title: L('מישהו מוסיף', 'Someone adds it'), text: L('למשל "המקום הזה טבעוני לגמרי". בכשרות אפשר לצרף צילום של התעודה כדי לחזק את המידע.', 'For example "this place is fully vegan". For kosher, a photo of the certificate can be added to make it stronger.') },
   { emoji: '👀', title: L('אחרים מאשרים', 'Others confirm'), text: L('אנשים שהיו במקום לוחצים "נכון, ראיתי בעצמי". אי אפשר לאשר משהו שהוספתם בעצמכם.', 'People who were there tap "True, I saw it myself". You can\'t confirm something you added yourself.') },
   { emoji: '✅', title: L('מאושר', 'It gets confirmed'), text: L('אחרי שלושה אישורים המידע מסומן כמאושר, ומופיע בסינון.', 'After three confirmations it is marked as confirmed and shows up in the filters.') },
-  { emoji: '⏰', title: L('נשאר עדכני', 'It stays up to date'), text: L('תעודה שפג תוקפה מסומנת לבד. אם שלושה אנשים מדווחים שמשהו כבר לא נכון, הוא יורד.', 'An expired certificate is flagged automatically. If three people report something is no longer true, it comes down.') },
+  { emoji: '⏰', title: L('נשאר עדכני', 'It stays up to date'), text: L('תעודה שפג תוקפה מסומנת לבד, ופרט שלא אושר יותר משנה מסומן לבדיקה. אם שלושה אנשים מדווחים שמשהו כבר לא נכון, הוא יורד.', 'An expired certificate is flagged automatically, and a detail not confirmed for over a year is marked for checking. If three people report something is no longer true, it comes down.') },
 ];
 
 const faqOf = (L: T) => [
@@ -65,13 +65,18 @@ const faqOf = (L: T) => [
   },
   {
     q: L('מה רואים אחרים בפרופיל שלי?', 'What can others see on my profile?'),
-    a: L('את השם ותמונת הפרופיל מהחשבון שהתחברת איתו, מתי הצטרפת, ומה הוספת ואישרת. כתובת המייל לא מופיעה אף פעם.',
-      'The name and picture from the account you signed in with, when you joined, and what you added and confirmed. Your e-mail address is never shown.'),
+    a: L('את השם ותמונת הפרופיל מהחשבון שהתחברת איתו, מתי הצטרפת, ומה הוספת ואישרת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מופיעה אף פעם, ורשימת המקומות ששמרת גלויה רק לך.',
+      'The name and picture from the account you signed in with, when you joined, and what you added and confirmed. A review you write is shown with your name. Your e-mail address is never shown, and your saved places are visible only to you.'),
   },
   {
     q: L('צריך להירשם?', 'Do I need to sign up?'),
-    a: L('לא. אפשר להוסיף ולאשר בלי חשבון. ההתחברות רק שומרת את מה שעשיתם, גם כשנכנסים ממכשיר אחר.',
-      'No. You can add and confirm without an account. Signing in just keeps what you did, even on another device.'),
+    a: L('לא. אפשר להוסיף ולאשר בלי חשבון. כדי לכתוב ביקורת, לשמור מקומות או להעלות תמונה של מקום צריך להתחבר. ההתחברות גם שומרת את מה שעשיתם, כשנכנסים ממכשיר אחר.',
+      'No. You can add and confirm without an account. To write a review, save places or add a photo of a place, you need to sign in. Signing in also keeps what you did when you use another device.'),
+  },
+  {
+    q: L('מה אפשר לעשות חוץ מלאשר מידע?', 'What else can I do besides confirming?'),
+    a: L('אפשר לכתוב ביקורת עם דירוג של 1 עד 5 כוכבים, לשמור מקומות שאהבתם ברשימה בפרופיל, ולהעלות תמונות של המקום. תמונה מופיעה אחרי אישור של מנהל, ואם ביקורת פוגענית אפשר לדווח עליה.',
+      'You can write a review with a rating of 1 to 5 stars, save places you like to a list on your profile, and add photos of the place. A photo appears after a moderator approves it, and an offensive review can be reported.'),
   },
   {
     q: L('איך עובד הניווט?', 'How does navigation work?'),

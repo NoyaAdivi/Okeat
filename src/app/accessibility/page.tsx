@@ -34,7 +34,7 @@ function StatementHe() {
           <h2>מה יש באתר</h2>
           <ul>
             <li>תפריט נגישות בצד המסך, בכל דף: הגדלת טקסט, ניגודיות גבוהה, מצב כהה או בהיר, עצירת אנימציות, הדגשת קישורים וגופן קריא.</li>
-            <li>הקראה בקול של הדף, או של כל טקסט שלוחצים עליו.</li>
+            <li>הקראה בקול של הדף, או של כל טקסט שלוחצים עליו, עם כפתור הפסקה שמופיע בזמן ההקראה.</li>
             <li>הנחיות קוליות בזמן ניווט.</li>
             <li>אפשר להשתמש בכל האתר עם מקלדת בלבד. יש קישור "דילוג לתוכן" בתחילת כל דף.</li>
             <li>תמיכה בקוראי מסך: כפתורים, טפסים ותמונות מתוארים בטקסט.</li>
@@ -66,7 +66,7 @@ function StatementEn() {
           <h2>What the site offers</h2>
           <ul>
             <li>An accessibility menu on the side of the screen, on every page: larger text, high contrast, dark or light mode, stopping animations, highlighted links and a readable font.</li>
-            <li>Reading the page aloud, or any text you click on.</li>
+            <li>Reading the page aloud, or any text you click on, with a stop button that appears while it reads.</li>
             <li>Voice directions while navigating.</li>
             <li>The whole site can be used with a keyboard only. There is a &quot;Skip to content&quot; link at the top of every page.</li>
             <li>Screen reader support: buttons, forms and images are described in text.</li>
