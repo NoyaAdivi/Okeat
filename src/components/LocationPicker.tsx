@@ -17,10 +17,12 @@ interface Props {
   near: LatLng;
   /** admin mode: fixing a place's location instead of choosing mine */
   fixing?: boolean;
+  /** adding a new place: search its address */
+  adding?: boolean;
 }
 
 /** "Where am I?" menu: GPS, pick on the map, or type an address / city / place. */
-export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, manualLabel, near, fixing = false }: Props) {
+export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, manualLabel, near, fixing = false, adding = false }: Props) {
   const L = useL();
   const [q, setQ] = useState('');
   const [results, setResults] = useState<GeoResult[]>([]);
@@ -64,13 +66,13 @@ export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, 
   return (
     <div className="loc-pop" ref={box} role="dialog" aria-label={L('בחירת המיקום שלי', 'Choose my location')}>
       <div className="loc-head">
-        <b>{fixing ? L('איפה המקום נמצא באמת?', 'Where is this place really?') : L('איפה אתם עכשיו?', 'Where are you now?')}</b>
+        <b>{fixing ? L('איפה המקום נמצא באמת?', 'Where is this place really?') : adding ? L('מה הכתובת של המקום?', "What is the place's address?") : L('איפה אתם עכשיו?', 'Where are you now?')}</b>
         <button type="button" className="loc-x" onClick={onClose} aria-label={L('סגירה', 'Close')}>✕</button>
       </div>
       {manualLabel && <p className="loc-now">{L('המיקום שבחרתם:', 'Your chosen location:')} {manualLabel}</p>}
       <div className="loc-acts">
-        {!fixing && <button type="button" onClick={onGps}><span aria-hidden="true">📡</span> {L('לפי ה-GPS', 'Use GPS')}</button>}
-        <button type="button" onClick={() => onPickOnMap(q.trim())}><span aria-hidden="true">🗺️</span> {fixing ? L('בחירה על המפה עם הכתובת שכתבתי', 'Pick on the map with this address') : L('בחירה על המפה', 'Pick on the map')}</button>
+        {!fixing && !adding && <button type="button" onClick={onGps}><span aria-hidden="true">📡</span> {L('לפי ה-GPS', 'Use GPS')}</button>}
+        {!adding && <button type="button" onClick={() => onPickOnMap(q.trim())}><span aria-hidden="true">🗺️</span> {fixing ? L('בחירה על המפה עם הכתובת שכתבתי', 'Pick on the map with this address') : L('בחירה על המפה', 'Pick on the map')}</button>}
       </div>
       <label htmlFor="loc-q" className="loc-label">{fixing ? L('כתבו את הכתובת המדויקת: בחרו תוצאה, או סמנו אותה על המפה', 'Type the exact address, then choose a result or mark it on the map') : L('או חיפוש כתובת, עיר או מקום', 'Or search for an address, city or place')}</label>
       <input

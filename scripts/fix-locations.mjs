@@ -1,13 +1,9 @@
-// Okeat: fix places whose pin is far from their own street address.
-// A pin moves only if ALL of these hold: the address has a street number, it is over 20 km from
-// the middle of its city's places, the geocoder (Photon, OpenStreetMap) finds that exact house
-// number, and the found spot is inside the city. Anything else is left as it is.
-// Fixed places are locked, so imports don't move them back. Old and new points go to location-fixes.log.
-//
-//   node scripts/fix-locations.mjs            (add --dry-run to only show the list)
-// Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local, and FIX-WEMEAT-LOCATION.sql.
+// Okeat: suggest better pins for places far from their own street address, for a person to review.
+//   node scripts/fix-locations.mjs            writes location-review.log, changes nothing
+//   node scripts/fix-locations.mjs --apply    saves the rows left in location-review.log, and locks them
+// Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.
 
-import { readFileSync, existsSync, appendFileSync } from 'node:fs';
+import { readFileSync, existsSync, appendFileSync, writeFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 
 if (existsSync('.env.local')) {
@@ -16,7 +12,6 @@ if (existsSync('.env.local')) {
     if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
   }
 }
-const dryRun = process.argv.includes('--dry-run');
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !key) { console.error('\nחסר מפתח בקובץ .env.local.\n'); process.exit(1); }
 const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, key, { auth: { persistSession: false } });
@@ -45,27 +40,65 @@ for (const p of places) if (p.city?.length >= 4) (byCity.get(p.city) ?? byCity.s
 const center = new Map();
 for (const [c, list] of byCity) if (list.length >= 5) center.set(c, { lat: median(list.map((p) => p.lat)), lng: median(list.map((p) => p.lng)) });
 
-const todo = places.filter((p) => !p.location_locked && center.has(p.city) && /\d/.test(p.street ?? '') && km(p, center.get(p.city)) > 20);
-console.log(`${todo.length} מקומות לבדיקה (שנייה לכל מקום)…`);
+const REVIEW_FILE = 'location-review.log';
+const LIMIT_KM = 12;
 
-let fixed = 0;
+if (process.argv.includes('--apply')) {
+  // Saves the rows of the reviewed list. Row: id, name, address, old point, new point, km, how found.
+  const rows = readFileSync(REVIEW_FILE, 'utf8').split(/\r?\n/).filter(Boolean).map((l) => l.split('\t'));
+  let saved = 0;
+  for (const [id, name, , old, next] of rows) {
+    const [lat, lng] = next.split(',').map(Number);
+    const { error } = await sb.from('places').update({ location: `SRID=4326;POINT(${lng} ${lat})`, location_locked: true }).eq('id', id).eq('location_locked', false);
+    if (error) { console.error('השמירה נכשלה:', error.message); process.exit(1); }
+    appendFileSync('location-fixes.log', `${id}\t${name}\t${old}\t${next}\n`);
+    saved++;
+  }
+  console.log(`\nנשמרו ${saved} מיקומים.\n`);
+  process.exit(0);
+}
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const normal = (t) => (t ?? '').replace(/[\s\-–־]/g, '');
+const cities = [...center.keys()];
+const mentionsOtherCity = (p) => cities.some((c) => c !== p.city && normal(c).length >= 4 && normal(p.name).includes(normal(c)) && !normal(p.city).includes(normal(c)));
+const NOT_CITY = /(השרון|מגדל|אזור|שלומי|חיפה$)/;
+
+async function photon(p, number) {
+  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(`${p.street} ${p.city}`)}&limit=5&bbox=34.2,29.4,35.95,33.4`, { headers: { 'User-Agent': 'okeat-fix-locations/1.0' } });
+  for (const f of (await res.json()).features ?? []) {
+    if (String(f.properties.housenumber ?? '').replace(/\D.*$/, '') === number) return { lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], how: 'house' };
+  }
+  return null;
+}
+async function nominatim(p) {
+  const q = new URLSearchParams({ street: p.street, city: p.city, countrycodes: 'il', format: 'jsonv2', limit: '3', addressdetails: '1' });
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${q}`, { headers: { 'User-Agent': 'okeat-fix-locations/1.0 (okeat.vercel.app)', 'Accept-Language': 'he' } });
+  const number = p.street.match(/\d+/)?.[0];
+  for (const r of (await res.json()) ?? []) {
+    if (String(r.address?.house_number ?? '').replace(/\D.*$/, '') === number) return { lat: Number(r.lat), lng: Number(r.lon), how: 'house' };
+    if (r.address?.road) return { lat: Number(r.lat), lng: Number(r.lon), how: 'street' };
+  }
+  return null;
+}
+
+const todo = places.filter((p) => !p.location_locked && center.has(p.city) && /\d/.test(p.street ?? '') && km(p, center.get(p.city)) > LIMIT_KM);
+console.log(`${todo.length} מקומות לבדיקה (כ-2 שניות לכל מקום)…`);
+writeFileSync(REVIEW_FILE, '');
+let found = 0;
 for (const p of todo) {
-  await new Promise((r) => setTimeout(r, 1100));
+  if (mentionsOtherCity(p) && !NOT_CITY.test(p.name)) { console.log(`  דילוג, השם מזכיר עיר אחרת: ${p.name} | ${p.address}`); continue; }
   let hit = null;
   try {
-    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(`${p.street} ${p.city}`)}&limit=5&bbox=34.2,29.4,35.95,33.4`, { headers: { 'User-Agent': 'okeat-fix-locations/1.0' } });
-    const number = p.street.match(/\d+/)[0];
-    for (const f of (await res.json()).features ?? []) {
-      const point = { lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] };
-      if (String(f.properties.housenumber ?? '').replace(/\D.*$/, '') === number && km(point, center.get(p.city)) <= 15) { hit = point; break; }
-    }
+    await wait(1100);
+    hit = await photon(p, p.street.match(/\d+/)[0]);
+    if (!hit) { await wait(1100); hit = await nominatim(p); }
   } catch { /* skip this one */ }
-  if (!hit) { console.log(`  דילוג: ${p.name} | ${p.address}`); continue; }
-  console.log(`  תיקון: ${p.name} | ${p.address} (${Math.round(km(p, hit))} ק"מ)`);
-  if (dryRun) continue;
-  const { error } = await sb.from('places').update({ location: `SRID=4326;POINT(${hit.lng} ${hit.lat})`, location_locked: true }).eq('id', p.id);
-  if (error) { console.error('השמירה נכשלה:', error.message); process.exit(1); }
-  appendFileSync('location-fixes.log', `${p.id}\t${p.name}\t${p.lat},${p.lng}\t${hit.lat},${hit.lng}\n`);
-  fixed++;
+  if (!hit || km(hit, center.get(p.city)) > 15) { console.log(`  לא נמצא: ${p.name} | ${p.address}`); continue; }
+  const moved = km(p, hit);
+  if (moved < 1) continue;
+  console.log(`  מוצע: ${p.name} | ${p.address} (${Math.round(moved)} ק"מ)`);
+  appendFileSync(REVIEW_FILE, [p.id, p.name.replace(/\s+/g, ' '), p.address, `${p.lat},${p.lng}`, `${hit.lat},${hit.lng}`, moved.toFixed(1), hit.how].join('\t') + '\n');
+  found++;
 }
-console.log(`\nתוקנו ${fixed} מקומות מתוך ${todo.length}.\n`);
+console.log(`\nנמצאו ${found} הצעות מתוך ${todo.length}. שום דבר עוד לא השתנה. שלחי את הקובץ ${REVIEW_FILE}.\n`);

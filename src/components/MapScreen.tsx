@@ -152,6 +152,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [pickingMe, setPickingMe] = useState(false);
   const [manualLabel, setManualLabel] = useState<string | null>(null);
   const [addAt, setAddAt] = useState<LatLng | null>(null);
+  const [addAddress, setAddAddress] = useState('');
+  const [addSearch, setAddSearch] = useState(false);
   const [certFor, setCertFor] = useState<Place | null>(null);
   const [infoFor, setInfoFor] = useState<{ place: Place; need: Need } | null>(null);
 
@@ -726,8 +728,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             <div className="pickbar" role="dialog" aria-label={L('בחירת מיקום למקום חדש', 'Choose the spot for a new place')}>
               <span>{L('הזיזו את המפה או לחצו עליה, עד שחוד הסיכה נמצא בדיוק על המקום', 'Move or click the map until the tip of the pin is exactly on the place')}</span>
               <span className="pick-acts">
-                <button type="button" className="ok" onClick={() => { const p = pinPoint(); setPicking(false); setAddAt(p); }}>{L('זה המקום', "That's the place")}</button>
-                <button type="button" onClick={() => setPicking(false)}>{L('ביטול', 'Cancel')}</button>
+                <button type="button" className="ok" onClick={() => { const p = pinPoint(); setPicking(false); setAddAddress(''); setAddAt(p); }}>{L('זה המקום', "That's the place")}</button>
+                <button type="button" onClick={() => setAddSearch(true)}>{L('לפי כתובת', 'By address')}</button>
+                <button type="button" onClick={() => { setPicking(false); setAddSearch(false); }}>{L('ביטול', 'Cancel')}</button>
               </span>
             </div>
           </>
@@ -739,6 +742,17 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           <div className="notice">{L('לא קיבלנו את המיקום שלך, אז מוצגת רמת גן. אפשר להזיז את המפה ולחפש באזור אחר.', "We didn't get your location, so Ramat Gan is shown. You can move the map and search another area.")}</div>
         ) : null}
 
+        {addSearch && (
+          <LocationPicker
+            adding
+            manualLabel={null}
+            near={viewCenter ?? me ?? mapCenter}
+            onGps={() => undefined}
+            onPickOnMap={() => setAddSearch(false)}
+            onChoose={(point, label) => { setAddSearch(false); setPicking(false); setAddAddress(label); setAddAt(point); }}
+            onClose={() => setAddSearch(false)}
+          />
+        )}
         {fixOpen && selected && (
           <LocationPicker
             fixing
@@ -917,6 +931,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         <AddPlaceDialog
           sb={sb}
           location={addAt}
+          initialAddress={addAddress}
           onClose={() => setAddAt(null)}
           onDone={(id, warning) => {
             setAddAt(null);

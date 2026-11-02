@@ -12,6 +12,8 @@ import { friendly } from '@/lib/errors';
 import type { LatLng } from '@/lib/geo';
 
 interface Props {
+  /** filled in when the place was found by its address */
+  initialAddress?: string;
   sb: SupabaseClient;
   location: LatLng;
   onClose: () => void;
@@ -33,12 +35,12 @@ function LevelPicker({ need, value, onChange }: { need: Need; value: Level; onCh
   );
 }
 
-export default function AddPlaceDialog({ sb, location, onClose, onDone }: Props) {
+export default function AddPlaceDialog({ sb, location, initialAddress = '', onClose, onDone }: Props) {
   const L = useL();
   const lang = L.lang;
   const [name, setName] = useState('');
   const [placeType, setPlaceType] = useState('restaurant');
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState(initialAddress);
   const [needs, setNeeds] = useState<Record<Need, boolean>>(() => Object.fromEntries(NEED_ORDER.map((n) => [n, false])) as Record<Need, boolean>);
   const [levels, setLevels] = useState<Record<Need, Level>>(() =>
     Object.fromEntries(NEED_ORDER.map((n) => [n, n === 'kosher' ? 'rabanut' : LEVELS[n][0].value])) as Record<Need, Level>);
