@@ -817,3 +817,5 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 }
 
 .allergy-note { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+
+.more-info-title { margin: 10px 0 6px; font-size: 14px; font-weight: 600; color: var(--muted); }

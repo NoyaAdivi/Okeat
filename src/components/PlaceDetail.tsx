@@ -239,8 +239,8 @@ export default function PlaceDetail({
             )}
           </div>
           {canAddExtra.length > 0 && (
-            <details className="more-info">
-              <summary>{L('אלרגיות', 'Allergies')}</summary>
+            <div className="more-info">
+              <p className="more-info-title">{L('אלרגיות', 'Allergies')}</p>
               <div className="add-info-row">
                 {canAddExtra.map((n) => (
                   <button key={n} type="button" className={`info-chip ${NEED_CLASS[n]}`} onClick={() => onAddInfo(n)}>
@@ -248,7 +248,7 @@ export default function PlaceDetail({
                   </button>
                 ))}
               </div>
-            </details>
+            </div>
           )}
         </section>
       )}
