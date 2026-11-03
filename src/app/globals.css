@@ -1700,3 +1700,22 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .signed-in-note { animation-name: signed-in-drop; }
 
 .loc-steps { display: grid; gap: 8px; margin: 0; padding-inline-start: 22px; }
+
+/* ---------- picking a list: its own quiet card, with room around it ---------- */
+.place-actions { display: grid; gap: 10px; }
+.list-picker { display: grid; gap: 10px; margin: 0; padding: 14px; border-radius: 18px; background: var(--surface-2); animation: admin-panel-in .22s ease; }
+.list-picker-title { margin: 0; font-weight: 700; }
+.list-picker-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.list-picker-chips:empty { display: none; }
+.list-picker-chips .btn { background: var(--surface); box-shadow: var(--shadow-sm); }
+.list-picker-new { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.list-picker-new input { min-width: 0; min-height: 42px; border: 0; border-radius: 12px; padding: 8px 12px; background: var(--surface); color: var(--ink); box-sizing: border-box; }
+.list-picker-new .btn { white-space: nowrap; }
+@media (max-width: 360px) { .list-picker-new { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .list-picker { animation: none; } }
+
+/* phone, inside a place: nothing peeks out above the bar that stays on top */
+@media (max-width: 760px) {
+  .app[data-place="open"] .panel-body { padding-top: 0; }
+  .app[data-place="open"] .detail-top { top: 0; margin-top: 0; padding-block: 10px 8px; }
+}

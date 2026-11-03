@@ -113,8 +113,9 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
         }} />
       </div>
       {lists && (
-        <section className="sec list-picker">
-          <div className="mini-form">
+        <section className="list-picker" aria-label={L('הוספה לרשימה', 'Add to a list')}>
+          <p className="list-picker-title">{L('לאיזו רשימה?', 'Which list?')}</p>
+            <div className="list-picker-chips">
             {lists.map((l) => (
               <button key={l.id} type="button" className="btn small" disabled={busy} onClick={() => run(async () => {
                 await addToList(sb, l.id, place.id);
@@ -122,6 +123,8 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
                 setLists(null);
               })}>{l.title}</button>
             ))}
+          </div>
+          <div className="list-picker-new">
             <input maxLength={60} value={newList} onChange={(e) => setNewList(e.target.value)} placeholder={L('שם לרשימה חדשה', 'Name a new list')} aria-label={L('שם לרשימה חדשה', 'Name a new list')} />
             <button type="button" className="btn small" disabled={busy || newList.trim().length < 2} onClick={() => run(async () => {
               const id = await createList(sb, userId!, newList);
