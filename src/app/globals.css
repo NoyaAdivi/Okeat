@@ -1311,7 +1311,7 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .back-pill, .detail-tools .link { white-space: nowrap; }
 @media (max-width: 640px) {
   .detail-tools { gap: 10px; }
-  .a11y-tab { width: 34px; height: 44px; opacity: .92; }
+  .a11y-tab { display: grid; place-items: center; width: 38px; height: 46px; padding: 0; padding-inline-start: env(safe-area-inset-left, 0px); opacity: .92; }
 }
 
 /* phone map: the side button stays above the sheet, clear of the sign-in button */
@@ -1331,7 +1331,7 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .clear-filters:hover { background: var(--surface-2); }
 
 /* the page never moves sideways: rows that scroll do it inside themselves */
-html, body { overflow-x: hidden; overscroll-behavior-x: none; }
+html, body { overscroll-behavior-x: none; }
 .app { overflow: hidden; }
 .shared, .panel-body { overflow-x: hidden; }
 .detail-top, .detail-tools { flex-wrap: wrap; }
@@ -1371,3 +1371,4 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; }
 .mail-way p { margin: 0; color: var(--muted); }
 .mail-code { border: 1px solid var(--line); }
 .mail-ways-title { margin-block: 10px 8px; }
+.mail-way:first-child { background: none; }
