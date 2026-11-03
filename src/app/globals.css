@@ -1659,3 +1659,20 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @keyframes loc-up { from { opacity: 0; transform: translateY(16px); } }
 .my-lists li { flex-wrap: wrap; }
 .my-edit input { width: 100%; min-height: 44px; border: 0; border-radius: 12px; padding: 8px 12px; background: var(--surface); color: var(--ink); box-sizing: border-box; }
+@media (prefers-reduced-motion: reduce) { .loc-pop { animation: none; } }
+
+/* ---------- map up close: full markers where there is room, small dots everywhere else ---------- */
+.mk-anchor .mk { transition: transform .15s, opacity .15s; }
+.mk-anchor.tiny { z-index: 0; }
+.mk-anchor.tiny .mk { padding: 8px; gap: 0; }
+.mk-anchor.tiny .mk-label { display: none; }
+.mk-anchor.tiny .mk-dot { width: 11px; height: 11px; background: var(--peach); box-shadow: 0 0 0 2px var(--surface); font-size: 0; }
+.mk-anchor.tiny .mk-seal { width: 13px; height: 13px; margin: 0; }
+.mk-anchor.tiny .mk-seal:not(:first-child) { display: none; }
+.mk-anchor.tiny .mk-seal b { display: none; }
+.mk-anchor.no-name .mk:not(.plain) .mk-label { display: none; }
+@media (max-width: 760px) {
+  .mk-dot { width: 28px; height: 28px; }
+  .mk-seal { width: 32px; height: 32px; }
+  .mk-seal b { font-size: 0.8125rem; }
+}

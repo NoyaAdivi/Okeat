@@ -229,6 +229,11 @@ function sealHTML(cls: string, letter: string) {
  * Mapbox positions a marker by setting `transform` on the element it is given, so our own
  * animations (pop-in, hover, selected) must live on an inner element or they would move the marker away.
  */
+/** Pixels between full markers, and the room a name takes. */
+const MARKER_GAP = 46;
+const NAME_WIDTH = 120;
+const NAME_HEIGHT = 30;
+
 function markerElement(p: MapPoint, selected: boolean, onClick: () => void): HTMLElement {
   const outer = document.createElement('div');
   outer.className = 'mk-anchor';
@@ -262,8 +267,8 @@ function markerButton(p: MapPoint, selected: boolean, onClick: () => void): HTML
     return el;
   }
 
-  // the marker shows up to three seals: the main needs first
-  const shown = [...verified].sort((a, b) => Number(!isMainNeed(a.need)) - Number(!isMainNeed(b.need))).slice(0, 3);
+  // the marker shows up to two seals: the main needs first
+  const shown = [...verified].sort((a, b) => Number(!isMainNeed(a.need)) - Number(!isMainNeed(b.need))).slice(0, 2);
   const seals = shown.length
     ? shown
         .map((c) => {
@@ -422,6 +427,27 @@ export default function MapView({
         .addTo(map);
       if (sel) m.getElement().style.zIndex = '3';
       live.current.set(id, m);
+    }
+    declutter(map, byId);
+  };
+
+  // Up close only places with room get a full marker and a name; the rest shrink to small dots.
+  const declutter = (map: mapboxgl.Map, byId: Map<string, MapPoint>) => {
+    const rank = (id: string) => (id === selectedRef.current ? 100 : byId.get(id)?.seals.length ?? 0);
+    const order = [...live.current.keys()].sort((a, b) => rank(b) - rank(a));
+    const full: mapboxgl.Point[] = [];
+    const named: mapboxgl.Point[] = [];
+    for (const id of order) {
+      const marker = live.current.get(id)!;
+      const at = map.project(marker.getLngLat());
+      const selected = id === selectedRef.current;
+      const crowded = !selected && full.some((q) => Math.hypot(q.x - at.x, q.y - at.y) < MARKER_GAP);
+      if (!crowded) full.push(at);
+      const roomForName = selected || (!crowded && map.getZoom() >= 16 && !named.some((q) => Math.abs(q.x - at.x) < NAME_WIDTH && Math.abs(q.y - at.y) < NAME_HEIGHT));
+      if (roomForName) named.push(at);
+      const el = marker.getElement();
+      el.classList.toggle('tiny', crowded);
+      el.classList.toggle('no-name', !roomForName);
     }
   };
 
