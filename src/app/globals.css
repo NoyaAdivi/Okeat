@@ -1353,3 +1353,9 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; }
   .profile-numbers li:has(button) { transition: none; }
   .profile-numbers li:has(button):hover { transform: none; }
 }
+
+/* phone, inside a place: the place gets the room, the way back stays */
+@media (max-width: 640px) {
+  .app[data-place="open"] .panel-head { display: none; }
+  .app[data-place="open"] .sheet-handle { background: var(--surface); }
+}
