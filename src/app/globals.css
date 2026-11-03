@@ -890,3 +890,11 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
   .site-head .display-toggles { width: auto; margin-inline-start: auto; }
   .site-head nav { order: 3; flex: 1 0 100%; flex-wrap: nowrap; }
 }
+
+/* the email limit was reached: a warm note, not an error */
+.mail-busy { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 18px; background: var(--peach-soft); color: var(--ink); animation: mail-busy-in .35s ease; }
+.mail-busy p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; }
+.mail-busy-emoji { font-size: 28px; line-height: 1; animation: mail-busy-float 2.4s ease-in-out infinite; }
+@keyframes mail-busy-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes mail-busy-float { 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .mail-busy, .mail-busy-emoji { animation: none; } }

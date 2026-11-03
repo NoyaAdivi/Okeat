@@ -23,11 +23,11 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
   const [checking, setChecking] = useState(false);
+  const [mailBusy, setMailBusy] = useState<'hour' | 'day' | null>(null);
 
   // The shared email service allows only a few messages an hour.
   const authMessage = (e: Error) => {
     if (/not authorized/i.test(e.message)) return L('כניסה במייל לא זמינה כרגע. אפשר להמשיך עם Google.', "Email sign-in isn't available right now. Please continue with Google.");
-    if (/rate limit|over_email/i.test(e.message)) return L('נשלחו יותר מדי מיילים בשעה האחרונה. אפשר להמשיך עם Google, או לנסות שוב בעוד שעה.', 'Too many emails were sent in the last hour. Continue with Google, or try again in an hour.');
     return friendly(e, L.lang);
   };
 
@@ -51,6 +51,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
   const sendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setMailBusy(null);
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
       setError(L('כתובת המייל לא נראית תקינה.', "That email address doesn't look right."));
       return;
@@ -59,7 +60,11 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
     const { error } = await sb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: callbackUrl() } });
     if (error) {
       setState('idle');
-      setError(authMessage(error));
+      // The hourly limit, or sending failed on the mail side, which is what a used-up daily quota looks like.
+      const hourly = /rate limit|over_email/i.test(error.message);
+      const daily = /error sending|smtp|unexpected/i.test(error.message) || (error as Error & { status?: number }).status === 500;
+      if (hourly || daily) setMailBusy(hourly ? 'hour' : 'day');
+      else setError(authMessage(error));
     } else {
       setCode('');
       setState('sent');
@@ -101,6 +106,17 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
         <label htmlFor="auth-email">{L('קישור התחברות למייל', 'Sign-in link by email')}</label>
         <input id="auth-email" type="email" dir="ltr" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
         {error && <div className="err" role="alert">{error}</div>}
+        {mailBusy && (
+          <div className="mail-busy" role="status">
+            <span className="mail-busy-emoji" aria-hidden="true">💌</span>
+            <div>
+              <b>{L('איזה ביקוש! תיבת המיילים שלנו מלאה', "So many of you! Our mailbox is full")}</b>
+              <p>{mailBusy === 'hour'
+                ? L('נשלחו המון מיילים בשעה האחרונה. אפשר להיכנס עכשיו עם Google, או לנסות שוב בעוד שעה.', 'We sent a lot of emails in the last hour. You can continue with Google now, or try again in an hour.')
+                : L('הגענו למכסת המיילים של היום. אפשר להיכנס עכשיו עם Google, או לחזור אלינו מחר. נשמח לראות אתכם!', "We've reached today's email limit. You can continue with Google now, or come back tomorrow. We'd love to see you!")}</p>
+            </div>
+          </div>
+        )}
         <div className="modal-acts">
           <button type="button" className="btn" onClick={onClose}>{L('ביטול', 'Cancel')}</button>
           <button type="submit" className="btn primary" disabled={state === 'sending'}>
