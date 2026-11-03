@@ -1622,6 +1622,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (prefers-reduced-motion: reduce) {
   .filters-row .chip[aria-pressed="true"] { animation: none; }
   .filters-actions .clear-filters { animation: none; }
+  .loc-pop { animation: none; }
   .item:active { transform: none; }
 }
 
@@ -1643,9 +1644,18 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @keyframes a11y-fade { from { opacity: 0; } }
 .head-foods .foods-guess { background: none; color: var(--muted); box-shadow: none; font-size: 0.75rem; }
 
-/* ---------- phone: choosing a location opens in full view, never under the top bar ---------- */
+/* ---------- phone: choosing a location is its own full screen, and forms keep their buttons in reach ---------- */
 @media (max-width: 760px) {
-  .loc-pop { position: fixed; inset-inline: 12px; top: calc(var(--top-h, 60px) + 8px); bottom: auto; left: 12px; right: 12px; width: auto; max-height: calc(100svh - var(--top-h, 60px) - 24px); overflow-y: auto; z-index: 8; }
+  .loc-pop { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; gap: 10px; width: auto; height: 100dvh; max-height: none; box-sizing: border-box; overflow: hidden; border-radius: 0; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--surface); box-shadow: none; animation: loc-up .22s ease; }
+  .loc-pop > * { flex: none; }
+  .loc-pop .loc-results { flex: 1 1 auto; min-height: 0; max-height: none; overscroll-behavior: contain; }
+  .loc-pop .loc-results button { min-height: 52px; }
+  .loc-pop .loc-credit { margin: auto 0 0; }
+  body:has(.loc-pop) .a11y-tab { display: none; }
+  .pickbar { width: max-content; max-width: calc(100% - 24px); box-sizing: border-box; }
+  .modal { max-height: calc(100dvh - 12px); overscroll-behavior: contain; }
+  .modal form > .modal-acts, .modal > .modal-acts { position: sticky; bottom: calc(-1 * env(safe-area-inset-bottom, 0px) - 20px); z-index: 1; margin-inline: -8px; padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--surface); }
 }
+@keyframes loc-up { from { opacity: 0; transform: translateY(16px); } }
 .my-lists li { flex-wrap: wrap; }
 .my-edit input { width: 100%; min-height: 44px; border: 0; border-radius: 12px; padding: 8px 12px; background: var(--surface); color: var(--ink); box-sizing: border-box; }

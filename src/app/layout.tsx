@@ -40,6 +40,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  // Android: the keyboard makes the page shorter instead of sliding it up, so nothing jumps or hides.
+  interactiveWidget: 'resizes-content',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FFF7F3' },
     { media: '(prefers-color-scheme: dark)', color: '#1D1729' },

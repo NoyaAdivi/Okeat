@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { LatLng } from '@/lib/geo';
 import { searchPlaces, type GeoResult } from '@/lib/geocode';
 import { useL } from './LangProvider';
@@ -63,7 +64,7 @@ export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, 
 
   const choose = (r: GeoResult) => onChoose(r.point, r.detail ? `${r.name}, ${r.detail}` : r.name);
 
-  return (
+  const pop = (
     <div className="loc-pop" ref={box} role="dialog" aria-label={L('בחירת המיקום שלי', 'Choose my location')}>
       <div className="loc-head">
         <b>{fixing ? L('איפה המקום נמצא באמת?', 'Where is this place really?') : adding ? L('מה הכתובת של המקום?', "What is the place's address?") : L('איפה אתם עכשיו?', 'Where are you now?')}</b>
@@ -111,4 +112,6 @@ export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, 
       <p className="loc-credit">{L('חיפוש כתובות:', 'Address search:')} <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a></p>
     </div>
   );
+  // On a phone it fills the screen, above the map menu.
+  return window.matchMedia('(max-width: 760px)').matches ? createPortal(pop, document.body) : pop;
 }
