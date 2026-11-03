@@ -5,11 +5,8 @@ import { serverL } from '@/lib/lang-server';
 
 export const metadata: Metadata = { title: 'Okeat', robots: { index: false } };
 
-interface Props { searchParams: Promise<{ token_hash?: string }> }
-
 /** One tap to finish signing in from the email. */
-export default async function EnterPage({ searchParams }: Props) {
-  const { token_hash: tokenHash } = await searchParams;
+export default async function EnterPage() {
   const L = await serverL();
   return (
     <div className="shared">
@@ -20,7 +17,6 @@ export default async function EnterPage({ searchParams }: Props) {
           <h1>{L('כמעט שם', 'Almost there')}</h1>
           <p>{L('לחיצה אחת ואתם מחוברים.', 'One tap and you are signed in.')}</p>
           <form method="post" action="/auth/confirm">
-            <input type="hidden" name="token_hash" value={tokenHash ?? ''} />
             <button type="submit" className="btn primary">{L('כניסה ל-Okeat', 'Sign in to Okeat')}</button>
           </form>
         </div>
