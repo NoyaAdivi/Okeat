@@ -24,11 +24,14 @@ export function estimateWalk(meters: number) {
   return { meters: Math.round(walked / 10) * 10, minutes: Math.max(1, Math.round(walked / 80)) };
 }
 
-/** Short trips are a walk; past 20 minutes on foot the list shows the drive instead. */
-export function estimateTrip(meters: number): { mode: 'walk' | 'drive'; minutes: number } {
+/**
+ * How long a place is, for the list. Close places show the walk, a middle distance shows both,
+ * and past 20 minutes on foot only the drive. A drive is never less than 5 minutes door to door.
+ */
+export function estimateTrip(meters: number): { walk: number | null; drive: number | null } {
   const walk = estimateWalk(meters).minutes;
-  if (walk <= 20) return { mode: 'walk', minutes: walk };
-  return { mode: 'drive', minutes: Math.max(1, Math.round((meters * 1.3) / 500)) };
+  const drive = Math.max(5, Math.round((meters * 1.3) / 400));
+  return { walk: walk <= 20 ? walk : null, drive: walk > 10 ? drive : null };
 }
 
 export function formatMeters(m: number, lang: Lang = 'he'): string {

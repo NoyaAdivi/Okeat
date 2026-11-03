@@ -16,9 +16,8 @@ test('dates are written day first', () => {
   assert.match(formatDate('2026-11-02'), /^0?2[./]/);
 });
 
-test('a long walk becomes a drive', () => {
-  assert.deepEqual(estimateTrip(800), { mode: 'walk', minutes: 13 });
-  assert.equal(estimateTrip(1500).mode, 'drive');
-  assert.equal(estimateTrip(3000).mode, 'drive');
-  assert.equal(estimateTrip(3000).minutes, 8);
+test('close places show the walk, then both, then the drive', () => {
+  assert.deepEqual(estimateTrip(300), { walk: 5, drive: null });
+  assert.deepEqual(estimateTrip(1000), { walk: 16, drive: 5 });
+  assert.deepEqual(estimateTrip(3000), { walk: null, drive: 10 });
 });

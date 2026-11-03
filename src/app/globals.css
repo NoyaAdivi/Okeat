@@ -1321,3 +1321,6 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 
 /* a row that scrolls sideways must not widen the card around it */
 .detail, .place-part, .place-part > *, .place-part .sec { min-width: 0; max-width: 100%; }
+
+/* a place can show both the walk and the drive, one under the other */
+.item .dist { display: grid; justify-items: end; gap: 1px; }

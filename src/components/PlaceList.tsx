@@ -102,7 +102,15 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
                 <span className="row1">
                   <span className="nm">{p.name}{ratings[p.id] && <span className="list-rating"> ★ {ratings[p.id].average}</span>}</span>
                   {p.distance_m !== null && (
-                    <span className="dist">{(() => { const t = estimateTrip(p.distance_m); return t.mode === 'walk' ? L(`${t.minutes} דק׳ הליכה`, `${t.minutes} min walk`) : L(`${t.minutes} דק׳ נסיעה`, `${t.minutes} min drive`); })()}</span>
+                    <span className="dist">{(() => {
+                      const t = estimateTrip(p.distance_m);
+                      return (
+                        <>
+                          {t.walk !== null && <span>{L(`${t.walk} דק׳ הליכה`, `${t.walk} min walk`)}</span>}
+                          {t.drive !== null && <span>{L(`${t.drive} דק׳ נסיעה`, `${t.drive} min drive`)}</span>}
+                        </>
+                      );
+                    })()}</span>
                   )}
                 </span>
                 <span className="row2">
