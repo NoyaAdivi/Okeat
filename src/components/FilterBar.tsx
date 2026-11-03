@@ -17,15 +17,18 @@ interface Props {
   onOpenNow: (v: boolean) => void;
   cuisine: string[];
   onCuisine: (c: string[]) => void;
+  /** Clears every filter at once. */
+  onClear: () => void;
 }
 
-export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisine, onCuisine }: Props) {
+export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisine, onCuisine, onClear }: Props) {
   const L = useL();
   const lang = L.lang;
   const toggle = (n: Need) =>
     onFilter({ ...filter, [n]: (filter[n] ?? null) === null ? FILTER_OPTIONS[n][0].min : null });
   const extraOn = EXTRA_NEEDS.filter((n) => (filter[n] ?? null) !== null).length;
   const [more, setMore] = useState(extraOn > 0);
+  const anyOn = openNow || cuisine.length > 0 || Object.values(filter).some((v) => (v ?? null) !== null);
   const hidden = extraOn + (openNow ? 1 : 0) + (cuisine.length > 0 ? 1 : 0);
   const [open, setOpen] = useState(hidden > 0);
 
@@ -39,10 +42,13 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
           </button>
         ))}
       </div>
-      <button type="button" className="more-filters" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <span aria-hidden="true">🎛️</span> {L('עוד סינונים', 'More filters')}{hidden > 0 && <span className="count">{hidden}</span>}
-        <span className="more-arrow" aria-hidden="true">⌄</span>
-      </button>
+      <div className="filters-actions">
+        <button type="button" className="more-filters" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+          <span aria-hidden="true">🎛️</span> {L('עוד סינונים', 'More filters')}{hidden > 0 && <span className="count">{hidden}</span>}
+          <span className="more-arrow" aria-hidden="true">⌄</span>
+        </button>
+        {anyOn && <button type="button" className="clear-filters" onClick={onClear}>{L('ניקוי הכול', 'Clear all')}</button>}
+      </div>
       {open && (
         <div className="filters-more">
       <div className="cuisines" role="group" aria-label={L('סוג אוכל, אפשר לבחור כמה', 'Type of food, choose as many as you like')}>

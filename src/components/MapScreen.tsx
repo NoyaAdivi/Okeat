@@ -721,10 +721,13 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     }
   };
 
-  const resetFilters = () => {
+  const clearFilters = () => {
     setFilter(NO_FILTER);
     setOpenNow(false);
     setCuisine([]);
+  };
+  const resetFilters = () => {
+    clearFilters();
     setQuery('');
   };
 
@@ -1077,7 +1080,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             />
           ) : (
             <>
-              <FilterBar filter={filter} openNow={openNow} onFilter={setFilter} onOpenNow={setOpenNow} cuisine={cuisine} onCuisine={setCuisine} />
+              <FilterBar filter={filter} openNow={openNow} onFilter={setFilter} onOpenNow={setOpenNow} cuisine={cuisine} onCuisine={setCuisine} onClear={clearFilters} />
               {(myFilter || activeNeeds > 0) && (
                 <button type="button" className="link more-needs" onClick={toggleMyFilter}>
                   {myFilter ? L('⭐ הסינון הקבוע שלך פעיל. לביטול', '⭐ Your saved filter is on. Remove it') : L('⭐ לזכור את הסינון הזה במכשיר הזה', '⭐ Remember this filter on this device')}
