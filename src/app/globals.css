@@ -1540,3 +1540,47 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @keyframes feed-in { from { opacity: 0; transform: translateY(10px); } }
 @media (prefers-reduced-motion: reduce) { .feed-line li, .feed-photos li { animation: none; } .feed-filters button, .feed-icon { transition: none; } }
 .feed .link, .my-acts .link { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- the account button wears the same flower as the profile ---------- */
+.account { width: 44px; height: 44px; overflow: visible; border-radius: 0; background: none; }
+.account-seal.seal { width: 44px; height: 44px; }
+.account-seal.seal::after { display: none; }
+.account-seal.seal::before { transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+.account:hover .account-seal.seal::before { transform: rotate(45deg); }
+.account-seal .avatar { position: relative; z-index: 1; width: 30px; height: 30px; }
+.account-dot { z-index: 2; }
+
+/* ---------- pages arrive as you scroll ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html:not([data-still]) main > .section, html:not([data-still]) .legend-grid li, html:not([data-still]) .city-grid > * {
+      animation: scroll-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+@keyframes scroll-in { from { opacity: 0; transform: translateY(24px); } }
+
+/* ---------- phones: more air, less to read ---------- */
+@media (max-width: 760px) {
+  .hero.small { padding: 24px 16px 36px; }
+  .hero-emoji { font-size: 2.75rem; }
+  .section { padding-top: 36px; }
+  .journey li { grid-template-columns: 44px 1fr; gap: 12px; padding: 6px 0; }
+  .journey::before { inset-inline-start: 21px; }
+  .journey h3 { margin-top: 2px; font-size: 1.125rem; }
+  .legend-grid { gap: 8px; }
+  .legend-grid li { padding: 8px 12px; border-radius: 16px; font-size: 0.875rem; }
+  .profile-seal.seal { width: 96px; height: 96px; }
+  .profile-numbers { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+  .profile-numbers li { padding: 10px 2px; border-radius: 16px; }
+  .profile-numbers b { font-size: 1.375rem; }
+  .profile-numbers span { font-size: 0.75rem; }
+  .extras-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; }
+  .extras-bar .btn { min-width: 0; padding: 8px 4px; font-size: 0.8125rem; white-space: normal; }
+}
+@media (min-width: 340px) and (max-width: 760px) {
+  .city-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .city-grid a { padding: 10px 6px; font-size: 0.875rem; text-align: center; }
+}

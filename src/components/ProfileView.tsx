@@ -118,8 +118,8 @@ export default function ProfileView({ id }: { id: string }) {
             </section>
             <ul className="profile-numbers">
               {([
-                ['added', 'k', profile.places_added, L('מקומות שהוסיף/ה', 'places added')],
-                ['info', 'v', profile.info_added, L('פרטי מידע', 'pieces of info')],
+                ['added', 'k', profile.places_added, L('מקומות', 'places')],
+                ['info', 'v', profile.info_added, L('מידע', 'info')],
                 ['votes', 'h', profile.confirmations, L('אישורים', 'confirmations')],
                 ['reviews', 'g', profile.reviews, L('ביקורות', 'reviews')],
               ] as const).map(([value, cls, count, label]) => (

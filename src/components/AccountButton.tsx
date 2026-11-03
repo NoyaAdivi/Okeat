@@ -49,7 +49,7 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
   return (
     <div className="account-wrap" ref={wrap}>
       <button type="button" className="account" aria-haspopup="menu" aria-expanded={open} aria-label={L(`החשבון של ${name}`, `${name}'s account`)} onClick={() => setOpen((o) => !o)}>
-        <Avatar name={name || 'O'} url={avatar} size={36} />
+        <span className="seal k account-seal"><Avatar name={name || 'O'} url={avatar} size={28} /></span>
         {fresh > 0 && <span className="account-dot" aria-label={fresh === 1 ? L('התראה חדשה אחת', 'One new notification') : L(`${fresh} התראות חדשות`, `${fresh} new notifications`)}>{fresh}</span>}
       </button>
       {open && (
