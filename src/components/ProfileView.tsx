@@ -5,7 +5,7 @@ import PlaceTile from './PlaceTile';
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
-import { fetchMyFavorites, fetchPlacesAddedBy, fetchProfile, setUserRole, withdrawPlace, type PublicProfile } from '@/lib/places';
+import { fetchMyFavorites, fetchPlacesAddedBy, fetchProfile, setFavorite, setUserRole, withdrawPlace, type PublicProfile } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { placeTypeLabel } from '@/lib/types';
 import { placeEmoji } from '@/lib/emoji';
@@ -178,7 +178,12 @@ export default function ProfileView({ id }: { id: string }) {
                 {saved.length === 0 ? <p className="muted">{L('עוד אין. לחצו על הלב במקום שאהבתם.', 'None yet. Press the heart on a place you like.')}</p> : (
                   <ul className="tiles">
                     {saved.map((p, i) => (
-                      <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} />
+                      <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} action={
+                        <button type="button" className="link" onClick={async () => {
+                          await setFavorite(sb, p.id, user!.id, false);
+                          setSaved(saved.filter((x) => x.id !== p.id));
+                        }}>{L('הסרה', 'Remove')}</button>
+                      } />
                     ))}
                   </ul>
                 )}

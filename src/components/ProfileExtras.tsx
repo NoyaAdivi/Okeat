@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createList, deleteList, fetchMyLists, fetchNotifications, markNotificationsSeen, type MyList, type MyNotification } from '@/lib/places';
+import { createList, deleteList, renameList, fetchMyLists, fetchNotifications, markNotificationsSeen, type MyList, type MyNotification } from '@/lib/places';
 import { needLabel, type Need } from '@/lib/types';
 import { friendly } from '@/lib/errors';
 import { formatDate } from '@/lib/geo';
@@ -21,6 +21,19 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
     fetchNotifications(sb).then((n) => { setNotes(n); if (n.some((x) => x.is_new)) markNotificationsSeen(sb); });
     fetchMyLists(sb, userId).then(setLists);
   }, [sb, userId]);
+
+  const [renaming, setRenaming] = useState<{ id: string; title: string } | null>(null);
+  const [sure, setSure] = useState<string | null>(null);
+  const saveName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!renaming || renaming.title.trim().length < 2) return;
+    setError('');
+    try {
+      await renameList(sb, renaming.id, renaming.title);
+      setLists(lists.map((x) => (x.id === renaming.id ? { ...x, title: renaming.title.trim() } : x)));
+      setRenaming(null);
+    } catch (err) { setError(friendly(err, L.lang)); }
+  };
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +78,24 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
           {lists.map((l) => (
             <li key={l.id}>
               <Link href={`/list/${l.id}`}><span aria-hidden="true">📝</span> <b>{l.title}</b> <small>{(l.list_places[0]?.count ?? 0) === 1 ? L('מקום אחד', 'One place') : L(`${l.list_places[0]?.count ?? 0} מקומות`, `${l.list_places[0]?.count ?? 0} places`)}</small></Link>
-              <button type="button" className="link" onClick={async () => { await deleteList(sb, l.id); setLists(lists.filter((x) => x.id !== l.id)); }}>{L('מחיקה', 'Delete')}</button>
+              <span className="my-acts">
+              <button type="button" className="link" onClick={() => setRenaming({ id: l.id, title: l.title })}>{L('שינוי שם', 'Rename')}</button>
+              <button type="button" className="link" onClick={async () => {
+                if (sure !== l.id) { setSure(l.id); return; }
+                await deleteList(sb, l.id);
+                setLists(lists.filter((x) => x.id !== l.id));
+              }}>{sure === l.id ? L('למחוק?', 'Delete?') : L('מחיקה', 'Delete')}</button>
+              </span>
+              {renaming?.id === l.id && (
+                <form className="my-edit" onSubmit={saveName}>
+                  <label htmlFor={`rename-${l.id}`}>{L('שם הרשימה', 'List name')}</label>
+                  <input id={`rename-${l.id}`} maxLength={60} value={renaming.title} onChange={(e) => setRenaming({ id: l.id, title: e.target.value })} />
+                  <div>
+                    <button type="submit" className="btn small primary" disabled={renaming.title.trim().length < 2}>{L('שמירה', 'Save')}</button>
+                    <button type="button" className="btn small" onClick={() => setRenaming(null)}>{L('ביטול', 'Cancel')}</button>
+                  </div>
+                </form>
+              )}
             </li>
           ))}
         </ul>

@@ -610,6 +610,11 @@ export async function createList(sb: SupabaseClient, userId: string, title: stri
   return data.id;
 }
 
+export async function renameList(sb: SupabaseClient, id: string, title: string) {
+  const { error } = await sb.from('lists').update({ title: title.trim() }).eq('id', id);
+  if (error) throw error;
+}
+
 export async function deleteList(sb: SupabaseClient, id: string) {
   const { error } = await sb.from('lists').delete().eq('id', id);
   if (error) throw error;

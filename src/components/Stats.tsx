@@ -12,6 +12,8 @@ import { needLabel, type Need } from '@/lib/types';
 type Counts = { places: number } & Partial<Record<Need, number>>;
 
 const REFRESH_MS = 60_000;
+/** An allergy gets its own tile once this many places have it. */
+const ALLERGY_MIN = 40;
 
 /** Live numbers from the database. They refresh by themselves, so a new place shows up in them. */
 export default function Stats() {
@@ -27,9 +29,6 @@ export default function Stats() {
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', load); };
   }, [sb]);
 
-  // all the allergies in one tile; it appears once there is enough to show
-  const allergies = EXTRA_NEEDS.reduce((sum, n) => sum + (counts?.[n] ?? 0), 0);
-
   return (
     <ul className="stats" aria-label={L('המספרים במפה', 'The map in numbers')}>
       <li className="stat p">
@@ -44,13 +43,13 @@ export default function Stats() {
           <span className="stat-label">{needLabel(n, L.lang)}</span>
         </li>
       ))}
-      {allergies >= 50 && (
-        <li className="stat e">
-          <span className="stat-emoji" aria-hidden="true">🥜</span>
-          <CountUp value={allergies} />
-          <span className="stat-label">{L('מידע על אלרגיות', 'Allergy details')}</span>
+      {EXTRA_NEEDS.filter((n) => (counts?.[n] ?? 0) >= ALLERGY_MIN).map((n) => (
+        <li key={n} className={`stat ${NEED_CLASS[n]}`}>
+          <span className="stat-emoji" aria-hidden="true">{NEED_EMOJI[n]}</span>
+          <CountUp value={counts?.[n] ?? 0} />
+          <span className="stat-label">{needLabel(n, L.lang)}</span>
         </li>
-      )}
+      ))}
     </ul>
   );
 }
