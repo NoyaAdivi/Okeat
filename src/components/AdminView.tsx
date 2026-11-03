@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { decideSuggestion, fetchPendingSuggestions, type PlaceSuggestion } from '@/lib/places';
+import { placeTypeLabel } from '@/lib/types';
+import { cuisineLabel } from '@/lib/cuisine';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
@@ -30,6 +33,7 @@ export default function AdminView() {
   const { user, ready } = useUser(sb);
   const [q, setQ] = useState<ModerationQueue | null>(null);
   const [error, setError] = useState('');
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [badReviews, setBadReviews] = useState<ReportedReview[]>([]);
   const [siteErrors, setSiteErrors] = useState<ClientError[]>([]);
@@ -41,6 +45,7 @@ export default function AdminView() {
   const load = useCallback(() => {
     fetchModerationQueue(sb).then(setQ).catch((e) => setError(friendly(e, lang)));
     fetchPendingPhotos(sb).then(setPhotos);
+    fetchPendingSuggestions(sb).then(setSuggestions);
     fetchReportedReviews(sb).then(setBadReviews);
     fetchClientErrors(sb).then(setSiteErrors);
     fetchAdminMessages(sb).then((m) => {
@@ -53,7 +58,7 @@ export default function AdminView() {
 
   const act = (fn: () => Promise<void>) => fn().then(() => { opened.current = true; load(); }).catch((e) => setError(friendly(e, lang)));
 
-  const reports = (q?.reported.length ?? 0) + (q?.claims.length ?? 0) + badReviews.length;
+  const reports = (q?.reported.length ?? 0) + (q?.claims.length ?? 0) + badReviews.length + suggestions.length;
   const owners = q?.owners.length ?? 0;
   const waiting = reports + owners + photos.length + openMessages;
   const everyone: { id: TabId; cls: string; emoji: string; label: string; count: number }[] = [
@@ -137,6 +142,25 @@ export default function AdminView() {
                 <div className="acts">
                   <button type="button" className="btn small ghost danger" onClick={() => act(() => deleteReview(sb, r.place_id, r.user_id))}>{L('מחיקת הביקורת', 'Delete review')}</button>
                   <button type="button" className="btn small" onClick={() => act(() => dismissReviewReports(sb, r))}>{L('הביקורת בסדר', 'Review is fine')}</button>
+                </div>
+              </div>
+            ))}
+
+            <h2>{L('הצעות לסיווג', 'Suggested types')} ({suggestions.length})</h2>
+            {suggestions.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
+            {suggestions.map((s) => (
+              <div key={s.id} className="admin-row">
+                <div>
+                  <Link href={`/map?place=${s.placeId}`}><b>{s.name}</b></Link>
+                  <div className="muted small">
+                    {placeTypeLabel(s.oldType, lang)} ← {placeTypeLabel(s.newType, lang)}
+                    {s.newCuisine.length > 0 && `, ${s.newCuisine.map((c) => cuisineLabel(c, lang)).join(', ')}`}
+                    {s.by && ` (${s.by})`}
+                  </div>
+                </div>
+                <div className="acts">
+                  <button type="button" className="btn small" onClick={() => act(() => decideSuggestion(sb, s.id, true))}>{L('אישור', 'Approve')}</button>
+                  <button type="button" className="btn small ghost danger" onClick={() => act(() => decideSuggestion(sb, s.id, false))}>{L('דחייה', 'Reject')}</button>
                 </div>
               </div>
             ))}

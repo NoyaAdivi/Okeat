@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { deleteMyPhoto, fetchMyFeed, placePhotoUrl, type FeedKind, type FeedRow } from '@/lib/places';
 import { friendly } from '@/lib/errors';
-import { levelInfo, levelText, needLabel, type Level } from '@/lib/types';
+import { levelInfo, levelText, needLabel, placeTypeLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
 
 type Filter = FeedKind | 'all';
@@ -18,6 +18,7 @@ const LOOK: Record<FeedKind, { emoji: string; cls: string }> = {
   photo: { emoji: '📷', cls: 'e' },
   list: { emoji: '📋', cls: 'x' },
   saved: { emoji: '❤️', cls: 'k' },
+  suggestion: { emoji: '🏷️', cls: 'g' },
 };
 
 /** Everything you added, newest first. Comes back up to date whenever you return to the page. */
@@ -52,6 +53,7 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
     photo: L('תמונות', 'Photos'),
     list: L('רשימות', 'Lists'),
     saved: L('שמורים', 'Saved'),
+    suggestion: L('הצעות', 'Suggestions'),
   };
   const present = (Object.keys(LOOK) as FeedKind[]).filter((k) => rows.some((r) => r.kind === k));
   const shown = filter === 'all' ? rows : rows.filter((r) => r.kind === filter);
@@ -76,10 +78,12 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
     photo: L('הוספת תמונה', 'You added a photo'),
     list: L('יצרת רשימה', 'You made a list'),
     saved: L('שמרת מקום', 'You saved a place'),
+    suggestion: L(`הצעת סיווג: ${placeTypeLabel(r.level ?? '', lang)}`, `You suggested: ${placeTypeLabel(r.level ?? '', lang)}`),
   })[r.kind];
   const pill = (r: FeedRow) => {
     if (r.status === 'pending') return <span className="feed-pill wait">{L('מחכה לאישור', 'Waiting')}</span>;
     if (r.status === 'verified' || r.status === 'approved') return <span className="feed-pill ok">{L('אושר', 'Confirmed')}</span>;
+    if (r.status === 'rejected') return <span className="feed-pill wait">{L('לא אושר', 'Not approved')}</span>;
     if (r.status === 'disputed') return <span className="feed-pill wait">{L('בבדיקה', 'Under review')}</span>;
     return null;
   };

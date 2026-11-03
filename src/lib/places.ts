@@ -737,7 +737,7 @@ export async function withdrawClaim(sb: SupabaseClient, id: string) {
   if (error) throw error;
 }
 
-export type FeedKind = 'place' | 'claim' | 'vote' | 'review' | 'photo' | 'list' | 'saved';
+export type FeedKind = 'place' | 'claim' | 'vote' | 'review' | 'photo' | 'list' | 'saved' | 'suggestion';
 
 export interface FeedRow {
   kind: FeedKind; id: string; place_id: string | null; title: string; at: string;
@@ -755,6 +755,27 @@ export async function deleteMyPhoto(sb: SupabaseClient, id: string, path: string
   const { error } = await sb.from('place_photos').delete().eq('id', id);
   if (error) throw error;
   await sb.storage.from('place-photos').remove([path]);
+}
+
+export async function suggestPlaceType(sb: SupabaseClient, placeId: string, type: string, cuisine: string[]) {
+  const { error } = await sb.rpc('suggest_place_type', { p_place: placeId, p_type: type, p_cuisine: cuisine });
+  if (error) throw error;
+}
+
+export interface PlaceSuggestion {
+  id: string; placeId: string; name: string; oldType: string; oldCuisine: string[] | null;
+  newType: string; newCuisine: string[]; by: string | null; at: string;
+}
+
+export async function fetchPendingSuggestions(sb: SupabaseClient): Promise<PlaceSuggestion[]> {
+  const { data, error } = await sb.rpc('pending_suggestions');
+  if (error) return []; // the database may not have this yet
+  return (data ?? []) as PlaceSuggestion[];
+}
+
+export async function decideSuggestion(sb: SupabaseClient, id: string, approve: boolean) {
+  const { error } = await sb.rpc('decide_suggestion', { p_id: id, p_approve: approve });
+  if (error) throw error;
 }
 
 export async function updateMyClaim(sb: SupabaseClient, id: string, level: string) {

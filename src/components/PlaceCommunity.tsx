@@ -1,5 +1,6 @@
 'use client';
 
+import SuggestType from './SuggestType';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import AdminPlaceDialog from './AdminPlaceDialog';
@@ -39,6 +40,7 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
   const lang = L.lang;
   const [meta, setMeta] = useState<PlaceMeta | null>(null);
   const [panel, setPanel] = useState<'none' | 'report' | 'owner'>('none');
+  const [suggesting, setSuggesting] = useState(false);
   const [reason, setReason] = useState('');
   const [kind, setKind] = useState<(typeof REPORT_KINDS)[number]['id']>('closed');
   const [code, setCode] = useState('');
@@ -117,6 +119,12 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
           </button>
         )}
         {meta.iRequestedOwner && <span className="hint">{L('בקשת האימות שלך מחכה לאישור מנהל.', 'Your verification request is waiting for an admin.')}</span>}
+        <button type="button" className="link" onClick={() => {
+          if (needAccount(L('כדי להציע סיווג צריך להתחבר עם חשבון.', 'To suggest a type, sign in with an account.'))) return;
+          setSuggesting(true);
+        }}>
+          <span aria-hidden="true">🏷️</span> {L('הסיווג לא נכון? הצעת שינוי', 'Wrong type? Suggest a change')}
+        </button>
         {!meta.iReported ? (
           <button type="button" className="link danger" onClick={() => {
             if (needAccount(L('כדי לדווח על מקום צריך להתחבר עם חשבון.', 'To report a place, sign in with an account.'))) return;
@@ -128,6 +136,13 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
           <span className="hint">{L('תודה, הדיווח שלך התקבל.', 'Thanks, your report was received.')}</span>
         )}
       </div>
+
+      {suggesting && (
+        <SuggestType sb={sb} place={place} onClose={() => setSuggesting(false)} onSent={() => {
+          setSuggesting(false);
+          onToast(L('תודה! ההצעה נשלחה לאישור.', 'Thanks! Your suggestion was sent for approval.'));
+        }} />
+      )}
 
       {panel === 'report' && (
         <div className="mini-form">

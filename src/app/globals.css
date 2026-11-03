@@ -1460,8 +1460,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .my-place-form { display: grid; gap: 12px; }
 .my-place-form .field input { width: 100%; min-height: 46px; border: 0; border-radius: 12px; padding: 10px 14px; background: var(--surface-2); color: var(--ink); box-sizing: border-box; }
 
-/* ---------- home: one number, not a board of them ---------- */
-.places-count { margin: 0; color: var(--muted); font-weight: 600; }
+/* ---------- home: the numbers come out even on a phone ---------- */
+@media (max-width: 760px) {
+  .stats .stat:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
+}
 
 /* ---------- phones: fewer things moving, fewer things on screen ---------- */
 @media (max-width: 760px) {

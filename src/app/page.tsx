@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import { PlacesCount } from '@/components/Stats';
+import Stats from '@/components/Stats';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { serverL } from '@/lib/lang-server';
 
@@ -42,8 +42,12 @@ export default async function Home() {
               <Link href="/map" className="cta primary"><span aria-hidden="true">🗺️</span> {L('לפתוח את המפה', 'Open the map')}</Link>
               <Link href="/about" className="cta">{L('איך זה עובד', 'How it works')}</Link>
             </div>
-            <PlacesCount />
           </div>
+        </section>
+
+        <section className="band" aria-labelledby="stats-h">
+          <h2 id="stats-h" className="vh">{L('המספרים', 'The numbers')}</h2>
+          <Stats />
         </section>
 
         <section className="section" aria-labelledby="needs-h">
