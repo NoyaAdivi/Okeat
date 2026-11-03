@@ -171,7 +171,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   }, []);
 
   useEffect(() => {
-    if (authError) showToast(L('ההתחברות לא הצליחה. נסו שוב.', 'Sign-in failed. Please try again.'));
+    if (authError) showToast(L('ההתחברות לא הצליחה. אם נכנסתם מהמייל, ייתכן שהקישור כבר נוצל. אפשר לבקש חדש או להמשיך עם Google.', 'Sign-in failed. If you came from an email, the link may have been used already. Ask for a new one or continue with Google.'));
   }, [authError, showToast]);
 
   // 1. Find the person.

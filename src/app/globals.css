@@ -882,3 +882,11 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 
 /* confirmed long ago */
 .stale-note { color: var(--warn); font-weight: 600; }
+
+/* phone: the logo and the display buttons share one line, the links get the next */
+@media (max-width: 760px) {
+  .site-head { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .site-head .brand-link { flex: 0 0 auto; }
+  .site-head .display-toggles { width: auto; margin-inline-start: auto; }
+  .site-head nav { order: 3; flex: 1 0 100%; flex-wrap: nowrap; }
+}

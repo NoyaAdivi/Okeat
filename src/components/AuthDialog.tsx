@@ -21,6 +21,26 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState('');
+  const [code, setCode] = useState('');
+  const [checking, setChecking] = useState(false);
+
+  // The shared email service allows only a few messages an hour.
+  const authMessage = (e: Error) => {
+    if (/not authorized/i.test(e.message)) return L('כניסה במייל לא זמינה כרגע. אפשר להמשיך עם Google.', "Email sign-in isn't available right now. Please continue with Google.");
+    if (/rate limit|over_email/i.test(e.message)) return L('נשלחו יותר מדי מיילים בשעה האחרונה. אפשר להמשיך עם Google, או לנסות שוב בעוד שעה.', 'Too many emails were sent in the last hour. Continue with Google, or try again in an hour.');
+    return friendly(e, L.lang);
+  };
+
+  // A code works in any browser, unlike a link that opens somewhere else.
+  const checkCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setChecking(true);
+    const { error } = await sb.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' });
+    setChecking(false);
+    if (error) setError(L('הקוד לא נכון או שפג תוקפו. אפשר לבקש קוד חדש.', 'That code is wrong or has expired. You can ask for a new one.'));
+    else onClose();
+  };
 
   const google = async () => {
     setError('');
@@ -39,8 +59,9 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
     const { error } = await sb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: callbackUrl() } });
     if (error) {
       setState('idle');
-      setError(friendly(error, L.lang));
+      setError(authMessage(error));
     } else {
+      setCode('');
       setState('sent');
     }
   };
@@ -51,10 +72,15 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
         <p style={{ margin: 0 }}>
           {L('שלחנו קישור התחברות ל-', 'We sent a sign-in link to ')}<b dir="ltr">{email.trim()}</b>{L('. לחיצה עליו תחזיר אתכם לכאן, מחוברים.', '. Clicking it brings you back here, signed in.')}
         </p>
-        <div className="modal-acts">
-          <button type="button" className="btn" onClick={() => setState('idle')}>{L('שליחה לכתובת אחרת', 'Send to another address')}</button>
-          <button type="button" className="btn primary" onClick={onClose}>{L('סגירה', 'Close')}</button>
-        </div>
+        <form onSubmit={checkCode} className="field" noValidate>
+          <label htmlFor="auth-code">{L('אם קיבלתם קוד במייל, כתבו אותו כאן', 'If the email has a code, enter it here')}</label>
+          <input id="auth-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
+          {error && <div className="err" role="alert">{error}</div>}
+          <div className="modal-acts">
+            <button type="button" className="btn" onClick={() => { setError(''); setState('idle'); }}>{L('שליחה מחדש', 'Send again')}</button>
+            <button type="submit" className="btn primary" disabled={checking || code.length < 6}>{checking ? L('בודק…', 'Checking…') : L('כניסה', 'Sign in')}</button>
+          </div>
+        </form>
       </Modal>
     );
   }

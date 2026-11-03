@@ -31,6 +31,8 @@
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
 - Contact form, terms of use, privacy policy and accessibility statement
 
+📐 How it fits together: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ## 🛠️ Tech stack
 
 | Part | Technology |
