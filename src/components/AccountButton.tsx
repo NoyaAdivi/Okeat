@@ -35,13 +35,14 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
     );
   }
 
-  const name = (user.user_metadata?.name as string | undefined) ?? (user.user_metadata?.full_name as string | undefined) ?? '';
+  // Email accounts have no name, so the person sees their own address. Only they see it.
+  const name = (user.user_metadata?.name as string | undefined) ?? (user.user_metadata?.full_name as string | undefined) ?? user.email ?? '';
   const avatar = (user.user_metadata?.avatar_url as string | undefined) ?? null;
 
   return (
     <div className="account-wrap" ref={wrap}>
       <button type="button" className="account" aria-haspopup="menu" aria-expanded={open} aria-label={L(`החשבון של ${name}`, `${name}'s account`)} onClick={() => setOpen((o) => !o)}>
-        <Avatar name={name || '?'} url={avatar} size={36} />
+        <Avatar name={name || 'O'} url={avatar} size={36} />
       </button>
       {open && (
         <div className="account-menu" role="menu">

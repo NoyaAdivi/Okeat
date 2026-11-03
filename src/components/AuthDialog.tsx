@@ -27,6 +27,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
 
   // The shared email service allows only a few messages an hour.
   const authMessage = (e: Error) => {
+    if (/only request this after/i.test(e.message)) return L('כבר שלחנו לכם מייל. בדקו בתיבה ובספאם, או נסו שוב בעוד דקה.', 'We already sent you an email. Check your inbox and spam, or try again in a minute.');
     if (/not authorized/i.test(e.message)) return L('כניסה במייל לא זמינה כרגע. אפשר להמשיך עם Google.', "Email sign-in isn't available right now. Please continue with Google.");
     return friendly(e, L.lang);
   };
@@ -61,7 +62,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
     if (error) {
       setState('idle');
       // The hourly limit, or sending failed on the mail side, which is what a used-up daily quota looks like.
-      const hourly = /rate limit|over_email/i.test(error.message);
+      const hourly = /rate limit|over_email/i.test(error.message) && !/only request this after/i.test(error.message);
       const daily = /error sending|smtp|unexpected/i.test(error.message) || (error as Error & { status?: number }).status === 500;
       if (hourly || daily) setMailBusy(hourly ? 'hour' : 'day');
       else setError(authMessage(error));
