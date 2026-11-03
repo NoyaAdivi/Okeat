@@ -35,16 +35,19 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
   return (
     <div className="filters">
       <div className="filters-row">
-        <button type="button" className="more-filters" aria-expanded={open} aria-label={L('עוד סינונים', 'More filters')} title={L('עוד סינונים', 'More filters')} onClick={() => setOpen((v) => !v)}>
-          <span aria-hidden="true">🎛️</span>{hidden > 0 && <span className="count">{hidden}</span>}
-        </button>
         {MAIN_NEEDS.map((n) => (
           <button key={n} type="button" className={`chip ${NEED_CLASS[n]}`} aria-pressed={filter[n] !== null} onClick={() => toggle(n)}>
             <span className="mini" aria-hidden="true">{needLetter(n, lang)}</span>
             {needLabel(n, lang)}
           </button>
         ))}
-        {anyOn && <button type="button" className="clear-filters" aria-label={L('ניקוי הכול', 'Clear all')} title={L('ניקוי הכול', 'Clear all')} onClick={onClear}><span aria-hidden="true">✕</span></button>}
+      </div>
+      <div className="filters-actions">
+        <button type="button" className="more-filters" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+          <span aria-hidden="true">🎛️</span> {L('עוד סינונים', 'More filters')}{hidden > 0 && <span className="count">{hidden}</span>}
+          <span className="more-arrow" aria-hidden="true">⌄</span>
+        </button>
+        {anyOn && <button type="button" className="clear-filters" onClick={onClear}><span aria-hidden="true">✕</span> {L('ניקוי הכול', 'Clear all')}</button>}
       </div>
       {open && (
         <div className="filters-more">
