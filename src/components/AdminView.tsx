@@ -79,7 +79,7 @@ export default function AdminView() {
           <span className="admin-hero-mark" aria-hidden="true">{waiting > 0 ? '🌿' : '🌸'}</span>
           <div>
             <h1>{L('ניהול הקהילה', 'Community moderation')}</h1>
-            <p>{q ? (waiting > 0 ? L(`${waiting} דברים מחכים לך היום`, `${waiting} things are waiting for you today`) : L('הכל מטופל. אפשר לנוח', "You're all caught up")) : L('רגע, בודקים מה חדש…', 'Checking what is new…')}</p>
+            <p>{q ? (waiting === 1 ? L('דבר אחד מחכה לך היום', 'One thing is waiting for you today') : waiting > 0 ? L(`${waiting} דברים מחכים לך היום`, `${waiting} things are waiting for you today`) : L('הכל מטופל. אפשר לנוח', "You're all caught up")) : L('רגע, בודקים מה חדש…', 'Checking what is new…')}</p>
           </div>
         </header>
         {ready && (!user || user.is_anonymous) && <p>{L('צריך להתחבר עם חשבון של מנהל.', 'Sign in with a moderator account.')}</p>}

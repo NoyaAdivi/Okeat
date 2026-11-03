@@ -11,7 +11,7 @@ export function friendly(e: unknown, lang: Lang = 'he'): string {
         : '';
 
   if (msg.toLowerCase().includes('anonymous sign-ins are disabled'))
-    return 'הוספה בלי הרשמה עוד לא הופעלה. ב-Supabase צריך להפעיל Allow anonymous sign-ins.';
+    return 'צריך להתחבר עם חשבון (Google או מייל).';
   if (msg.includes('certificate photo')) return 'בחרו מי נותן את ההשגחה (אפשר גם "לא ידוע").';
   if (msg.includes('Too many new places')) return 'הוספת הרבה מקומות היום. אפשר להמשיך מחר.';
   if (msg.includes('Too many requests')) return 'יותר מדי בקשות היום. נסו שוב מחר.';
@@ -44,7 +44,7 @@ function friendlyEn(e: unknown): string {
       : typeof e === 'object' && e !== null && 'message' in e
         ? String((e as { message: unknown }).message)
         : '';
-  if (msg.toLowerCase().includes('anonymous sign-ins are disabled')) return 'Adding without signing up is not enabled yet.';
+  if (msg.toLowerCase().includes('anonymous sign-ins are disabled')) return 'Please sign in with an account (Google or email).';
   if (msg.includes('certificate photo')) return 'Choose who supervises the place (or "unknown").';
   if (msg.includes('Too many new places')) return 'You added a lot of places today. You can continue tomorrow.';
   if (msg.includes('Too many requests')) return 'Too many requests today. Try again tomorrow.';

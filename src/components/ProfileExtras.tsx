@@ -64,7 +64,7 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
         <ul className="profile-places list-places my-lists">
           {lists.map((l) => (
             <li key={l.id}>
-              <Link href={`/list/${l.id}`}><span aria-hidden="true">📝</span> <b>{l.title}</b> <small>{L(`${l.list_places[0]?.count ?? 0} מקומות`, `${l.list_places[0]?.count ?? 0} places`)}</small></Link>
+              <Link href={`/list/${l.id}`}><span aria-hidden="true">📝</span> <b>{l.title}</b> <small>{(l.list_places[0]?.count ?? 0) === 1 ? L('מקום אחד', 'One place') : L(`${l.list_places[0]?.count ?? 0} מקומות`, `${l.list_places[0]?.count ?? 0} places`)}</small></Link>
               <button type="button" className="link" onClick={async () => { await deleteList(sb, l.id); setLists(lists.filter((x) => x.id !== l.id)); }}>{L('מחיקה', 'Delete')}</button>
             </li>
           ))}

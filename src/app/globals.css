@@ -5,7 +5,7 @@
   with a scalloped peach header, like the edge of the logo's stamp.
 */
 :root {
-  --bg: #FFF7F3; --surface: #FFFFFF; --surface-2: #FCF1EE; --ink: #2B2140; --muted: #7A6B88; --line: #F1E2E6;
+  --press: #000000; --bg: #FFF7F3; --surface: #FFFFFF; --surface-2: #FCF1EE; --ink: #2B2140; --muted: #7A6B88; --line: #F1E2E6;
   --peach: #FFB4A2; --peach-soft: #FFE6DE; --peach-deep: #E36E57;
   --kosher: #6F60F0; --kosher-soft: #E8E4FF;
   --vegan: #2A9A66; --vegan-soft: #D4F4E3;
@@ -21,7 +21,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1D1729; --surface: #271F36; --surface-2: #30273F; --ink: #F4ECFA; --muted: #B6A8C8; --line: #3B3150;
+    --press: #FFFFFF; --bg: #1D1729; --surface: #271F36; --surface-2: #30273F; --ink: #F4ECFA; --muted: #B6A8C8; --line: #3B3150;
     --peach: #FF9C86; --peach-soft: #43303A; --peach-deep: #FF9C86;
     --kosher: #ABA2FF; --kosher-soft: #2F2A57;
     --vegan: #71D8A5; --vegan-soft: #1E3C30;
@@ -35,7 +35,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1D1729; --surface: #271F36; --surface-2: #30273F; --ink: #F4ECFA; --muted: #B6A8C8; --line: #3B3150;
+  --press: #FFFFFF; --bg: #1D1729; --surface: #271F36; --surface-2: #30273F; --ink: #F4ECFA; --muted: #B6A8C8; --line: #3B3150;
   --peach: #FF9C86; --peach-soft: #43303A; --peach-deep: #FF9C86;
   --kosher: #ABA2FF; --kosher-soft: #2F2A57;
   --vegan: #71D8A5; --vegan-soft: #1E3C30;
@@ -1103,7 +1103,7 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 
 /* color in the side panel: each kind of thing keeps its own pastel */
 .chip { background: var(--cs, var(--surface-2)); }
-.chip[aria-pressed="true"] { background: var(--c); color: var(--surface); box-shadow: none; }
+.chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 82%, var(--press)); color: var(--surface); box-shadow: none; }
 .chip[aria-pressed="true"] .mini { background: var(--surface); color: var(--c); }
 .chip.o { background: var(--vegan-soft); }
 .more-filters { padding: 7px 14px; border-radius: 999px; background: var(--peach-soft); transition: transform .15s; }
@@ -1242,7 +1242,12 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .level-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 22px; }
 .level-pills a { padding: 10px 18px; border-radius: 999px; background: var(--cs); color: var(--ink); font-weight: 600; text-decoration: none; transition: transform .22s cubic-bezier(.3, 1.5, .5, 1), background .18s, color .18s; animation: city-pop .4s cubic-bezier(.3, 1.5, .5, 1) backwards; animation-delay: calc(var(--i, 0) * 50ms); }
 .level-pills a:hover { transform: translateY(-2px) rotate(-1.5deg); }
-.level-pills a[aria-current="true"] { background: var(--c); color: var(--surface); transform: scale(1.06); }
+.level-pills a[aria-current="true"] { background: color-mix(in srgb, var(--c) 82%, var(--press)); color: var(--surface); transform: scale(1.06); }
 @media (prefers-reduced-motion: reduce) {
   .level-pills a { animation: none; transition: none; }
 }
+
+/* ---------- keyboard focus inside rounded cards, and a soft start for reading pages ---------- */
+.tile > a:focus-visible { outline: 3px solid var(--peach-deep); outline-offset: -3px; }
+.prose > h1:first-child { animation: admin-panel-in .4s ease backwards; }
+@media (prefers-reduced-motion: reduce) { .prose > h1:first-child { animation: none; } }

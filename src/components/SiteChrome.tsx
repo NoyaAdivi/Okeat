@@ -64,7 +64,7 @@ export function SiteFooter() {
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
         {L(' ומתפרסם ברישיון ODbL, וחלק מ-', ' and is published under the ODbL licence, and some from ')}
         <a href="https://overturemaps.org" target="_blank" rel="noopener noreferrer">Overture Maps</a>
-        {L(' (CDLA Permissive 2.0). המידע נבדק על ידי הקהילה ואינו מחליף בדיקה במקום.', ' (CDLA Permissive 2.0). The information is checked by the community and does not replace checking on site.')}
+        {L(' (CDLA Permissive 2.0). המידע באתר אינו מחליף בדיקה במקום.', ' (CDLA Permissive 2.0). The information here does not replace checking on site.')}
       </p>
     </footer>
   );

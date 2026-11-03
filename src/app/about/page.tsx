@@ -15,7 +15,7 @@ const journeyOf = (L: T) => [
   { emoji: '➕', title: L('מישהו מוסיף', 'Someone adds it'), text: L('למשל "המקום הזה טבעוני לגמרי". בכשרות אפשר לצרף צילום של התעודה כדי לחזק את המידע.', 'For example "this place is fully vegan". For kosher, a photo of the certificate can be added to make it stronger.') },
   { emoji: '👀', title: L('אחרים מאשרים', 'Others confirm'), text: L('אנשים שהיו במקום לוחצים "נכון, ראיתי בעצמי". אי אפשר לאשר משהו שהוספתם בעצמכם.', 'People who were there tap "True, I saw it myself". You can\'t confirm something you added yourself.') },
   { emoji: '✅', title: L('מאושר', 'It gets confirmed'), text: L('אחרי שלושה אישורים המידע מסומן כמאושר, ומופיע בסינון.', 'After three confirmations it is marked as confirmed and shows up in the filters.') },
-  { emoji: '⏰', title: L('נשאר עדכני', 'It stays up to date'), text: L('תעודה שפג תוקפה מסומנת לבד, ופרט שלא אושר יותר משנה מסומן לבדיקה. אם שלושה אנשים מדווחים שמשהו כבר לא נכון, הוא יורד.', 'An expired certificate is flagged automatically, and a detail not confirmed for over a year is marked for checking. If three people report something is no longer true, it comes down.') },
+  { emoji: '⏰', title: L('נשאר עדכני', 'It stays up to date'), text: L('תעודה שפג תוקפה מסומנת לבד, ופרט שלא אושר יותר משנה מסומן לבדיקה. אם שלושה אנשים מדווחים שמשהו כבר לא נכון, הוא עובר לבדיקה של מנהלי הקהילה.', 'An expired certificate is flagged automatically, and a detail not confirmed for over a year is marked for checking. If three people report something is no longer true, it goes to the community moderators for review.') },
 ];
 
 const faqOf = (L: T) => [
@@ -124,8 +124,8 @@ const faqOf = (L: T) => [
   {
     group: 'trust',
     q: L('אפשר לסמוך על זה לגמרי?', 'Can I rely on it completely?'),
-    a: L('המידע נבדק על ידי הקהילה, ומוצג יחד עם התאריך ומספר המאשרים. ובכל זאת, ברגישות גבוהה כמו צליאקיה או כשרות מחמירה, כדאי תמיד לוודא גם במקום.',
-      'The information is checked by the community and shown with the date and the number of people who confirmed it. Still, for high sensitivity such as celiac disease or strict kashrut, always double-check on site.'),
+    a: L('מידע שהקהילה אישרה מוצג יחד עם התאריך ומספר המאשרים, ומידע שעוד לא אושר מסומן בחותמת בהירה. ובכל זאת, ברגישות גבוהה כמו צליאקיה או כשרות מחמירה, כדאי תמיד לוודא גם במקום.',
+      'Information the community confirmed is shown with the date and the number of people who confirmed it, and anything not yet confirmed has a pale seal. Still, for high sensitivity such as celiac disease or strict kashrut, always double-check on site.'),
   },
 ];
 

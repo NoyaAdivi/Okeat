@@ -175,7 +175,7 @@ export default function PlaceDetail({
                       </span>
                     ) : (
                       <>
-                        <span>{L(`אושר על ידי ${c.confirmCount} אנשים`, `Confirmed by ${c.confirmCount} people`)}</span>
+                        {c.confirmCount > 0 && <span>{c.confirmCount === 1 ? L('אושר על ידי אדם אחד', 'Confirmed by one person') : L(`אושר על ידי ${c.confirmCount} אנשים`, `Confirmed by ${c.confirmCount} people`)}</span>}
                         <span>{L('אישור אחרון', 'Last confirmed')} {ago(c.lastConfirmedAt, lang)}</span>
                         {isStale(c.lastConfirmedAt) && <span className="stale-note">{L('אושר לפני יותר משנה, כדאי לוודא', 'Confirmed over a year ago, worth checking')}</span>}
                       </>

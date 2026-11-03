@@ -794,7 +794,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       </button>
       <div className="map-wrap">
         {!TOKEN ? (
-          <div className="map-msg">חסר NEXT_PUBLIC_MAPBOX_TOKEN בקובץ ‎.env.local</div>
+          <div className="map-msg">{L('המפה לא זמינה כרגע. נסו שוב בעוד רגע.', 'The map is not available right now. Please try again soon.')}</div>
         ) : located === 'pending' ? (
           <div className="map-msg"><Logo size={64} /><span>{L('מאתרים את המיקום שלך…', 'Finding your location…')}</span></div>
         ) : (
