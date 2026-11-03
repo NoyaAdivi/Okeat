@@ -11,10 +11,15 @@ for (const [name, viewport] of [['computer', { width: 1280, height: 800 }], ['ph
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
 
+  // The location question comes first on a new visit.
+  const notNow = () => page.getByRole('button', { name: 'לא עכשיו' }).click({ timeout: 4000 }).catch(() => undefined);
+
   await page.goto(site);
+  await notNow();
   if (await page.locator('h1').count() === 0) fail(`${name}: the home page has no title`);
 
   await page.goto(`${site}/map`);
+  await notNow();
   await page.waitForSelector('.mapboxgl-canvas', { timeout: 20000 }).catch(() => fail(`${name}: the map did not appear`));
   await page.waitForSelector('.panel-body li button.item', { timeout: 20000 }).catch(() => fail(`${name}: the list is empty`));
 

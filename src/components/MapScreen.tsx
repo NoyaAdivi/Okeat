@@ -19,6 +19,7 @@ import { formatMeters } from '@/lib/geo';
 import Logo from './Logo';
 import FilterBar from './FilterBar';
 import LocationHelp from './LocationHelp';
+import LocationAsk, { readAsked, saveAsked } from './LocationAsk';
 import PlaceList from './PlaceList';
 import PlaceDetail from './PlaceDetail';
 import NavPanel, { NavBanner } from './NavPanel';
@@ -165,6 +166,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [addAddress, setAddAddress] = useState('');
   const [addSearch, setAddSearch] = useState(false);
   const [locHelp, setLocHelp] = useState(false);
+  const [ask, setAsk] = useState(false);
   const [certFor, setCertFor] = useState<Place | null>(null);
   const [infoFor, setInfoFor] = useState<{ place: Place; need: Need } | null>(null);
 
@@ -211,7 +213,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       return;
     }
     if (!('geolocation' in navigator)) return fallback();
-    navigator.geolocation.getCurrentPosition(
+    const askFirst = () => { fallback(); if (!authError) setAsk(true); };
+    const go = () => navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         // The map covers Israel only; someone abroad starts in Ramat Gan.
@@ -225,6 +228,13 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       fallback,
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 },
     );
+    const asked = readAsked();
+    if (asked === 'yes') return go();
+    if (asked === 'no') return fallback();
+    const query = navigator.permissions?.query({ name: 'geolocation' });
+    if (query) query.then((p) => (p.state === 'granted' ? go() : askFirst())).catch(askFirst);
+    else askFirst();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Debounce typing.
@@ -476,6 +486,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
     );
+  };
+
+  // Our question first. If the browser already allowed it, there is nothing to ask.
+  const askForGps = () => {
+    setLocOpen(false);
+    const query = navigator.permissions?.query({ name: 'geolocation' });
+    if (query) query.then((p) => (p.state === 'granted' ? locateMe() : setAsk(true))).catch(() => setAsk(true));
+    else setAsk(true);
   };
 
   const changeMode = (m: TravelMode) => {
@@ -1004,7 +1022,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           <LocationPicker
             manualLabel={manualLabel}
             near={viewCenter ?? me ?? mapCenter}
-            onGps={locateMe}
+            onGps={askForGps}
             onPickOnMap={() => { setLocOpen(false); stopNav(); setPickingMe(true); setSheet('peek'); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], exact: true }); }}
             onChoose={setMyLocation}
             onClose={() => setLocOpen(false)}
@@ -1193,6 +1211,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
       </aside>
 
+      {ask && <LocationAsk onNo={() => { saveAsked('no'); setAsk(false); }} onYes={() => { saveAsked('yes'); setAsk(false); locateMe(); }} />}
       {locHelp && <LocationHelp onClose={() => setLocHelp(false)} onPick={() => { setLocHelp(false); setLocOpen(true); }} onRetry={() => { setLocHelp(false); locateMe(); }} />}
       {auth && <AuthDialog sb={sb} reason={auth.reason} startWithCode={auth.startWithCode} onClose={() => setAuth(null)} />}
 
