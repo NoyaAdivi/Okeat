@@ -18,6 +18,7 @@ test('dates are written day first', () => {
 
 test('a long walk becomes a drive', () => {
   assert.deepEqual(estimateTrip(800), { mode: 'walk', minutes: 13 });
+  assert.equal(estimateTrip(1500).mode, 'drive');
   assert.equal(estimateTrip(3000).mode, 'drive');
   assert.equal(estimateTrip(3000).minutes, 8);
 });
