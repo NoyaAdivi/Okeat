@@ -1359,3 +1359,5 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; }
   .app[data-place="open"] .panel-head { display: none; }
   .app[data-place="open"] .sheet-handle { background: var(--surface); }
 }
+
+.have-code { justify-self: center; margin-top: 10px; font-size: 0.875rem; }

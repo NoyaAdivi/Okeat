@@ -12,16 +12,21 @@ interface Props {
   sb: SupabaseClient;
   /** Why we're asking, e.g. "כדי לאשר מידע צריך להתחבר." */
   reason?: string;
+  /** Open on the step for typing the code from the email. */
+  startWithCode?: boolean;
   onClose: () => void;
 }
 
 const callbackUrl = () =>
   `${window.location.origin}/auth/callback?next=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 
-export default function AuthDialog({ sb, reason, onClose }: Props) {
+const LAST_EMAIL = 'okeat-last-email';
+
+export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props) {
   const L = useL();
-  const [email, setEmail] = useState('');
-  const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [email, setEmail] = useState(() => { try { return localStorage.getItem(LAST_EMAIL) ?? ''; } catch { return ''; } });
+  const [state, setState] = useState<'idle' | 'sending' | 'sent'>(startWithCode ? 'sent' : 'idle');
+  const [needEmail, setNeedEmail] = useState(false);
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
   const [checking, setChecking] = useState(false);
@@ -71,6 +76,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
       else setError(authMessage(error));
     } else {
       sb.rpc('log_mail_sent').then(() => undefined, () => undefined);
+      try { localStorage.setItem(LAST_EMAIL, email.trim()); } catch { /* private window */ }
       setCode('');
       setState('sent');
     }
@@ -81,7 +87,14 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
       <Modal title={L('שלחנו לך מייל', 'We sent you an email')} onClose={onClose}>
         <div className="mail-sent">
           <span className="mail-sent-icon" aria-hidden="true">💌</span>
-          <p>{L('המייל בדרך אל', 'It is on its way to')} <b dir="ltr">{email.trim()}</b></p>
+          {email.trim() && !needEmail ? (
+            <p>{L('המייל בדרך אל', 'It is on its way to')} <b dir="ltr">{email.trim()}</b> <button type="button" className="link" onClick={() => setNeedEmail(true)}>{L('שינוי', 'Change')}</button></p>
+          ) : (
+            <div className="field">
+              <label htmlFor="auth-email-code">{L('המייל שאליו נשלח הקוד', 'The email the code was sent to')}</label>
+              <input id="auth-email-code" type="email" dir="ltr" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+          )}
         </div>
         <p className="mail-ways-title">{L('אפשר להיכנס באחת משתי הדרכים:', 'You can sign in either way:')}</p>
         <div className="mail-ways">
@@ -95,7 +108,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
             <label htmlFor="auth-code"><b>{L('או כותבים כאן את הקוד מהמייל', 'Or enter the code from the email')}</b></label>
             <input id="auth-code" className="mail-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
             {error && <div className="err" role="alert">{error}</div>}
-            <button type="submit" className="btn primary" disabled={checking || code.length < 6}>{checking ? L('בודק…', 'Checking…') : L('כניסה עם הקוד', 'Sign in with the code')}</button>
+            <button type="submit" className="btn primary" disabled={checking || code.length < 6 || !email.trim()}>{checking ? L('בודק…', 'Checking…') : L('כניסה עם הקוד', 'Sign in with the code')}</button>
           </form>
         </div>
         <p className="mail-spam">{L('לא מוצאים את המייל? בדקו בספאם ובקידומי מכירות, ותנו לו דקה או שתיים.', "Can't find it? Check spam and promotions, and give it a minute or two.")}</p>
@@ -143,6 +156,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
             {state === 'sending' ? L('שולח…', 'Sending…') : L('שליחת קישור', 'Send link')}
           </button>
         </div>
+        <button type="button" className="link have-code" onClick={() => { setError(''); setCode(''); setState('sent'); }}>{L('כבר קיבלתם קוד במייל? כתבו אותו כאן', 'Already got a code by email? Enter it here')}</button>
       </form>
     </Modal>
   );

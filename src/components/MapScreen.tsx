@@ -150,7 +150,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const weakGpsWarned = useRef(false);
 
   // dialogs
-  const [auth, setAuth] = useState<{ reason?: string } | null>(null);
+  const [auth, setAuth] = useState<{ reason?: string; startWithCode?: boolean } | null>(null);
   const [picking, setPicking] = useState(false);
   /** "where am I" menu, and picking my own location on the map */
   const [locOpen, setLocOpen] = useState(false);
@@ -173,7 +173,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   }, []);
 
   useEffect(() => {
-    if (authError) showToast(L('ההתחברות לא הצליחה. אם נכנסתם מהמייל, ייתכן שהקישור כבר נוצל. אפשר לבקש חדש או להמשיך עם Google.', 'Sign-in failed. If you came from an email, the link may have been used already. Ask for a new one or continue with Google.'));
+    if (authError) {
+      showToast(L('הקישור במייל כבר לא תקף. אפשר לכתוב את הקוד מהמייל, או לבקש חדש.', 'The link in the email no longer works. Enter the code from the email, or ask for a new one.'));
+      setAuth({ startWithCode: true });
+    }
   }, [authError, showToast]);
 
   // 1. Find the person.
@@ -1099,7 +1102,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
       </aside>
 
-      {auth && <AuthDialog sb={sb} reason={auth.reason} onClose={() => setAuth(null)} />}
+      {auth && <AuthDialog sb={sb} reason={auth.reason} startWithCode={auth.startWithCode} onClose={() => setAuth(null)} />}
 
       {addAt && (
         <AddPlaceDialog
