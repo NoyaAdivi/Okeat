@@ -14,5 +14,5 @@ jobs:
           node-version: 22
       - run: npm test
       - run: npm i --no-save playwright && npx playwright install --with-deps chromium
-      - run: node tests/screens.mjs
       - run: sleep 100
+      - run: node tests/screens.mjs
