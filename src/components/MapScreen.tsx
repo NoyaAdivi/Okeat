@@ -271,9 +271,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     return () => clearTimeout(t);
   }, [mapCenter, searchCenter, selectedId]);
 
-  // 4. Community queue (open to everyone).
+  // 4. Community queue, for signed-in people.
   useEffect(() => {
     if (located === 'pending') return;
+    if (!user || user.is_anonymous) { setQueue([]); setQueueLoading(false); return; }
     let cancelled = false;
     setQueueLoading(true);
     fetchQueue(sb, { ...(me ?? searchCenter), radiusM: 8000 })

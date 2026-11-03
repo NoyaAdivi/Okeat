@@ -1313,3 +1313,8 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
   .detail-tools { gap: 10px; }
   .a11y-tab { width: 34px; height: 44px; opacity: .92; }
 }
+
+/* phone map: the side button stays above the sheet, clear of the sign-in button */
+@media (max-width: 640px) {
+  body:has(.app) .a11y-tab { top: 24%; }
+}

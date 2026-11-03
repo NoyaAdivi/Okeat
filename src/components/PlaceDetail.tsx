@@ -67,6 +67,9 @@ export default function PlaceDetail({
   }, [place.id, place.lat, place.lng, place.address, L.lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const lang = L.lang;
   const foods = placeFoods(place);
+  // known only in the browser, so the page the server sends matches the first render
+  const [canSpeak, setCanSpeak] = useState(false);
+  useEffect(() => setCanSpeak(speechSupported()), []);
   const back = backLabel ?? L('חזרה לרשימה', 'Back to the list');
   const st = openStatus(place.hours, lang);
   const verified = NEED_ORDER.map((n) => verifiedClaim(place, n)).filter((c): c is Claim => c !== null);
@@ -89,7 +92,7 @@ export default function PlaceDetail({
       <div className="detail-top">
         <button type="button" className="back-pill" onClick={onBack}><span aria-hidden="true">{lang === 'en' ? '←' : '→'}</span> {back}</button>
         <span className="detail-tools">
-          {speechSupported() && (
+          {canSpeak && (
             <button type="button" className="link" onClick={() => root.current && readAloud(readableText(root.current))}>
               <span aria-hidden="true">🔊</span> {L('הקראה', 'Read aloud')}
             </button>
