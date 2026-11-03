@@ -191,7 +191,7 @@ function addClusterImages(map: mapboxgl.Map, dark: boolean) {
 function addPlaceLayers(map: mapboxgl.Map, dark: boolean) {
   const c = dark ? CLUSTER_COLORS.dark : CLUSTER_COLORS.light;
   if (!map.getSource('places')) {
-    map.addSource('places', { type: 'geojson', data: EMPTY, cluster: true, clusterRadius: 62, clusterMaxZoom: 16 });
+    map.addSource('places', { type: 'geojson', data: EMPTY, cluster: true, clusterRadius: 62, clusterMaxZoom: 17 });
   }
   addClusterImages(map, dark);
   if (!map.getLayer('clusters')) {
@@ -231,6 +231,7 @@ function sealHTML(cls: string, letter: string) {
  */
 /** Pixels between full markers, and the room a name takes. */
 const MARKER_GAP = 46;
+const PHONE_GAP = 64;
 const NAME_WIDTH = 120;
 const NAME_HEIGHT = 30;
 
@@ -435,13 +436,14 @@ export default function MapView({
   const declutter = (map: mapboxgl.Map, byId: Map<string, MapPoint>) => {
     const rank = (id: string) => (id === selectedRef.current ? 100 : byId.get(id)?.seals.length ?? 0);
     const order = [...live.current.keys()].sort((a, b) => rank(b) - rank(a));
+    const gap = isPhone() ? PHONE_GAP : MARKER_GAP;
     const full: mapboxgl.Point[] = [];
     const named: mapboxgl.Point[] = [];
     for (const id of order) {
       const marker = live.current.get(id)!;
       const at = map.project(marker.getLngLat());
       const selected = id === selectedRef.current;
-      const crowded = !selected && full.some((q) => Math.hypot(q.x - at.x, q.y - at.y) < MARKER_GAP);
+      const crowded = !selected && full.some((q) => Math.hypot(q.x - at.x, q.y - at.y) < gap);
       if (!crowded) full.push(at);
       const roomForName = selected || (!crowded && map.getZoom() >= 16 && !named.some((q) => Math.abs(q.x - at.x) < NAME_WIDTH && Math.abs(q.y - at.y) < NAME_HEIGHT));
       if (roomForName) named.push(at);
