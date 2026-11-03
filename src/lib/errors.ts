@@ -18,6 +18,7 @@ export function friendly(e: unknown, lang: Lang = 'he'): string {
   if (msg.includes('Moderators only') || msg.includes('Admins only')) return 'הפעולה הזו רק למאשרי קהילה ולמנהלים.';
   if (msg.includes('must start with https')) return 'הקישור צריך להתחיל ב-https://';
   if (msg.includes('duplicate key') && msg.includes('place_reports')) return 'כבר דיווחת על המקום הזה. תודה!';
+  if (msg.includes('A place needs a name')) return 'צריך שם למקום.';
   if (msg.includes('Sign in with an account')) return 'צריך להתחבר עם חשבון (Google או מייל).';
   if (msg.includes('claim you proposed')) return 'הוספת את זה בעצמך. אנשים אחרים צריכים לאשר.';
   if (msg.includes('claim is closed')) return 'ההצעה הזו כבר נסגרה.';
@@ -49,8 +50,10 @@ function friendlyEn(e: unknown): string {
   if (msg.includes('Too many new places')) return 'You added a lot of places today. You can continue tomorrow.';
   if (msg.includes('Too many requests')) return 'Too many requests today. Try again tomorrow.';
   if (msg.includes('Moderators only') || msg.includes('Admins only')) return 'Only community moderators and admins can do this.';
+  if (msg.includes('A place needs a name')) return 'A place needs a name.';
   if (msg.includes('must start with https')) return 'The link must start with https://';
   if (msg.includes('duplicate key') && msg.includes('place_reports')) return 'You already reported this place. Thanks!';
+  if (msg.includes('A place needs a name')) return 'צריך שם למקום.';
   if (msg.includes('Sign in with an account')) return 'Sign in with an account (Google or e-mail).';
   if (msg.includes('claim you proposed')) return 'You added this yourself. Other people need to confirm it.';
   if (msg.includes('claim is closed')) return 'This suggestion is already closed.';

@@ -18,8 +18,9 @@ import MessagesPanel from './MessagesPanel';
 import DashboardPanel from './DashboardPanel';
 import LimitsPanel from './LimitsPanel';
 import LogPanel from './LogPanel';
+import PlacesPanel from './PlacesPanel';
 
-type TabId = 'home' | 'limits' | 'log' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
+type TabId = 'home' | 'places' | 'limits' | 'log' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -63,6 +64,7 @@ export default function AdminView() {
   const adminOnly: typeof everyone = [
     { id: 'home', cls: 'h', emoji: '📊', label: L('סקירה', 'Overview'), count: 0 },
     { id: 'messages', cls: 'e', emoji: '💌', label: L('הודעות', 'Messages'), count: openMessages },
+    { id: 'places', cls: 'g', emoji: '🍽️', label: L('מקומות', 'Places'), count: 0 },
     { id: 'users', cls: 'v', emoji: '👥', label: L('משתמשים', 'Users'), count: 0 },
     { id: 'limits', cls: 'k', emoji: '⏳', label: L('מכסות', 'Limits'), count: 0 },
     { id: 'dupes', cls: 'g', emoji: '🔁', label: L('כפילויות', 'Duplicates'), count: 0 },
@@ -99,6 +101,7 @@ export default function AdminView() {
             <div id="admin-panel" key={tab} className="admin-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0}>
             {tab === 'home' && admin && <DashboardPanel sb={sb} />}
             {tab === 'messages' && admin && <MessagesPanel sb={sb} onChange={setOpenMessages} />}
+            {tab === 'places' && admin && <PlacesPanel sb={sb} />}
             {tab === 'users' && admin && user && <UsersPanel sb={sb} meId={user.id} />}
             {tab === 'dupes' && admin && <DuplicatesPanel sb={sb} />}
             {tab === 'limits' && admin && <LimitsPanel sb={sb} />}

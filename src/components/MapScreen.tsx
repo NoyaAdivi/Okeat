@@ -1066,7 +1066,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                   key={selected.id}
                   sb={sb}
                   place={selected}
-                  signedIn={!!user && !user.is_anonymous}
+                  isAdmin={isAdmin} signedIn={!!user && !user.is_anonymous}
                   onSignIn={(reason) => setAuth({ reason })}
                   onToast={showToast}
                   onChanged={() => { setRefreshKey((k) => k + 1); refreshSelected(); }}

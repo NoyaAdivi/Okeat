@@ -679,3 +679,28 @@ export async function fetchActivity(sb: SupabaseClient): Promise<ActivityRow[]> 
   if (error) throw error;
   return data as ActivityRow[];
 }
+
+export interface AdminPlace {
+  id: string; name: string; place_type: string; cuisine: string[] | null;
+  address: string | null; phone: string | null; website: string | null; removed?: boolean;
+}
+
+/** Admin: find any place by name, hidden ones too. Up to 50. */
+export async function adminSearchPlaces(sb: SupabaseClient, query: string, hiddenOnly: boolean): Promise<AdminPlace[]> {
+  const { data, error } = await sb.rpc('admin_search_places', { p_query: query, p_hidden_only: hiddenOnly });
+  if (error) throw error;
+  return (data ?? []) as AdminPlace[];
+}
+
+export async function adminUpdatePlace(sb: SupabaseClient, place: AdminPlace) {
+  const { error } = await sb.rpc('admin_update_place', {
+    p_place: place.id, p_name: place.name, p_type: place.place_type, p_cuisine: place.cuisine ?? [],
+    p_address: place.address, p_phone: place.phone, p_website: place.website,
+  });
+  if (error) throw error;
+}
+
+export async function adminRestorePlace(sb: SupabaseClient, id: string) {
+  const { error } = await sb.rpc('admin_restore_place', { p_place: id });
+  if (error) throw error;
+}

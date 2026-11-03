@@ -97,7 +97,7 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
           extra={
             <>
               <PlaceExtras key={`extras-${place.id}`} sb={sb} place={place} userId={signedIn && user ? user.id : null} isAdmin={isAdmin} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
-              <PlaceCommunity key={place.id} sb={sb} place={place} signedIn={signedIn} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
+              <PlaceCommunity key={place.id} sb={sb} place={place} isAdmin={isAdmin} signedIn={signedIn} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
             </>
           }
           onShare={async () => {

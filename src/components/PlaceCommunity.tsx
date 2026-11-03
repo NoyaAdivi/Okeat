@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import AdminPlaceDialog from './AdminPlaceDialog';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useL } from './LangProvider';
 import type { Place } from '@/lib/types';
@@ -17,6 +18,8 @@ interface Props {
   place: Place;
   /** signed in with a real account (not anonymous) */
   signedIn: boolean;
+  /** The site admin can correct the place itself. */
+  isAdmin?: boolean;
   onSignIn: (reason: string) => void;
   onToast: (text: string) => void;
   onChanged: () => void;
@@ -30,8 +33,9 @@ const REPORT_KINDS = [
   { id: 'other', he: 'אחר', en: 'Something else' },
 ] as const;
 
-export default function PlaceCommunity({ sb, place, signedIn, onSignIn, onToast, onChanged }: Props) {
+export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn, onToast, onChanged }: Props) {
   const L = useL();
+  const [editing, setEditing] = useState(false);
   const lang = L.lang;
   const [meta, setMeta] = useState<PlaceMeta | null>(null);
   const [panel, setPanel] = useState<'none' | 'report' | 'owner'>('none');
@@ -170,6 +174,7 @@ export default function PlaceCommunity({ sb, place, signedIn, onSignIn, onToast,
       {meta.canModerate && (
         <div className="mod-tools">
           <span className="mod-tag">{L('כלי מנהל', 'Moderator tools')}</span>
+          {isAdmin && <button type="button" className="btn small" onClick={() => setEditing(true)}>{L('עריכת המקום והסיווג', 'Edit place and type')}</button>}
           <button type="button" className="btn small ghost" disabled={busy} onClick={() => {
             if (!window.confirm(L(`למחוק את "${place.name}" מהמפה?`, `Remove "${place.name}" from the map?`))) return;
             run(async () => { await moderatePlace(sb, place.id, true); onToast(L('המקום הוסר', 'The place was removed')); onChanged(); });
@@ -184,6 +189,15 @@ export default function PlaceCommunity({ sb, place, signedIn, onSignIn, onToast,
       )}
 
       {error && <div className="err" role="alert">{error}</div>}
+      {editing && (
+        <AdminPlaceDialog
+          sb={sb}
+          place={{ id: place.id, name: place.name, place_type: place.place_type, cuisine: place.cuisine ?? null, address: place.address ?? null, phone: place.phone ?? null, website: place.website ?? null }}
+          claims={place.claims}
+          onClose={() => { setEditing(false); onChanged(); }}
+          onSaved={() => { setEditing(false); onToast(L('הפרטים נשמרו', 'The details were saved')); onChanged(); }}
+        />
+      )}
     </section>
   );
 }

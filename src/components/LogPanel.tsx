@@ -17,7 +17,7 @@ export default function LogPanel({ sb }: { sb: SupabaseClient }) {
   const label = (action: string) => ({
     claim_verified: L('אישר/ה מידע', 'confirmed information'), claim_rejected: L('הסיר/ה מידע', 'removed information'),
     claim_superseded: L('החליף/ה מידע', 'replaced information'), place_removed: L('הסיר/ה מקום', 'removed a place'),
-    place_restored: L('החזיר/ה מקום', 'restored a place'), review_deleted: L('מחק/ה ביקורת', 'deleted a review'),
+    place_restored: L('החזיר/ה מקום', 'restored a place'), place_edited: L('ערכ/ה מקום', 'edited a place'), review_deleted: L('מחק/ה ביקורת', 'deleted a review'),
     user_deleted: L('מחק/ה משתמש', 'deleted a user'), role_user: L('שינה/תה תפקיד לרגיל', 'set a role to regular'),
     role_trusted: L('מינה/תה מאשר/ת קהילה', 'made a moderator'), role_admin: L('מינה/תה מנהל/ת', 'made an admin'),
   } as Record<string, string>)[action] ?? action;
