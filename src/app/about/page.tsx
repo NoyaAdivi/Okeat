@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteFooter, SiteHeader, LINKEDIN_URL } from '@/components/SiteChrome';
 import { getLang, serverL } from '@/lib/lang-server';
+import FaqList from '@/components/FaqList';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getLang()) === 'en' ? 'How it works | Okeat' : 'איך זה עובד | Okeat' };
@@ -19,86 +20,103 @@ const journeyOf = (L: T) => [
 
 const faqOf = (L: T) => [
   {
+    group: 'data',
     q: L('מאיפה מגיע המידע?', 'Where does the information come from?'),
     a: L('משלושה מקורות: אנשים שמוסיפים ומאשרים מידע באתר, המאגרים הפתוחים OpenStreetMap ו-Overture Maps, וסיווג אוטומטי לפי שם המקום וסוגו. מידע שעוד לא אושר באתר מסומן במפורש.',
       'Three sources: people who add and confirm information on the site, the open databases OpenStreetMap and Overture Maps, and automatic classification by the name and type of each place. Anything not yet confirmed on the site is clearly labelled.'),
   },
   {
+    group: 'data',
     q: L('למה אין כאן את כל המסעדות שיש בגוגל או באיזי?', "Why aren't all the restaurants from Google or other apps here?"),
     a: L('המידע באתרים האלה שייך להם, ואסור להעתיק אותו. לכן אנחנו בונים מאגר משלנו, פתוח וקהילתי. כל מקום שאתם מוסיפים עוזר לכולם.',
       'That information belongs to them and may not be copied. So we are building our own open, community database. Every place you add helps everyone.'),
   },
   {
+    group: 'kosher',
     q: L('מה ההבדל בין "כשר" ל"מפוקח"?', 'What is the difference between "kosher" and "supervised"?'),
     a: L('לפי החוק בישראל, רק עסק עם תעודה מהרבנות מוצג ככשר. עסק עם השגחה פרטית, כמו צהר, מוצג כ"מפוקח". אנחנו מציגים את שניהם, וכותבים בבירור מה ההבדל.',
       'By Israeli law, only a business with a Rabbinate certificate is presented as kosher. A business with private supervision, such as Tzohar, is shown as "supervised". We show both and say clearly what the difference is.'),
   },
   {
+    group: 'kosher',
     q: L('מה זה "מסומן ככשר"?', 'What does "marked kosher" mean?'),
     a: L('מקום שסומן ככשר ב-OpenStreetMap, אבל עוד אין באתר צילום של התעודה שלו. אם אתם שם, צלמו את התעודה ועזרו לכולם.',
       "A place marked as kosher on OpenStreetMap, but with no photo of its certificate on the site yet. If you're there, photograph the certificate and help everyone."),
   },
   {
+    group: 'data',
     q: L('מה זה "סיווג אוטומטי"?', 'What is an "automatic guess"?'),
     a: L('כשאין עדיין מידע על מקום, המחשב מנחש לפי השם שלו: "פיצה" בשם הופך לפיצרייה, "טבעוני" לטבעוני וכן הלאה. ליד כל ניחוש כזה כתוב שהוא לא מאושר, עד שאנשים שהיו במקום יאשרו אותו.',
       'When there is no information about a place yet, the computer guesses from its name: "pizza" in the name makes it a pizzeria, "vegan" makes it vegan, and so on. Every guess like this says it is not confirmed until people who were there confirm it.'),
   },
   {
+    group: 'kosher',
     q: L('צריך צילום של תעודת הכשרות?', 'Do I need a photo of the kosher certificate?'),
     a: L('לא. אפשר לסמן כשרות ולבחור מי נותן את ההשגחה: רבנות, מהדרין, בד״ץ, צהר, השגחה פרטית, או "לא ידוע". צילום של התעודה לא חובה, אבל הוא מחזק את המידע, והפרטים נקראים ממנו אוטומטית.',
       'No. You can mark a place kosher and choose who supervises it: Rabbinate, Mehadrin, Badatz, Tzohar, private supervision, or "unknown". A photo of the certificate is optional, but it makes the information stronger, and the details are read from it automatically.'),
   },
   {
+    group: 'kosher',
     q: L('יש גם מידע על אלרגיות?', 'Is there allergy info too?'),
     a: L('כן. אפשר לסנן ולהוסיף מידע על בלי חלב, בלי ביצים, בלי בוטנים, בלי אגוזים, בלי שומשום ובלי סויה. באלרגיה חמורה תמיד כדאי לשאול גם במקום.',
       'Yes. You can filter and add information about dairy-free, egg-free, peanut-free, nut-free, sesame-free and soy-free. With a serious allergy, always ask on site too.'),
   },
   {
+    group: 'trust',
     q: L('מה קורה אם מישהו מוסיף מקום שגוי?', 'What if someone adds a wrong place?'),
     a: L('מקום חדש מופיע במפה מיד, עם סימון "ממתין לאישור". כל משתמש מחובר יכול לדווח עליו. אחרי שלושה דיווחים הוא עובר לבדיקה, ורק מאשר קהילה או מנהל יכולים להסיר אותו. מאשרי קהילה ממונים אישית על ידי מנהלת האתר.',
       'A new place appears on the map right away, marked "waiting for confirmation". Any signed-in user can report it. After three reports it goes to review, and only a community moderator or an admin can remove it. Community moderators are appointed personally by the site admin.'),
   },
   {
+    group: 'trust',
     q: L('מה זה "אושר על ידי בעל העסק"?', 'What does "confirmed by the business owner" mean?'),
     a: L('בעל עסק יכול לאמת את המקום שלו: הוא מקבל קוד, מפרסם אותו לזמן קצר באתר או בעמוד הרשמי של העסק ברשתות, ומנהל בודק שהקוד באמת שם. כך אי אפשר להתחזות לבעל העסק. בעל עסק מאומת יכול גם לעדכן שעות, טלפון, אתר וקישור לתפריט.',
       "A business owner can verify their place: they get a code, post it for a short while on the business's website or official social page, and an admin checks the code is really there. That way nobody can pretend to be the owner. A verified owner can also update hours, phone, website and a menu link."),
   },
   {
+    group: 'account',
     q: L('מה רואים אחרים בפרופיל שלי?', 'What can others see on my profile?'),
     a: L('את השם ותמונת הפרופיל, האוכל האהוב אם כתבת אותו, מתי הצטרפת, ומה הוספת ואישרת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה. רשימת המקומות ששמרת גלויה רק לך.',
       'Your name and picture, your favorite food if you added it, when you joined, and what you added and confirmed. A review you write is shown with your name. Your e-mail address is not shown to other users, and only the site admin can see it. Your saved places are visible only to you.'),
   },
   {
+    group: 'account',
     q: L('צריך להירשם?', 'Do I need to sign up?'),
     a: L('כדי לחפש ולראות מידע לא צריך להירשם. כדי להוסיף, לאשר, לתקן או לדווח צריך להתחבר עם Google או מייל, וכך המידע באתר נשאר אמין. ההתחברות גם שומרת את מה שעשיתם, כשנכנסים ממכשיר אחר.',
       'To search and see information, no account is needed. To add, confirm, fix or report, sign in with Google or email, which keeps the site reliable. Signing in also keeps what you did when you use another device.'),
   },
   {
+    group: 'use',
     q: L('מה אפשר לעשות חוץ מלאשר מידע?', 'What else can I do besides confirming?'),
     a: L('אפשר לכתוב ביקורת עם דירוג של 1 עד 5 כוכבים, לשמור מקומות שאהבתם, ליצור רשימות ולשתף אותן בקישור, ולהעלות תמונות של המקום. תמונה מופיעה אחרי אישור של מנהל, ואם ביקורת פוגענית אפשר לדווח עליה.',
       'You can write a review with a rating of 1 to 5 stars, save places you like, make lists and share them with a link, and add photos of the place. A photo appears after a moderator approves it, and an offensive review can be reported.'),
   },
   {
+    group: 'use',
     q: L('איך מחפשים נכון?', 'How do I search?'),
     a: L('אפשר לכתוב שם של מקום או עיר, או משפט שלם כמו "פיצה כשרה פתוחה עכשיו ברמת גן". כשהאתר מבין את החיפוש, מופיע כפתור שמסנן לפיו. אפשר גם לבחור סינון קבוע, והוא יישמר רק במכשיר שלכם.',
       'Type the name of a place or a city, or a whole sentence like "kosher pizza open now in Ramat Gan". When the site understands it, a button appears that filters by it. You can also keep a filter on, and it stays only on your device.'),
   },
   {
+    group: 'account',
     q: L('אילו התראות אקבל?', 'What notifications will I get?'),
     a: L('בפרופיל תראו כשמידע שהוספתם אושר, וכשתעודת כשרות שהעליתם עומדת להסתיים. ההתראות מופיעות באתר, ולא נשלחות במייל.',
       "On your profile you'll see when your information is confirmed, and when a kosher certificate you added is about to end. Notifications appear on the site and aren't sent by email."),
   },
   {
+    group: 'account',
     q: L('מה אומרים התגים בפרופיל?', 'What do the profile badges mean?'),
     a: L('תגים מוענקים אוטומטית על עזרה לקהילה: 10 אישורים למאשר/ת פעיל/ה, 5 מקומות למגלה מקומות, 10 פרטי מידע למוסיף/ה מידע ו-5 ביקורות למבקר/ת.',
       'Badges are given automatically for helping the community: 10 confirmations for an active confirmer, 5 places for a place finder, 10 details for an info helper and 5 reviews for a reviewer.'),
   },
   {
+    group: 'use',
     q: L('איך עובד הניווט?', 'How does navigation work?'),
     a: L('בוחרים מקום, בוחרים ברגל, באופניים או ברכב, ולוחצים "יציאה לדרך". המפה עוקבת אחריכם ומקריאה בקול כל פנייה. אפשר להשתיק את הקול בכל רגע.',
       'Choose a place, choose walking, cycling or driving, and tap "Start". The map follows you and reads every turn aloud. You can mute it at any time.'),
   },
   {
+    group: 'trust',
     q: L('אפשר לסמוך על זה לגמרי?', 'Can I rely on it completely?'),
     a: L('המידע נבדק על ידי הקהילה, ומוצג יחד עם התאריך ומספר המאשרים. ובכל זאת, ברגישות גבוהה כמו צליאקיה או כשרות מחמירה, כדאי תמיד לוודא גם במקום.',
       'The information is checked by the community and shown with the date and the number of people who confirmed it. Still, for high sensitivity such as celiac disease or strict kashrut, always double-check on site.'),
@@ -151,14 +169,13 @@ export default async function About() {
 
         <section className="section" aria-labelledby="faq-h">
           <h2 id="faq-h" className="section-title">{L('שאלות נפוצות', 'Frequently asked questions')}</h2>
-          <div className="faq">
-            {FAQ.map((f) => (
-              <details key={f.q}>
-                <summary>{f.q}</summary>
-                <p>{f.a}</p>
-              </details>
-            ))}
-          </div>
+          <FaqList items={FAQ} groups={[
+            { id: 'use', emoji: '🧭', label: L('שימוש באתר', 'Using the site') },
+            { id: 'kosher', emoji: '🍽️', label: L('כשרות ואלרגיות', 'Kosher and allergies') },
+            { id: 'data', emoji: '🗺️', label: L('מאיפה המידע', 'Where the info comes from') },
+            { id: 'trust', emoji: '✅', label: L('אמינות ועסקים', 'Trust and businesses') },
+            { id: 'account', emoji: '👤', label: L('חשבון ופרופיל', 'Account and profile') },
+          ]} />
         </section>
 
         <section className="section" aria-labelledby="who-h">

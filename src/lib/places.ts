@@ -650,3 +650,16 @@ export async function fetchDashboard(sb: SupabaseClient): Promise<Dashboard> {
   if (error) throw error;
   return data as Dashboard;
 }
+
+// ---------- limits, for the admin ----------
+export interface Limits {
+  mailHour: number; mailDay: number; mailWeek: number; mailMonth: number;
+  signInsToday: number; signInsWeek: number; signUpsToday: number; activeMonth: number;
+  dbBytes: number; storageBytes: number;
+}
+
+export async function fetchLimits(sb: SupabaseClient): Promise<Limits> {
+  const { data, error } = await sb.rpc('admin_limits');
+  if (error) throw error;
+  return data as Limits;
+}

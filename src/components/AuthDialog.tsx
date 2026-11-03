@@ -70,6 +70,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
       if (hourly || daily) setMailBusy(hourly ? 'hour' : 'day');
       else setError(authMessage(error));
     } else {
+      sb.rpc('log_mail_sent').then(() => undefined, () => undefined);
       setCode('');
       setState('sent');
     }

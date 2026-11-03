@@ -1043,3 +1043,34 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 @media (prefers-reduced-motion: reduce) {
   .profile-seal.seal::before, .earned-badges .role-tag, .profile-section { animation: none; }
 }
+
+/* limits page */
+.meters { list-style: none; display: grid; gap: 14px; margin: 0; padding: 0; }
+.meter { display: grid; gap: 6px; }
+.meter-head { display: flex; justify-content: space-between; gap: 12px; }
+.meter small { color: var(--muted); }
+.meter-bar { height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.meter-bar i { display: block; height: 100%; border-radius: 6px; background: var(--vegan); animation: meter-fill .7s cubic-bezier(.2, .7, .2, 1); transform-origin: right; }
+[dir="ltr"] .meter-bar i { transform-origin: left; }
+.meter.warm .meter-bar i { background: var(--gf); }
+.meter.full .meter-bar i { background: var(--peach-deep); }
+@keyframes meter-fill { from { transform: scaleX(0); } }
+.limit-links { list-style: none; display: grid; gap: 8px; margin: 0; padding: 0; }
+.limit-links a { display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; text-decoration: none; }
+.limit-links a:hover { border-color: var(--peach); }
+
+/* questions by topic */
+.faq-box { display: grid; gap: 16px; max-width: 760px; margin-inline: auto; }
+.faq-search { width: 100%; border: 0; border-radius: 999px; padding: 13px 20px; background: var(--surface); color: var(--ink); font: inherit; box-shadow: var(--shadow-sm); }
+.faq-groups { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.faq-groups button { border: 0; border-radius: 999px; padding: 9px 16px; background: var(--surface-2); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; transition: background .18s, transform .18s; }
+.faq-groups button:hover { transform: translateY(-1px); }
+.faq-groups button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.faq-box .faq { margin-top: 0; animation: admin-panel-in .25s ease; }
+.faq-box .faq details { padding: 2px 18px; border: 1px solid var(--line); box-shadow: none; transition: background .18s, border-color .18s; }
+.faq-box .faq details:hover { border-color: var(--peach); }
+.faq-box .faq details[open] { background: var(--peach-soft); border-color: transparent; }
+.faq-box .faq details[open] p { animation: admin-panel-in .25s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .meter-bar i, .faq-box .faq, .faq-box .faq details[open] p { animation: none; }
+}
