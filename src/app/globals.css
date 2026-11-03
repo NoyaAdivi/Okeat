@@ -1676,3 +1676,12 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .mk-seal { width: 32px; height: 32px; }
   .mk-seal b { font-size: 0.8125rem; }
 }
+
+/* ---------- messages keep their full width, on any phone ---------- */
+/* left: 50% left a toast only half the screen to wrap in, so it came out as a tall narrow column */
+.toast { left: 0; right: 0; width: fit-content; max-width: min(480px, calc(100% - 24px)); margin-inline: auto; transform: translateY(20px); box-sizing: border-box; overflow-wrap: anywhere; }
+.toast.show { transform: none; }
+@media (max-width: 760px) {
+  .toast { top: calc(var(--top-h, env(safe-area-inset-top, 0px)) + 10px); bottom: auto; transform: translateY(-12px); padding: 10px 16px; font-size: 0.9375rem; line-height: 1.35; }
+  .notice { width: max-content; max-width: calc(100% - 24px); box-sizing: border-box; }
+}
