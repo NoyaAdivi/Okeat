@@ -351,6 +351,7 @@ export interface PublicProfile {
   places_added: number;
   info_added: number;
   confirmations: number;
+  favorite_food: string | null;
 }
 
 /** Site admins only: put a place at its real location, and keep it there. */

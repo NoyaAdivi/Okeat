@@ -906,3 +906,6 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .signed-in-note { position: fixed; z-index: 70; top: calc(16px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); max-width: calc(100vw - 32px); padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 700; text-align: center; box-shadow: var(--shadow-sm); animation: signed-in-drop .4s cubic-bezier(.2, .7, .2, 1); }
 @keyframes signed-in-drop { from { opacity: 0; top: -20px; } }
 @media (prefers-reduced-motion: reduce) { .signed-in-note { animation: none; } }
+
+/* favorite food on the profile */
+.fav-food { margin: 4px 0; font-size: 15px; }

@@ -3,6 +3,7 @@ import { Fredoka, Rubik } from 'next/font/google';
 import A11yMenu from '@/components/A11yMenu';
 import ErrorWatcher from '@/components/ErrorWatcher';
 import SignedInNote from '@/components/SignedInNote';
+import ProfileSetup from '@/components/ProfileSetup';
 import CookieNotice from '@/components/CookieNotice';
 import { PREFS_BOOT_SCRIPT } from '@/lib/prefs';
 import { LangProvider } from '@/components/LangProvider';
@@ -64,6 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <A11yMenu />
           <ErrorWatcher />
           <SignedInNote />
+          <ProfileSetup />
           <CookieNotice />
         </LangProvider>
       </body>
