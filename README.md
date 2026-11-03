@@ -29,7 +29,8 @@
 - **Smart search** – "kosher pizza open now in Ramat Gan" becomes filters and a city; a filter can be kept on the device
 - **Lists and notifications** – shareable lists, similar places, badges, and on-site notifications when information is confirmed or a certificate is ending
 - **Business owners** – verified owners update hours, phone, website and a menu link
-- **Admin tools** – dashboard, users and roles, contact messages, photo approval and merging duplicates
+- **Admin tools** – dashboard, limits, activity log, users and roles, contact messages, photo approval and merging duplicates
+- **City pages and installable app** – a page for each main city, and an app icon for the phone home screen
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
 - **Public profiles** – join date, places added and confirmations, never an e-mail address
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
@@ -71,7 +72,7 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0025 (schema, RLS, functions)
+│   ├── migrations/          0001 … 0028 (schema, RLS, functions)
 │   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
 │   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
 │   ├── RUN-ME-3-IN-SUPABASE.sql same as 0009

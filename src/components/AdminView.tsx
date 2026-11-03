@@ -17,8 +17,9 @@ import UsersPanel from './UsersPanel';
 import MessagesPanel from './MessagesPanel';
 import DashboardPanel from './DashboardPanel';
 import LimitsPanel from './LimitsPanel';
+import LogPanel from './LogPanel';
 
-type TabId = 'home' | 'limits' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
+type TabId = 'home' | 'limits' | 'log' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -65,6 +66,7 @@ export default function AdminView() {
     { id: 'users', cls: 'v', emoji: '👥', label: L('משתמשים', 'Users'), count: 0 },
     { id: 'limits', cls: 'k', emoji: '⏳', label: L('מכסות', 'Limits'), count: 0 },
     { id: 'dupes', cls: 'g', emoji: '🔁', label: L('כפילויות', 'Duplicates'), count: 0 },
+    { id: 'log', cls: 'h', emoji: '📜', label: L('יומן', 'Log'), count: 0 },
     { id: 'errors', cls: 'x', emoji: '🛠️', label: L('שגיאות', 'Errors'), count: siteErrors.length },
   ];
   const tabs = admin ? [adminOnly[0], adminOnly[1], ...everyone, ...adminOnly.slice(2)] : everyone;
@@ -100,6 +102,7 @@ export default function AdminView() {
             {tab === 'users' && admin && user && <UsersPanel sb={sb} meId={user.id} />}
             {tab === 'dupes' && admin && <DuplicatesPanel sb={sb} />}
             {tab === 'limits' && admin && <LimitsPanel sb={sb} />}
+            {tab === 'log' && admin && <LogPanel sb={sb} />}
             {tab === 'photos' && (<>
             <h2>{L('תמונות לאישור', 'Photos to approve')} ({photos.length})</h2>
             {photos.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}

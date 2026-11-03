@@ -42,7 +42,9 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
           {notes.map((n) => (
             <li key={`${n.kind}-${n.place_id}-${n.need}`} className={n.is_new ? 'note-new' : undefined}>
               <Link href={`/map?place=${n.place_id}`}>
-                {n.kind === 'approved'
+                {n.kind === 'confirmed'
+                  ? <>👍 {L(`מישהו אישר את המידע שהוספת על ${n.place_name}`, `Someone confirmed what you added about ${n.place_name}`)}</>
+                  : n.kind === 'approved'
                   ? <>✅ {L(`המידע שהוספת על ${n.place_name} אושר (${needLabel(n.need as Need, 'he')})`, `Your information about ${n.place_name} was confirmed (${needLabel(n.need as Need, 'en')})`)}</>
                   : <>⏰ {L(`תעודת הכשרות של ${n.place_name} עומדת להסתיים. אם התחדשה, אפשר לצלם את החדשה.`, `The kosher certificate of ${n.place_name} is about to end. If it was renewed, you can add the new one.`)}</>}
                 <small> · {formatDate(n.happened_at.slice(0, 10))}</small>

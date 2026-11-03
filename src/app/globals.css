@@ -1151,3 +1151,14 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
   .app[data-place="open"] .panel-body { padding-top: 12px; }
   .detail-tools .link { font-size: 13px; }
 }
+
+/* sorted list, cities and the rating */
+.list-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.list-top .summary { margin: 0; }
+.list-sort select { border: 0; border-radius: 999px; padding: 6px 10px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; }
+.list-rating { color: var(--gf); font-size: 13px; }
+.city-grid { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; }
+.city-grid a { display: block; padding: 14px; border-radius: 18px; background: var(--peach-soft); color: var(--ink); font-weight: 700; text-align: center; text-decoration: none; transition: transform .15s; }
+.city-grid li:nth-child(3n + 2) a { background: var(--kosher-soft); }
+.city-grid li:nth-child(3n) a { background: var(--vegan-soft); }
+.city-grid a:hover { transform: translateY(-2px); }

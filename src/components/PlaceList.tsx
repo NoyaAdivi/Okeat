@@ -7,7 +7,9 @@ import { openStatus } from '@/lib/hours';
 import { estimateWalk } from '@/lib/geo';
 import Badges from './Badges';
 import { useL } from './LangProvider';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { fetchRatings } from '@/lib/places';
 
 interface Props {
   places: Place[];
@@ -25,6 +27,18 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
   const lang = L.lang;
   const [shown, setShown] = useState(PAGE);
   useEffect(() => setShown(PAGE), [places]);
+  const sb = useMemo(() => createClient(), []);
+  const [sort, setSort] = useState<'near' | 'rating' | 'confirmed'>('near');
+  const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
+  useEffect(() => {
+    fetchRatings(sb, places.slice(0, 200).map((p) => p.id)).then(setRatings);
+  }, [sb, places]);
+  const confirmed = (p: Place) => p.claims.reduce((sum, c) => sum + (c.status === 'verified' ? c.confirmCount + 1 : 0), 0);
+  const sorted = useMemo(() => {
+    if (sort === 'rating') return [...places].sort((a, b) => (ratings[b.id]?.average ?? 0) - (ratings[a.id]?.average ?? 0));
+    if (sort === 'confirmed') return [...places].sort((a, b) => confirmed(b) - confirmed(a));
+    return places;
+  }, [places, sort, ratings]);
 
   if (error) {
     return (
@@ -67,16 +81,26 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
 
   return (
     <>
-      <p className="summary" aria-live="polite">{summary}</p>
+      <div className="list-top">
+        <p className="summary" aria-live="polite">{summary}</p>
+        <label className="list-sort">
+          <span className="vh">{L('מיון', 'Sort')}</span>
+          <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
+            <option value="near">{L('הכי קרוב', 'Nearest')}</option>
+            <option value="rating">{L('הכי מדורג', 'Top rated')}</option>
+            <option value="confirmed">{L('הכי מאושר', 'Most confirmed')}</option>
+          </select>
+        </label>
+      </div>
       <ul className="list">
-        {places.slice(0, shown).map((p, i) => {
+        {sorted.slice(0, shown).map((p, i) => {
           const st = openStatus(p.hours, lang);
           return (
             <li key={p.id} style={{ '--i': Math.min(i, 12) } as React.CSSProperties}>
               <button type="button" className="item" onClick={() => onSelect(p.id)}>
                 <span className="av" aria-hidden="true">{placeEmoji(p.place_type)}</span>
                 <span className="row1">
-                  <span className="nm">{p.name}</span>
+                  <span className="nm">{p.name}{ratings[p.id] && <span className="list-rating"> ★ {ratings[p.id].average}</span>}</span>
                   {p.distance_m !== null && (
                     <span className="dist">{L(`${estimateWalk(p.distance_m).minutes} דק׳ הליכה`, `${estimateWalk(p.distance_m).minutes} min walk`)}</span>
                   )}

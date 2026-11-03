@@ -93,6 +93,12 @@ const faqOf = (L: T) => [
   },
   {
     group: 'use',
+    q: L('אפשר להתקין את Okeat בטלפון?', 'Can I install Okeat on my phone?'),
+    a: L('כן. באייפון: פותחים את האתר ב-Safari, לוחצים על שיתוף ואז על "הוספה למסך הבית". באנדרואיד: פותחים ב-Chrome, לוחצים על שלוש הנקודות ואז על "התקנת אפליקציה".',
+      'Yes. On iPhone: open the site in Safari, tap Share, then "Add to Home Screen". On Android: open it in Chrome, tap the three dots, then "Install app".'),
+  },
+  {
+    group: 'use',
     q: L('איך מחפשים נכון?', 'How do I search?'),
     a: L('אפשר לכתוב שם של מקום או עיר, או משפט שלם כמו "פיצה כשרה פתוחה עכשיו ברמת גן". כשהאתר מבין את החיפוש, מופיע כפתור שמסנן לפיו. אפשר גם לבחור סינון קבוע, והוא יישמר רק במכשיר שלכם.',
       'Type the name of a place or a city, or a whole sentence like "kosher pizza open now in Ramat Gan". When the site understands it, a button appears that filters by it. You can also keep a filter on, and it stays only on your device.'),
@@ -100,8 +106,8 @@ const faqOf = (L: T) => [
   {
     group: 'account',
     q: L('אילו התראות אקבל?', 'What notifications will I get?'),
-    a: L('בפרופיל תראו כשמידע שהוספתם אושר, וכשתעודת כשרות שהעליתם עומדת להסתיים. ההתראות מופיעות באתר, ולא נשלחות במייל.',
-      "On your profile you'll see when your information is confirmed, and when a kosher certificate you added is about to end. Notifications appear on the site and aren't sent by email."),
+    a: L('בפרופיל תראו כשמישהו אישר מידע שהוספתם, כשהמידע אושר, וכשתעודת כשרות שהעליתם עומדת להסתיים. ההתראות מופיעות באתר, ולא נשלחות במייל.',
+      "On your profile you'll see when someone confirms what you added, when your information is confirmed, and when a kosher certificate you added is about to end. Notifications appear on the site and aren't sent by email."),
   },
   {
     group: 'account',

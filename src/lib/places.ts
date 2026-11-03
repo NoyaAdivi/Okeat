@@ -564,7 +564,7 @@ export async function markMessage(sb: SupabaseClient, id: number, handled: boole
 }
 
 // ---------- notifications ----------
-export interface MyNotification { kind: 'approved' | 'expiring'; place_id: string; place_name: string; need: string; happened_at: string; is_new: boolean }
+export interface MyNotification { kind: 'approved' | 'expiring' | 'confirmed'; place_id: string; place_name: string; need: string; happened_at: string; is_new: boolean }
 
 export async function fetchNotifications(sb: SupabaseClient): Promise<MyNotification[]> {
   const { data, error } = await sb.rpc('my_notifications');
@@ -662,4 +662,20 @@ export async function fetchLimits(sb: SupabaseClient): Promise<Limits> {
   const { data, error } = await sb.rpc('admin_limits');
   if (error) throw error;
   return data as Limits;
+}
+
+// ---------- ratings and the activity log ----------
+export async function fetchRatings(sb: SupabaseClient, ids: string[]): Promise<Record<string, { average: number; total: number }>> {
+  if (ids.length === 0) return {};
+  const { data, error } = await sb.rpc('place_ratings', { p_ids: ids });
+  if (error) return {};
+  return Object.fromEntries((data as { place_id: string; average: number; total: number }[]).map((r) => [r.place_id, { average: Number(r.average), total: Number(r.total) }]));
+}
+
+export interface ActivityRow { id: number; actor: string; action: string; detail: string | null; at: string }
+
+export async function fetchActivity(sb: SupabaseClient): Promise<ActivityRow[]> {
+  const { data, error } = await sb.rpc('admin_activity');
+  if (error) throw error;
+  return data as ActivityRow[];
 }

@@ -8,3 +8,4 @@ client_secret*.json
 *.log
 # images for LinkedIn, kept only on the computer
 linkedin-images/
+backups/

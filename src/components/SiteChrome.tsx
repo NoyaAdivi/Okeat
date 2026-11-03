@@ -46,6 +46,7 @@ export function SiteFooter() {
       <nav aria-label={L('קישורים', 'Links')}>
         <Link href="/map">{L('המפה', 'Map')}</Link>
         <Link href="/about">{L('איך זה עובד', 'How it works')}</Link>
+        <Link href="/cities">{L('מקומות לפי עיר', 'Places by city')}</Link>
         <Link href="/accessibility">{L('הצהרת נגישות', 'Accessibility statement')}</Link>
         <Link href="/terms">{L('תנאי שימוש', 'Terms of use')}</Link>
         <Link href="/privacy">{L('מדיניות פרטיות', 'Privacy policy')}</Link>
