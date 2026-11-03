@@ -737,6 +737,26 @@ export async function withdrawClaim(sb: SupabaseClient, id: string) {
   if (error) throw error;
 }
 
+export type FeedKind = 'place' | 'claim' | 'vote' | 'review' | 'photo' | 'list' | 'saved';
+
+export interface FeedRow {
+  kind: FeedKind; id: string; place_id: string | null; title: string; at: string;
+  status: string | null; need: Need | null; level: string | null; rating: number | null;
+  comment: string | null; vote: number | null; path: string | null;
+}
+
+export async function fetchMyFeed(sb: SupabaseClient): Promise<FeedRow[]> {
+  const { data, error } = await sb.rpc('my_feed');
+  if (error) throw error;
+  return (data ?? []) as FeedRow[];
+}
+
+export async function deleteMyPhoto(sb: SupabaseClient, id: string, path: string) {
+  const { error } = await sb.from('place_photos').delete().eq('id', id);
+  if (error) throw error;
+  await sb.storage.from('place-photos').remove([path]);
+}
+
 export async function updateMyClaim(sb: SupabaseClient, id: string, level: string) {
   const { error } = await sb.rpc('update_my_claim', { p_claim: id, p_level: level });
   if (error) throw error;

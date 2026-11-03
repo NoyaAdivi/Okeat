@@ -33,6 +33,7 @@ function CountUp({ to }: { to: number }) {
 }
 import ProfileExtras from './ProfileExtras';
 import MyActivity from './MyActivity';
+import MyTimeline from './MyTimeline';
 import EditMyPlace from './EditMyPlace';
 import { earnedBadges } from '@/lib/checks';
 import Avatar from './Avatar';
@@ -63,7 +64,7 @@ export default function ProfileView({ id }: { id: string }) {
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [editPlace, setEditPlace] = useState<string | null>(null);
-  const [section, setSection] = useState<'notes' | 'lists' | 'saved' | 'added' | 'info' | 'votes' | 'reviews'>('notes');
+  const [section, setSection] = useState<'feed' | 'notes' | 'lists' | 'saved' | 'added' | 'info' | 'votes' | 'reviews'>('feed');
   const [saved, setSaved] = useState<{ id: string; name: string; place_type: string }[]>([]);
   useEffect(() => { if (mine) fetchMyFavorites(sb).then(setSaved); }, [sb, mine]);
   useEffect(() => {
@@ -150,12 +151,13 @@ export default function ProfileView({ id }: { id: string }) {
             )}
             {mine && user && (
               <div className="profile-tabs" role="tablist" aria-label={L('החלקים בפרופיל', 'Profile sections')}>
-                {([['notes', '🔔', L('התראות', 'Notifications')], ['lists', '📋', L('רשימות', 'Lists')], ['saved', '❤️', L('שמורים', 'Saved')], ['added', '📍', L('הוספתי', 'Added')]] as const).map(([value, emoji, label]) => (
+                {([['feed', '✨', L('הפעילות שלי', 'My activity')], ['notes', '🔔', L('התראות', 'Notifications')], ['lists', '📋', L('רשימות', 'Lists')], ['saved', '❤️', L('שמורים', 'Saved')], ['added', '📍', L('הוספתי', 'Added')]] as const).map(([value, emoji, label]) => (
                   <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}><span aria-hidden="true">{emoji}</span> {label}</button>
                 ))}
               </div>
             )}
             <div key={section} className="profile-section">
+            {mine && section === 'feed' && <MyTimeline sb={sb} onManage={setSection} />}
             {mine && user && section === 'notes' && <ProfileExtras sb={sb} userId={user.id} show="notes" />}
             {mine && user && section === 'lists' && (
               <>
