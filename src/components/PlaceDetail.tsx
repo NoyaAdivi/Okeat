@@ -73,6 +73,8 @@ export default function PlaceDetail({
   const needsCertificate = !kosherPending && !!kosher && (!kosher.certificate || kosher.certificate.expired);
 
   const root = useRef<HTMLDivElement>(null);
+  const [section, setSection] = useState<'info' | 'details' | 'reviews'>('info');
+  useEffect(() => { setSection('info'); }, [place.id]);
   const known = (n: Need) => place.claims.some((c) => c.need === n && (c.status === 'verified' || c.status === 'pending'));
   const canAddMain = MAIN_NEEDS.filter((n) => !known(n));
   const canAddExtra = EXTRA_NEEDS.filter((n) => !known(n));
@@ -101,6 +103,14 @@ export default function PlaceDetail({
         </div>
       </div>
 
+      {goPanel}
+      <div id="place-actions" className="place-actions" />
+      <div className="place-tabs" role="tablist" aria-label={L('החלקים של המקום', 'About this place')}>
+        {([['info', L('מה יש כאן', "What's here")], ['details', L('שעות וקשר', 'Hours and contact')], ['reviews', L('ביקורות וקהילה', 'Reviews and community')]] as const).map(([value, label]) => (
+          <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}>{label}</button>
+        ))}
+      </div>
+      {section === 'info' && (<div className="place-part">
       {place.cuisine && place.cuisine.length > 0 && (
         <section className="sec food" aria-labelledby="food-h">
           <h3 id="food-h">{L('מה אוכלים כאן', 'What they serve')}</h3>
@@ -121,36 +131,9 @@ export default function PlaceDetail({
         </section>
       )}
 
-      {goPanel}
-
       {onFixLocation && (
         <section className="sec">
           <button type="button" className="btn" onClick={onFixLocation}>📍 {L('תיקון מיקום המקום', 'Fix this place\'s location')}</button>
-        </section>
-      )}
-
-      <section className="sec" aria-labelledby="hours-h">
-        <h3 id="hours-h">{L('שעות פתיחה', 'Opening hours')}</h3>
-        <HoursTable hours={place.hours} />
-      </section>
-
-      <GoogleInfo key={place.id} name={place.name} lat={place.lat} lng={place.lng} />
-
-      {(place.phone || place.website) && (
-        <section className="sec contact" aria-labelledby="contact-h">
-          <h3 id="contact-h">{L('יצירת קשר', 'Contact')}</h3>
-          <div className="contact-row">
-            {place.phone && (
-              <a className="btn small" href={`tel:${place.phone.replace(/[^\d+]/g, '')}`}>
-                <span aria-hidden="true">📞</span> <span dir="ltr">{place.phone}</span>
-              </a>
-            )}
-            {place.website && (
-              <a className="btn small" href={place.website} target="_blank" rel="noopener noreferrer">
-                <span aria-hidden="true">🌐</span> {L('לאתר של המקום', "The place's website")}
-              </a>
-            )}
-          </div>
         </section>
       )}
 
@@ -287,7 +270,35 @@ export default function PlaceDetail({
           <button type="button" className="btn" onClick={onAddCertificate}>{L('צילום תעודת כשרות', 'Photograph a kosher certificate')}</button>
         </section>
       )}
-      {extra}
+      </div>)}
+      {section === 'details' && (<div className="place-part">
+      <section className="sec" aria-labelledby="hours-h">
+        <h3 id="hours-h">{L('שעות פתיחה', 'Opening hours')}</h3>
+        <HoursTable hours={place.hours} />
+      </section>
+
+      <GoogleInfo key={place.id} name={place.name} lat={place.lat} lng={place.lng} />
+
+      {(place.phone || place.website) && (
+        <section className="sec contact" aria-labelledby="contact-h">
+          <h3 id="contact-h">{L('יצירת קשר', 'Contact')}</h3>
+          <div className="contact-row">
+            {place.phone && (
+              <a className="btn small" href={`tel:${place.phone.replace(/[^\d+]/g, '')}`}>
+                <span aria-hidden="true">📞</span> <span dir="ltr">{place.phone}</span>
+              </a>
+            )}
+            {place.website && (
+              <a className="btn small" href={place.website} target="_blank" rel="noopener noreferrer">
+                <span aria-hidden="true">🌐</span> {L('לאתר של המקום', "The place's website")}
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
+      </div>)}
+      <div className="place-part" hidden={section !== 'reviews'}>{extra}</div>
     </div>
   );
 }

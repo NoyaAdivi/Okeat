@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Place } from '@/lib/types';
 import {
@@ -47,6 +48,9 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
   const [similar, setSimilar] = useState<SimilarPlace[]>([]);
   const [business, setBusiness] = useState<{ menuUrl: string | null; isOwner: boolean }>({ menuUrl: null, isOwner: false });
   const [editing, setEditing] = useState(false);
+  // The save, photo and list buttons stay above the place's tabs.
+  const [actions, setActions] = useState<HTMLElement | null>(null);
+  useEffect(() => { setActions(document.getElementById('place-actions')); }, []);
   const [lists, setLists] = useState<MyList[] | null>(null);
   const [newList, setNewList] = useState('');
   const file = useRef<HTMLInputElement>(null);
@@ -76,7 +80,8 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
 
   return (
     <>
-      <section className="sec extras-bar">
+      {actions && createPortal(<>
+      <div className="extras-bar">
         <button type="button" className="btn small" aria-pressed={saved} disabled={busy} onClick={() => {
           if (needAccount(L('כדי לשמור מקומות צריך להתחבר עם חשבון.', 'To save places, sign in with an account.'))) return;
           run(async () => { await setFavorite(sb, place.id, userId!, !saved); setSaved(!saved); });
@@ -101,7 +106,8 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
             load();
           });
         }} />
-      </section>
+      </div>
+      </>, actions)}
 
       {lists && (
         <section className="sec">

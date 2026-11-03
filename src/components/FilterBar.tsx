@@ -45,9 +45,25 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
     onFilter({ ...filter, [n]: (filter[n] ?? null) === null ? FILTER_OPTIONS[n][0].min : null });
   const extraOn = EXTRA_NEEDS.filter((n) => (filter[n] ?? null) !== null).length;
   const [more, setMore] = useState(extraOn > 0);
+  const hidden = extraOn + (openNow ? 1 : 0) + (cuisine ? 1 : 0);
+  const [open, setOpen] = useState(hidden > 0);
 
   return (
     <div className="filters">
+      <div className="chips main-chips">
+        {MAIN_NEEDS.map((n) => (
+          <button key={n} type="button" className={`chip ${NEED_CLASS[n]}`} aria-pressed={filter[n] !== null} onClick={() => toggle(n)}>
+            <span className="mini" aria-hidden="true">{needLetter(n, lang)}</span>
+            {needLabel(n, lang)}
+          </button>
+        ))}
+      </div>
+      <button type="button" className="more-filters" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <span aria-hidden="true">🎛️</span> {L('עוד סינונים', 'More filters')}{hidden > 0 && <span className="count">{hidden}</span>}
+        <span className="more-arrow" aria-hidden="true">⌄</span>
+      </button>
+      {open && (
+        <div className="filters-more">
       <div className="cuisines" role="radiogroup" aria-label={L('סוג אוכל', 'Type of food')}>
         <button type="button" role="radio" aria-checked={cuisine === null} className="cuisine" onClick={() => onCuisine(null)}>
           <span className="ce" aria-hidden="true">🍽️</span>
@@ -60,21 +76,15 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
           </button>
         ))}
       </div>
-      <div className="chips">
-        {MAIN_NEEDS.map((n) => (
-          <button key={n} type="button" className={`chip ${NEED_CLASS[n]}`} aria-pressed={filter[n] !== null} onClick={() => toggle(n)}>
-            <span className="mini" aria-hidden="true">{needLetter(n, lang)}</span>
-            {needLabel(n, lang)}
-          </button>
-        ))}
-        <button type="button" className="chip more" aria-expanded={more} onClick={() => setMore((m) => !m)}>
-          <span aria-hidden="true">🥜</span> {L('אלרגיות', 'Allergies')}{extraOn > 0 && <span className="count">{extraOn}</span>}
-        </button>
+          <div className="chips">
         <button type="button" className="chip o" aria-pressed={openNow} onClick={() => onOpenNow(!openNow)}>
           <span className="dot" aria-hidden="true" />
           {L('פתוח עכשיו', 'Open now')} <span aria-hidden="true">🕐</span>
         </button>
-      </div>
+        <button type="button" className="chip more" aria-expanded={more} onClick={() => setMore((m) => !m)}>
+          <span aria-hidden="true">🥜</span> {L('אלרגיות', 'Allergies')}{extraOn > 0 && <span className="count">{extraOn}</span>}
+        </button>
+          </div>
       {more && (
         <>
         <p className="allergy-note">{L('המידע לא מחליף בדיקה. באלרגיה תמיד שאלו במקום לפני שאוכלים.', 'This does not replace checking. With an allergy, always ask on site before eating.')}</p>
@@ -86,6 +96,8 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
           ))}
         </div>
         </>
+      )}
+        </div>
       )}
 
       {NEED_ORDER.filter((n) => (filter[n] ?? null) !== null).map((n) => (

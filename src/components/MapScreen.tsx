@@ -355,7 +355,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       setSelectedFallback(place);
       setSelectedId(id);
       setTab('near');
-      setSheet('half');
+      setSheet((s) => (s === 'full' ? 'full' : 'half'));
       bodyRef.current?.scrollTo({ top: 0 });
 
       if (!me || haversine(me, place) > 60000) {
@@ -770,7 +770,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       const vh = window.innerHeight;
       const dy = d.y - e.clientY;
       const end = d.h + dy;
-      const sizes: [Sheet, number][] = [['peek', 236], ['half', vh * 0.56], ['full', vh * 0.9]];
+      const sizes: [Sheet, number][] = [['peek', 200], ['half', vh * 0.56], ['full', vh * 0.9]];
       // a quick flick goes one size further in that direction
       const flick = Math.abs(dy) / Math.max(1, Date.now() - d.t) > 0.5;
       const aim = flick ? end + Math.sign(dy) * vh * 0.2 : end;
@@ -963,6 +963,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                 if (selectedId) deselect();
               }}
               onFocus={() => sheet === 'peek' && setSheet('half')}
+              onBlur={() => setTimeout(() => window.scrollTo(0, 0), 60)}
               enterKeyHint="search"
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); applySmart(); } }}
             />

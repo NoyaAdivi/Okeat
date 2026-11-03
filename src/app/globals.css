@@ -1074,3 +1074,29 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 @media (prefers-reduced-motion: reduce) {
   .meter-bar i, .faq-box .faq, .faq-box .faq details[open] p { animation: none; }
 }
+
+/* a calmer list: the main needs on one line, the rest behind one button */
+.main-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -4px; padding: 2px 4px; }
+.main-chips .chip { flex: none; }
+.more-filters { display: inline-flex; align-items: center; justify-self: start; gap: 6px; border: 0; background: none; padding: 2px 0; color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.more-arrow { transition: transform .2s; }
+.more-filters[aria-expanded="true"] .more-arrow { transform: rotate(180deg); }
+.filters-more { display: grid; gap: 12px; animation: admin-panel-in .22s ease; }
+
+/* a place: the main actions, then one topic at a time */
+.place-actions .extras-bar { padding: 0; }
+.place-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); position: sticky; top: -4px; z-index: 2; }
+.place-tabs button { flex: 1; border: 0; border-radius: 999px; padding: 9px 8px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .18s; white-space: nowrap; }
+.place-tabs button[aria-selected="true"] { background: var(--surface); box-shadow: var(--shadow-sm); }
+.place-part { display: grid; gap: 18px; animation: admin-panel-in .22s ease; }
+.place-part[hidden] { display: none; }
+
+/* phone: the sheet keeps its place */
+.panel-body { overscroll-behavior: contain; }
+@media (max-width: 760px) {
+  body:has(.app) { overflow: hidden; overscroll-behavior: none; }
+  .app { position: fixed; inset: 0; height: auto; }
+  .app[data-sheet="half"] { --sheet-h: 56svh; }
+  .app[data-sheet="full"] { --sheet-h: 90svh; }
+}
+@media (prefers-reduced-motion: reduce) { .filters-more, .place-part { animation: none; } }
