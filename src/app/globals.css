@@ -1100,3 +1100,40 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
   .app[data-sheet="full"] { --sheet-h: 90svh; }
 }
 @media (prefers-reduced-motion: reduce) { .filters-more, .place-part { animation: none; } }
+
+/* color in the side panel: each kind of thing keeps its own pastel */
+.chip { background: var(--cs, var(--surface-2)); }
+.chip[aria-pressed="true"] { background: var(--c); color: var(--surface); box-shadow: none; }
+.chip[aria-pressed="true"] .mini { background: var(--surface); color: var(--c); }
+.chip.o { background: var(--vegan-soft); }
+.more-filters { padding: 7px 14px; border-radius: 999px; background: var(--peach-soft); transition: transform .15s; }
+.more-filters:hover { transform: translateY(-1px); }
+.filters-more { padding: 12px; border-radius: 20px; background: var(--surface-2); }
+
+.item .av { transition: transform .25s cubic-bezier(.3, 1.6, .5, 1); }
+.item:hover .av { transform: rotate(-8deg) scale(1.08); }
+li:nth-child(4n + 1) > .item .av { background: var(--peach-soft); }
+li:nth-child(4n + 2) > .item .av { background: var(--kosher-soft); }
+li:nth-child(4n + 3) > .item .av { background: var(--vegan-soft); }
+li:nth-child(4n) > .item .av { background: var(--gf-soft); }
+
+.detail-head { padding: 14px 16px; border-radius: 22px; background: var(--kosher-soft); }
+.detail .h-emoji { background: var(--surface); }
+.detail .meta { color: var(--ink); }
+.detail .meta .tag { background: var(--surface); }
+
+.extras-bar .btn { border: 0; box-shadow: none; }
+.extras-bar .btn:nth-child(1) { background: var(--peach-soft); }
+.extras-bar .btn:nth-child(2) { background: var(--vegan-soft); }
+.extras-bar .btn:nth-child(3) { background: var(--kosher-soft); }
+.extras-bar .btn:nth-child(4) { background: var(--gf-soft); }
+
+.place-tabs button:nth-child(1)[aria-selected="true"] { background: var(--kosher-soft); }
+.place-tabs button:nth-child(2)[aria-selected="true"] { background: var(--vegan-soft); }
+.place-tabs button:nth-child(3)[aria-selected="true"] { background: var(--peach-soft); }
+.place-tabs button[aria-selected="true"] { box-shadow: none; }
+
+.place-part .sec > h3 { display: inline-block; margin-bottom: 8px; padding: 3px 12px; border-radius: 999px; background: var(--gf-soft); }
+.place-part .sec:nth-of-type(even) > h3 { background: var(--vegan-soft); }
+/* every need stays in view, even on a narrow phone */
+.main-chips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 0; }
