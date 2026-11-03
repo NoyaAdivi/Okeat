@@ -5,6 +5,7 @@ import { useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Modal from './Modal';
 import { friendly } from '@/lib/errors';
+import GoogleButton, { GOOGLE_CLIENT_ID } from './GoogleButton';
 
 interface Props {
   sb: SupabaseClient;
@@ -23,6 +24,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
   const [checking, setChecking] = useState(false);
+  const [googleOld, setGoogleOld] = useState(false);
   const [mailBusy, setMailBusy] = useState<'hour' | 'day' | null>(null);
 
   // The shared email service allows only a few messages an hour.
@@ -93,15 +95,19 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
 
   return (
     <Modal title={L('התחברות', 'Sign in')} subtitle={reason ?? L('ההתחברות לא חובה. היא שומרת את מה שהוספת ואישרת, גם כשנכנסים ממכשיר אחר.', "Signing in is optional. It keeps what you added and confirmed, even on another device.")} onClose={onClose}>
-      <button type="button" className="btn google" onClick={google}>
-        <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">
-          <path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h6a5.1 5.1 0 0 1-2.2 3.4v2.8h3.6c2.1-1.9 3.2-4.8 3.2-8.2z" />
-          <path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z" />
-          <path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10l3.7-2.9z" />
-          <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z" />
-        </svg>
-        {L('המשך עם Google', 'Continue with Google')}
-      </button>
+      {GOOGLE_CLIENT_ID && !googleOld ? (
+        <GoogleButton sb={sb} onDone={onClose} onError={(e) => setError(friendly(e, L.lang))} onUnavailable={() => setGoogleOld(true)} />
+      ) : (
+        <button type="button" className="btn google" onClick={google}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">
+            <path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h6a5.1 5.1 0 0 1-2.2 3.4v2.8h3.6c2.1-1.9 3.2-4.8 3.2-8.2z" />
+            <path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z" />
+            <path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10l3.7-2.9z" />
+            <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z" />
+          </svg>
+          {L('המשך עם Google', 'Continue with Google')}
+        </button>
+      )}
       <div className="or"><span>{L('או', 'or')}</span></div>
       <form onSubmit={sendLink} className="field" noValidate>
         <label htmlFor="auth-email">{L('קישור התחברות למייל', 'Sign-in link by email')}</label>

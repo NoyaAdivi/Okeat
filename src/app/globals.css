@@ -898,3 +898,6 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 @keyframes mail-busy-in { from { opacity: 0; transform: translateY(6px); } }
 @keyframes mail-busy-float { 50% { transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { .mail-busy, .mail-busy-emoji { animation: none; } }
+
+/* Google's own sign-in button */
+.gis-box { display: flex; justify-content: center; min-height: 44px; }

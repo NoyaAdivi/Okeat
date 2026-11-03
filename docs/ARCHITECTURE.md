@@ -45,4 +45,4 @@ Places can also come from OpenStreetMap, Overture Maps or a guess from the name.
 
 ## Sign-in
 
-Google uses the standard redirect through `/auth/callback`. Email sends a link to `/auth/confirm` and a code, so it works even when the link opens in another browser. There are no passwords to store or leak.
+Google uses its own sign-in button, and the token is passed to Supabase. If the button isn't available, the site falls back to the standard redirect through `/auth/callback`. Email sends a link to `/auth/confirm` and a code, so it works even when the link opens in another browser. There are no passwords to store or leak.
