@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { fetchAdminUsers, setUserRole, type AdminUser, type PublicProfile } from '@/lib/places';
+import { deleteUser, fetchAdminUsers, setUserRole, type AdminUser, type PublicProfile } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { formatDate } from '@/lib/geo';
 import { useL } from './LangProvider';
@@ -16,6 +16,7 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const load = async () => {
     setBusy(true);
@@ -31,6 +32,17 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
       await setUserRole(sb, user.id, role);
       setUsers((list) => list?.map((u) => (u.id === user.id ? { ...u, role } : u)) ?? null);
     } catch (e) { setError(friendly(e, lang)); }
+    setBusy(false);
+  };
+
+  const remove = async (user: AdminUser) => {
+    setBusy(true);
+    setError('');
+    try {
+      await deleteUser(sb, user.id);
+      setUsers((list) => list?.filter((u) => u.id !== user.id) ?? null);
+    } catch (e) { setError(friendly(e, lang)); }
+    setDeleting(null);
     setBusy(false);
   };
 
@@ -64,6 +76,14 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
                 <option value="admin">{L('מנהל/ת', 'Admin')}</option>
               </select>
             )}
+            {u.id !== meId && u.role !== 'admin' && (deleting === u.id ? (
+              <>
+                <button type="button" className="btn small ghost danger" disabled={busy} onClick={() => remove(u)}>{L('כן, למחוק סופית', 'Yes, delete for good')}</button>
+                <button type="button" className="btn small" disabled={busy} onClick={() => setDeleting(null)}>{L('ביטול', 'Cancel')}</button>
+              </>
+            ) : (
+              <button type="button" className="btn small ghost danger" disabled={busy} onClick={() => setDeleting(u.id)}>{L('מחיקה', 'Delete')}</button>
+            ))}
           </div>
         </div>
       ))}

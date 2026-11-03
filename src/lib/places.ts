@@ -543,3 +543,8 @@ export async function fetchAdminUsers(sb: SupabaseClient): Promise<AdminUser[]> 
   if (error) throw error;
   return data as AdminUser[];
 }
+
+export async function deleteUser(sb: SupabaseClient, id: string) {
+  const { error } = await sb.rpc('admin_delete_user', { p_user: id });
+  if (error) throw error;
+}
