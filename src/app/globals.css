@@ -1388,3 +1388,31 @@ html, body { overscroll-behavior-x: none; }
 .mail-help { margin: 0; color: var(--muted); font-size: 0.875rem; }
 @media (prefers-reduced-motion: reduce) { .mail-seal { animation: none; } }
 .mail-step .link { min-height: 32px; padding: 2px 4px; color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- phone: the logo and menu stay at the top of the map ---------- */
+.map-top { display: none; }
+@media (max-width: 760px) {
+  .app { --top-h: calc(60px + env(safe-area-inset-top, 0px)); }
+  .app[data-sheet="full"] { --sheet-h: calc(100svh - var(--top-h)); }
+  .map-top { display: block; position: absolute; inset: 0 0 auto; z-index: 7; box-sizing: border-box; height: var(--top-h); padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px; background: var(--peach-soft); border-radius: 0 0 20px 20px; box-shadow: 0 4px 16px rgba(43, 33, 64, .12); zoom: var(--scale, 1); }
+  .map-top .brand { height: 44px; }
+  .panel-head .brand { display: none; }
+  .panel-head { padding-top: 6px; }
+  .search-here, .notice, .pickbar, .nav-banner { top: calc(var(--top-h) + 10px); }
+  .mapboxgl-ctrl-top-left { top: calc(var(--top-h) + 8px); }
+}
+
+/* ---------- phone: a slim header and a hero that leaves room ---------- */
+@media (max-width: 767px) {
+  .site-head { gap: 6px 8px; padding-block: 8px; }
+  .site-head .brand-link { min-width: 0; }
+  .site-head .display-toggles .dt-btn:not(.theme) { width: 36px; padding: 0; }
+  .site-head .display-toggles .dt-btn:not(.theme) span:not([aria-hidden]) { display: none; }
+  .site-head nav { flex-wrap: wrap; justify-content: space-between; gap: 2px; }
+  .site-head .nav-link { padding: 6px 10px; white-space: nowrap; font-size: 0.875rem; }
+  .hero { padding: 24px 16px 44px; }
+  .hero-inner { gap: 12px; }
+  .hero-logo .logo-mark { width: 84px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat { min-width: 0; padding: 14px 10px; overflow-wrap: anywhere; }
+}

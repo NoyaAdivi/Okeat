@@ -762,6 +762,33 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const appRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ y: number; h: number; t: number; moved: boolean } | null>(null);
   const dragged = useRef(false);
+  // On a phone this sits at the top of the screen; beside the list it stays in the panel.
+  const brandBar = (
+      <div className="brand">
+        <Link href="/" className="brand-home" aria-label={L('Okeat, לדף הבית', 'Okeat, home page')}>
+          <Logo size={44} />
+          <span className="brand-text">
+            <span className="h1">okeat</span>
+            <span className="tag">{L('איפה באמת אפשר לאכול', 'Where you can really eat')}</span>
+          </span>
+        </Link>
+        <Link href="/" className="dt-btn map-home" aria-label={L('לדף הבית', 'To the home page')} title={L('לדף הבית', 'To the home page')}>
+          <span aria-hidden="true">🏠</span>
+        </Link>
+        <DisplayToggles compact />
+        <AccountButton
+          sb={sb}
+          user={user}
+          ready={ready}
+          onSignIn={() => setAuth({})}
+          onSignedOut={() => showToast(L('התנתקת', 'You signed out'))}
+        />
+      </div>
+  );
+
+  // A sheet pulled all the way up stops under the top bar.
+  const sheetMax = () => window.innerHeight - (document.querySelector('.map-top')?.getBoundingClientRect().height ?? 0);
+
   const sheetDrag = {
     onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
       const panel = e.currentTarget.closest('.panel') as HTMLElement | null;
@@ -777,7 +804,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       if (!d.moved && Math.abs(dy) < 6) return;
       d.moved = true;
       appRef.current?.classList.add('sheet-dragging');
-      const h = Math.min(window.innerHeight * 0.9, Math.max(150, d.h + dy));
+      const h = Math.min(sheetMax(), Math.max(150, d.h + dy));
       appRef.current?.style.setProperty('--sheet-h', `${h}px`);
     },
     onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
@@ -789,7 +816,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       const vh = window.innerHeight;
       const dy = d.y - e.clientY;
       const end = d.h + dy;
-      const sizes: [Sheet, number][] = [['peek', 200], ['half', vh * 0.56], ['full', vh * 0.9]];
+      const sizes: [Sheet, number][] = [['peek', 200], ['half', vh * 0.56], ['full', sheetMax()]];
       // a quick flick goes one size further in that direction
       const flick = Math.abs(dy) / Math.max(1, Date.now() - d.t) > 0.5;
       const aim = flick ? end + Math.sign(dy) * vh * 0.2 : end;
@@ -935,6 +962,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         )}
       </div>
 
+      <header className="map-top">{brandBar}</header>
       <aside className="panel" aria-label={L('מקומות', 'Places')} id="main" data-read-root
         onTouchStart={(e) => { if ((e.target as HTMLElement).closest('.sheet-handle, .panel-head')) return; swipe.current = { y: e.touches[0].clientY, t: Date.now(), scrolled: (bodyRef.current?.scrollTop ?? 0) > 0 }; }}
         onTouchEnd={(e) => {
@@ -950,26 +978,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           <span />
         </button>
         <div className="panel-head" {...sheetDrag}>
-          <div className="brand">
-            <Link href="/" className="brand-home" aria-label={L('Okeat, לדף הבית', 'Okeat, home page')}>
-              <Logo size={44} />
-              <span className="brand-text">
-                <span className="h1">okeat</span>
-                <span className="tag">{L('איפה באמת אפשר לאכול', 'Where you can really eat')}</span>
-              </span>
-            </Link>
-            <Link href="/" className="dt-btn map-home" aria-label={L('לדף הבית', 'To the home page')} title={L('לדף הבית', 'To the home page')}>
-              <span aria-hidden="true">🏠</span>
-            </Link>
-            <DisplayToggles compact />
-            <AccountButton
-              sb={sb}
-              user={user}
-              ready={ready}
-              onSignIn={() => setAuth({})}
-              onSignedOut={() => showToast(L('התנתקת', 'You signed out'))}
-            />
-          </div>
+          {brandBar}
           <div className="search">
             <svg viewBox="0 0 24 24" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
             <label className="vh" htmlFor="q">{L('חיפוש מקום', 'Search for a place')}</label>
