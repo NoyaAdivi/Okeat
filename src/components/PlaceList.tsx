@@ -12,6 +12,8 @@ import { createClient } from '@/lib/supabase/client';
 import { fetchRatings } from '@/lib/places';
 
 interface Props {
+  /** Where the minutes are counted from, when it is not the live location. */
+  fromLabel?: string | null;
   places: Place[];
   loading: boolean;
   error: string | null;
@@ -22,7 +24,7 @@ interface Props {
 
 const PAGE = 40;
 
-export default function PlaceList({ places, loading, error, activeNeeds, onSelect, onReset }: Props) {
+export default function PlaceList({ fromLabel, places, loading, error, activeNeeds, onSelect, onReset }: Props) {
   const L = useL();
   const lang = L.lang;
   const [shown, setShown] = useState(PAGE);
@@ -82,7 +84,10 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
   return (
     <>
       <div className="list-top">
-        <p className="summary" aria-live="polite">{summary}</p>
+        <p className="summary" aria-live="polite">
+          {summary}
+          {fromLabel && <small className="dist-from"><span aria-hidden="true">📍</span> {L(`המרחק מ: ${fromLabel}`, `Distance from: ${fromLabel}`)}</small>}
+        </p>
         <label className="list-sort">
           <span className="vh">{L('מיון', 'Sort')}</span>
           <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>

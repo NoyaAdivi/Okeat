@@ -1180,6 +1180,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                 </button>
               )}
               <PlaceList
+                fromLabel={manualLabel}
                 places={visible}
                 loading={loading || located === 'pending'}
                 error={error}

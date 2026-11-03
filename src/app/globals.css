@@ -1719,3 +1719,5 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .app[data-place="open"] .panel-body { padding-top: 0; }
   .app[data-place="open"] .detail-top { top: 0; margin-top: 0; padding-block: 10px 8px; }
 }
+
+.dist-from { display: block; margin-top: 1px; color: var(--muted); font-size: 0.75rem; overflow-wrap: anywhere; }
