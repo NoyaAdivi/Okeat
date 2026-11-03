@@ -177,8 +177,13 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     if (authError) {
       showToast(L('הקישור במייל כבר לא תקף. אפשר לכתוב את הקוד מהמייל, או לבקש חדש.', 'The link in the email no longer works. Enter the code from the email, or ask for a new one.'));
       setAuth({ startWithCode: true });
-      const why = new URLSearchParams(window.location.search).get('why');
+      const url = new URL(window.location.href);
+      const why = url.searchParams.get('why');
       if (why) logClientError(`sign-in link failed: ${why}`);
+      // Otherwise the next email link brings this error back after a good sign-in.
+      url.searchParams.delete('auth_error');
+      url.searchParams.delete('why');
+      window.history.replaceState(window.history.state, '', url);
     }
   }, [authError, showToast]);
 

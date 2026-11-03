@@ -27,6 +27,8 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
   const [email, setEmail] = useState(() => { try { return localStorage.getItem(LAST_EMAIL) ?? ''; } catch { return ''; } });
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>(startWithCode ? 'sent' : 'idle');
   const [needEmail, setNeedEmail] = useState(false);
+  // True only after a real send: the code step can also open with no new email.
+  const [justSent, setJustSent] = useState(false);
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
   const [checking, setChecking] = useState(false);
@@ -78,13 +80,14 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
       sb.rpc('log_mail_sent').then(() => undefined, () => undefined);
       try { localStorage.setItem(LAST_EMAIL, email.trim()); } catch { /* private window */ }
       setCode('');
+      setJustSent(true);
       setState('sent');
     }
   };
 
   if (state === 'sent') {
     return (
-      <Modal title={L('שלחנו לך מייל', 'We sent you an email')} onClose={onClose}>
+      <Modal title={justSent ? L('שלחנו לך מייל', 'We sent you an email') : L('כתיבת הקוד מהמייל', 'Enter the code from the email')} onClose={onClose}>
         <div className="mail-step">
           <span className="mail-seal" aria-hidden="true">💌</span>
           {email.trim() && !needEmail ? (
@@ -98,8 +101,12 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
               <input id="auth-email-code" type="email" dir="ltr" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           )}
-          <p className="mail-tap"><span aria-hidden="true">👆</span> {L('לוחצים על הכפתור במייל ונכנסים', 'Press the button in the email to sign in')}</p>
-          <div className="or"><span>{L('או', 'or')}</span></div>
+          {justSent && (
+            <>
+              <p className="mail-tap"><span aria-hidden="true">👆</span> {L('לוחצים על הכפתור במייל ונכנסים', 'Press the button in the email to sign in')}</p>
+              <div className="or"><span>{L('או', 'or')}</span></div>
+            </>
+          )}
           <form onSubmit={checkCode} className="mail-code-form" noValidate>
             <label htmlFor="auth-code">{L('כותבים את הקוד מהמייל', 'Enter the code from the email')}</label>
             <input id="auth-code" className="mail-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
@@ -107,8 +114,8 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
             <button type="submit" className="btn primary" disabled={checking || code.length < 6 || !email.trim()}>{checking ? L('בודק…', 'Checking…') : L('כניסה עם הקוד', 'Sign in with the code')}</button>
           </form>
           <p className="mail-help">
-            {L('לא הגיע? בדקו בספאם, או', 'Not there? Check spam, or')}{' '}
-            <button type="button" className="link" onClick={() => { setError(''); setState('idle'); }}>{L('שלחו שוב', 'send again')}</button>
+            {justSent ? L('לא הגיע? בדקו בספאם, או', 'Not there? Check spam, or') : L('אין לך קוד?', 'No code?')}{' '}
+            <button type="button" className="link" onClick={() => { setError(''); setState('idle'); }}>{justSent ? L('שלחו שוב', 'send again') : L('שליחת מייל חדש', 'Send a new email')}</button>
           </p>
         </div>
       </Modal>
