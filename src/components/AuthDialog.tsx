@@ -79,8 +79,9 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
     return (
       <Modal title={L('בדקו את המייל', 'Check your email')} onClose={onClose}>
         <p style={{ margin: 0 }}>
-          {L('שלחנו קישור התחברות ל-', 'We sent a sign-in link to ')}<b dir="ltr">{email.trim()}</b>{L('. לחיצה עליו תחזיר אתכם לכאן, מחוברים.', '. Clicking it brings you back here, signed in.')}
+          {L('שלחנו מייל התחברות ל-', 'We sent a sign-in email to ')}<b dir="ltr">{email.trim()}</b>{L('. לחצו על הכפתור שבמייל, או כתבו כאן את הקוד.', '. Press the button in the email, or enter the code here.')}
         </p>
+        <p className="muted small" style={{ margin: '8px 0 0' }}>{L('לא מוצאים את המייל? בדקו בספאם ובקידומי מכירות. לפעמים הוא מגיע אחרי דקה או שתיים.', "Can't find the email? Check your spam and promotions folders. It can take a minute or two.")}</p>
         <form onSubmit={checkCode} className="field" noValidate>
           <label htmlFor="auth-code">{L('אם קיבלתם קוד במייל, כתבו אותו כאן', 'If the email has a code, enter it here')}</label>
           <input id="auth-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
