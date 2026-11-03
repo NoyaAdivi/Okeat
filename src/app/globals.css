@@ -1286,3 +1286,11 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .search input::-webkit-search-cancel-button { display: none; }
 .search-clear { position: absolute; inset-inline-end: 8px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); font-size: 13px; }
 .search-clear:hover { background: var(--peach-soft); }
+
+/* ---------- what a place serves, under its name ---------- */
+.head-foods { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 6px; padding: 0; }
+.head-foods li { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; background: var(--surface); font-weight: 700; font-size: 14px; animation: city-pop .4s cubic-bezier(.3, 1.5, .5, 1) backwards; }
+.head-foods li:nth-child(2) { animation-delay: 60ms; }
+.head-foods li:nth-child(3) { animation-delay: 120ms; }
+.foods-note { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .head-foods li { animation: none; } }

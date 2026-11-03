@@ -99,3 +99,19 @@ export function matchesCuisine(p: { name: string; place_type?: string | null; cu
   if (p.place_type && TYPE_HINTS[c]?.includes(p.place_type)) return true;
   return NAME_HINTS[c]?.test(p.name) ?? false;
 }
+
+/** Broad types that say less than a more exact one next to them. */
+const COVERED_BY: Record<string, string[]> = {
+  asian: ['sushi', 'japanese', 'chinese'],
+  japanese: ['sushi'],
+  italian: ['pizza'],
+  middle_eastern: ['hummus', 'falafel', 'shawarma'],
+  steak_house: ['meat'],
+};
+
+/** The food a place serves, the same way the filters see it. A few at most, the exact ones first. */
+export function placeFoods(p: { name: string; place_type?: string | null; cuisine?: string[] | null }, max = 3): string[] {
+  const stored = (p.cuisine ?? []).filter((c) => CUISINES[c]);
+  const found = [...new Set([...stored, ...CUISINE_FILTERS.filter((c) => matchesCuisine(p, c))])];
+  return found.filter((c) => !COVERED_BY[c]?.some((x) => found.includes(x))).slice(0, max);
+}

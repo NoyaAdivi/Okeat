@@ -9,7 +9,7 @@ import { ago, formatDate } from '@/lib/geo';
 import { expiresSoon, isStale } from '@/lib/checks';
 import CertificateCard from './CertificateCard';
 import { NEED_EMOJI, placeEmoji } from '@/lib/emoji';
-import { cuisineEmoji, cuisineLabel } from '@/lib/cuisine';
+import { cuisineEmoji, cuisineLabel, placeFoods } from '@/lib/cuisine';
 import HoursTable from './HoursTable';
 import GoogleInfo from './GoogleInfo';
 import { readableText, readAloud, speechSupported } from '@/lib/speech';
@@ -66,6 +66,7 @@ export default function PlaceDetail({
     return () => { live = false; };
   }, [place.id, place.lat, place.lng, place.address, L.lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const lang = L.lang;
+  const foods = placeFoods(place);
   const back = backLabel ?? L('חזרה לרשימה', 'Back to the list');
   const st = openStatus(place.hours, lang);
   const verified = NEED_ORDER.map((n) => verifiedClaim(place, n)).filter((c): c is Claim => c !== null);
@@ -98,12 +99,20 @@ export default function PlaceDetail({
       </div>
       <div className="detail-head">
         <h2><span className="h-emoji" aria-hidden="true">{placeEmoji(place.place_type)}</span>{place.name}</h2>
+        {foods.length > 0 && (
+          <ul className="head-foods" aria-label={L('מה אוכלים כאן', 'What they serve')}>
+            {foods.map((c) => <li key={c}><span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}</li>)}
+          </ul>
+        )}
         <div className="meta">
-          <span className="tag">{placeTypeLabel(place.place_type, lang)}</span>
+          {foods.length === 0 && <span className="tag">{placeTypeLabel(place.place_type, lang)}</span>}
           {place.address && <span>{place.address}</span>}
           {nearby && <span>{L(`בערך: ${nearby}`, `About: ${nearby}`)}</span>}
           <span className={st.open ? 'st-open' : undefined}>{st.text}</span>
         </div>
+        {foods.length > 0 && place.cuisine_source !== 'community' && (
+          <p className="foods-note">{place.cuisine_source === 'osm' ? L('סוג האוכל לפי OpenStreetMap.', 'Food type from OpenStreetMap.') : place.cuisine_source === 'overture' ? L('סוג האוכל לפי Overture Maps. לא מאושר.', 'Food type from Overture Maps. Not confirmed.') : L('סוג האוכל משוער לפי שם המקום. לא מאושר.', "Food type guessed from the place's name. Not confirmed.")}</p>
+        )}
       </div>
 
       {goPanel}
@@ -114,25 +123,6 @@ export default function PlaceDetail({
         ))}
       </div>
       {section === 'info' && (<div className="place-part">
-      {place.cuisine && place.cuisine.length > 0 && (
-        <section className="sec food" aria-labelledby="food-h">
-          <h3 id="food-h">{L('מה אוכלים כאן', 'What they serve')}</h3>
-          <div className="food-chips">
-            {place.cuisine.map((c) => (
-              <span key={c} className="food-chip"><span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}</span>
-            ))}
-          </div>
-          <p className="src-note">
-            {place.cuisine_source === 'auto'
-              ? L('סיווג אוטומטי לפי שם המקום. לא מאושר.', "Guessed from the place's name. Not confirmed.")
-              : place.cuisine_source === 'osm'
-                ? L('לפי OpenStreetMap.', 'From OpenStreetMap.')
-                : place.cuisine_source === 'overture'
-                  ? L('לפי Overture Maps. לא מאושר.', 'From Overture Maps. Not confirmed.')
-                  : null}
-          </p>
-        </section>
-      )}
 
       {onFixLocation && (
         <section className="sec">
