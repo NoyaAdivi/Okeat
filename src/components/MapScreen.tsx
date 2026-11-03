@@ -983,7 +983,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               <button type="button" className="map-tool wide" onClick={() => setFollowPaused(false)}>🧭 {L('חזרה למסלול', 'Back to the route')}</button>
             ) : (
               <button type="button" className={`map-tool wide${manualLabel ? ' manual' : ''}`} onClick={() => setLocOpen((o) => !o)} aria-expanded={locOpen} aria-haspopup="dialog">
-                📍 {manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}
+                <span aria-hidden="true">📍</span> <span className="tool-label">{manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}</span>
               </button>
             )}
             {route && !navigating && (
@@ -1024,7 +1024,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             <input
               id="q"
               type="search"
-              placeholder={L('למשל: פיצה כשרה פתוחה עכשיו ברמת גן', 'Try: kosher pizza open now in Ramat Gan')}
+              placeholder={L('מה בא לך לאכול?', 'What do you feel like eating?')}
               autoComplete="off"
               value={query}
               onChange={(e) => {

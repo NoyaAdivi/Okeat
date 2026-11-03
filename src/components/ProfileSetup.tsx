@@ -8,12 +8,11 @@ import { useL } from './LangProvider';
 import Modal from './Modal';
 
 const EVENT = 'okeat-edit-profile';
-const LATER = 'okeat-profile-later';
 
 /** Opens the same form from the profile page. */
 export const openProfileForm = (food: string) => window.dispatchEvent(new CustomEvent(EVENT, { detail: food }));
 
-/** Email accounts come without a name, so the first visit asks for one, and for a favorite food. */
+/** The first sign-in of an account asks for a name and a favorite food. It is remembered on the account, so no later sign-in asks again. */
 export default function ProfileSetup() {
   const L = useL();
   const sb = useMemo(() => createClient(), []);
@@ -27,11 +26,13 @@ export default function ProfileSetup() {
   const metaName = (user?.user_metadata?.name ?? user?.user_metadata?.full_name ?? '') as string;
 
   useEffect(() => {
-    if (!user || user.is_anonymous || metaName) return;
-    let later = false;
-    try { later = !!sessionStorage.getItem(LATER); } catch { /* private window */ }
-    if (!later) setOpen(true);
-  }, [user, metaName]);
+    if (!user || user.is_anonymous) return;
+    sb.from('profiles').select('setup_done').eq('id', user.id).maybeSingle().then(({ data, error: readError }) => {
+      if (readError || !data || data.setup_done) return;
+      setName(metaName);
+      setOpen(true);
+    });
+  }, [sb, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const edit = (e: Event) => {
@@ -44,8 +45,8 @@ export default function ProfileSetup() {
   }, [metaName]);
 
   const later = () => {
-    try { sessionStorage.setItem(LATER, '1'); } catch { /* private window */ }
     setOpen(false);
+    if (user) sb.from('profiles').update({ setup_done: true }).eq('id', user.id).then(() => undefined, () => undefined);
   };
 
   const save = async (e: React.FormEvent) => {
@@ -57,7 +58,7 @@ export default function ProfileSetup() {
     }
     setBusy(true);
     setError('');
-    const { error: saveError } = await sb.from('profiles').update({ display_name: clean, favorite_food: food.trim() || null }).eq('id', user!.id);
+    const { error: saveError } = await sb.from('profiles').update({ display_name: clean, favorite_food: food.trim() || null, setup_done: true }).eq('id', user!.id);
     const { error: nameError } = saveError ? { error: null } : await sb.auth.updateUser({ data: { name: clean } });
     setBusy(false);
     if (saveError || nameError) setError(friendly(saveError ?? nameError, L.lang));
