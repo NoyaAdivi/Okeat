@@ -1,16 +1,20 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Place } from '@/lib/types';
 import {
-  deleteReview, fetchPlacePhotos, fetchReviews, isFavorite, reportReview, saveReview, setFavorite, uploadPlacePhoto,
-  type PlacePhoto, type PlaceReview,
+  addToList, createList, deleteReview, fetchMyLists, fetchPlaceBusiness, fetchPlacePhotos, fetchReviews, fetchSimilarPlaces, isFavorite,
+  reportReview, saveReview, setFavorite, uploadPlacePhoto,
+  type MyList, type PlacePhoto, type PlaceReview, type SimilarPlace,
 } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { formatDate } from '@/lib/geo';
 import { useL } from './LangProvider';
 import Avatar from './Avatar';
+import OwnerEditDialog from './OwnerEditDialog';
+import { placeEmoji } from '@/lib/emoji';
 
 interface Props {
   sb: SupabaseClient;
@@ -20,6 +24,8 @@ interface Props {
   isAdmin: boolean;
   onSignIn: (reason: string) => void;
   onToast: (text: string) => void;
+  /** the place's details changed */
+  onChanged: () => void;
 }
 
 const Stars = ({ value }: { value: number }) => (
@@ -27,7 +33,7 @@ const Stars = ({ value }: { value: number }) => (
 );
 
 /** On a place: save it, photos and reviews. */
-export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onToast }: Props) {
+export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onToast, onChanged }: Props) {
   const L = useL();
   const lang = L.lang;
   const [reviews, setReviews] = useState<PlaceReview[]>([]);
@@ -38,11 +44,18 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
   const [comment, setComment] = useState('');
   const [busy, setBusy] = useState(false);
   const [reported, setReported] = useState<string[]>([]);
+  const [similar, setSimilar] = useState<SimilarPlace[]>([]);
+  const [business, setBusiness] = useState<{ menuUrl: string | null; isOwner: boolean }>({ menuUrl: null, isOwner: false });
+  const [editing, setEditing] = useState(false);
+  const [lists, setLists] = useState<MyList[] | null>(null);
+  const [newList, setNewList] = useState('');
   const file = useRef<HTMLInputElement>(null);
 
   const load = useCallback(() => {
     fetchReviews(sb, place.id).then(setReviews);
     fetchPlacePhotos(sb, place.id).then(setPhotos);
+    fetchSimilarPlaces(sb, place.id).then(setSimilar);
+    fetchPlaceBusiness(sb, place.id).then(setBusiness);
     if (userId) isFavorite(sb, place.id, userId).then(setSaved).catch(() => setSaved(false));
   }, [sb, place.id, userId]);
   useEffect(load, [load]);
@@ -72,6 +85,13 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
           if (needAccount(L('כדי להעלות תמונה צריך להתחבר עם חשבון.', 'To add a photo, sign in with an account.'))) return;
           file.current?.click();
         }}>📷 {L('הוספת תמונה', 'Add a photo')}</button>
+        <button type="button" className="btn small" disabled={busy} onClick={() => {
+          if (needAccount(L('כדי ליצור רשימות צריך להתחבר עם חשבון.', 'To make lists, sign in with an account.'))) return;
+          if (lists) setLists(null);
+          else fetchMyLists(sb, userId!).then(setLists);
+        }}>📋 {L('הוספה לרשימה', 'Add to a list')}</button>
+        {business.menuUrl && <a className="btn small" href={business.menuUrl} target="_blank" rel="noopener noreferrer">📖 {L('תפריט', 'Menu')}</a>}
+        {business.isOwner && <button type="button" className="btn small" onClick={() => setEditing(true)}>✏️ {L('עדכון פרטי העסק', 'Update business details')}</button>}
         <input ref={file} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => {
           const f = e.target.files?.[0];
           e.target.value = '';
@@ -82,6 +102,28 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
           });
         }} />
       </section>
+
+      {lists && (
+        <section className="sec">
+          <div className="mini-form">
+            {lists.map((l) => (
+              <button key={l.id} type="button" className="btn small" disabled={busy} onClick={() => run(async () => {
+                await addToList(sb, l.id, place.id);
+                onToast(L(`נוסף לרשימה ${l.title}`, `Added to ${l.title}`));
+                setLists(null);
+              })}>{l.title}</button>
+            ))}
+            <input maxLength={60} value={newList} onChange={(e) => setNewList(e.target.value)} placeholder={L('שם לרשימה חדשה', 'Name a new list')} aria-label={L('שם לרשימה חדשה', 'Name a new list')} />
+            <button type="button" className="btn small" disabled={busy || newList.trim().length < 2} onClick={() => run(async () => {
+              const id = await createList(sb, userId!, newList);
+              await addToList(sb, id, place.id);
+              onToast(L(`נוצרה הרשימה ${newList.trim()}`, `Created ${newList.trim()}`));
+              setNewList('');
+              setLists(null);
+            })}>{L('יצירה והוספה', 'Create and add')}</button>
+          </div>
+        </section>
+      )}
 
       {photos.length > 0 && (
         <section className="sec">
@@ -147,6 +189,24 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
           }}>⭐ {mine ? L('עריכת הביקורת שלי', 'Edit my review') : L('כתיבת ביקורת', 'Write a review')}</button>
         )}
       </section>
+
+      {similar.length > 0 && (
+        <section className="sec">
+          <h3>{L('אולי יעניין אותך גם…', 'You might also like…')}</h3>
+          <ul className="profile-places">
+            {similar.map((s) => (
+              <li key={s.id}>
+                <Link href={`/map?place=${s.id}`}>
+                  <span aria-hidden="true">{placeEmoji(s.place_type)}</span> <b>{s.name}</b>
+                  <small> · {s.meters < 1000 ? L(`${s.meters} מ׳`, `${s.meters} m`) : L(`${(s.meters / 1000).toFixed(1)} ק״מ`, `${(s.meters / 1000).toFixed(1)} km`)}</small>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {editing && <OwnerEditDialog sb={sb} place={place} menuUrl={business.menuUrl} onSaved={() => { onChanged(); load(); onToast(L('הפרטים נשמרו', 'Details saved')); }} onClose={() => setEditing(false)} />}
     </>
   );
 }

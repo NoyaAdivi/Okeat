@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useL } from './LangProvider';
 import Avatar from './Avatar';
+import { fetchNotifications } from '@/lib/places';
 import { useEffect, useRef, useState } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 
@@ -26,6 +27,12 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
     return () => document.removeEventListener('mousedown', close);
   }, [open]);
 
+  const [fresh, setFresh] = useState(0);
+  useEffect(() => {
+    if (!user || user.is_anonymous) { setFresh(0); return; }
+    fetchNotifications(sb).then((n) => setFresh(n.filter((x) => x.is_new).length));
+  }, [sb, user]);
+
   if (!ready) return <span className="account" aria-hidden="true" />;
 
   // Anonymous visitors (who added or confirmed without registering) still see "sign in".
@@ -43,6 +50,7 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
     <div className="account-wrap" ref={wrap}>
       <button type="button" className="account" aria-haspopup="menu" aria-expanded={open} aria-label={L(`החשבון של ${name}`, `${name}'s account`)} onClick={() => setOpen((o) => !o)}>
         <Avatar name={name || 'O'} url={avatar} size={36} />
+        {fresh > 0 && <span className="account-dot" aria-label={L(`${fresh} התראות חדשות`, `${fresh} new notifications`)}>{fresh}</span>}
       </button>
       {open && (
         <div className="account-menu" role="menu">

@@ -31,7 +31,8 @@ import PlaceCommunity from './PlaceCommunity';
 import LocationPicker from './LocationPicker';
 import PlaceExtras from './PlaceExtras';
 import { findCity } from '@/lib/geocode';
-import { isCityName } from '@/lib/checks';
+import { logCity, logSearch } from '@/lib/places';
+import { isCityName, parseSearch } from '@/lib/checks';
 import DisplayToggles from './DisplayToggles';
 import { useL } from './LangProvider';
 import type { FocusRequest, RouteLine } from './MapView';
@@ -48,6 +49,7 @@ function MapLoading() {
 }
 
 const NO_FILTER = Object.fromEntries(NEED_ORDER.map((n) => [n, null])) as NeedFilter;
+const FILTER_KEY = 'okeat-my-filter';
 /** The list grows outward until it has enough places: 3 km, 15 km, 60 km, then all of Israel. */
 const RADII_M = [3000, 15_000, 60_000, 450_000];
 const TOKEN = MAPBOX_TOKEN;
@@ -596,12 +598,61 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       setFocus({ key: Date.now(), points: [hit.point], zoom: 13 });
       setMapCenter(hit.point);
       setSearchCenter(hit.point);
+      logCity(sb, hit.name, hit.point.lat, hit.point.lng);
       setQuery('');
       setSheet('peek');
       showToast(L(`עברנו ל${hit.name}`, `Moved to ${hit.name}`));
     }).catch(() => undefined);
     return () => ctrl.abort();
   }, [debouncedQuery, lang]);
+  // Words the map understands, like a need, "open now" or a city. Used on Enter or by the button, never while typing.
+  const smart = useMemo(() => {
+    const parsed = parseSearch(query);
+    return parsed.needs.length > 0 || parsed.openNow || parsed.city ? parsed : null;
+  }, [query]);
+  const applySmart = async () => {
+    if (!smart) return;
+    setFilter((f) => ({ ...f, ...Object.fromEntries(smart.needs.map((n) => [n, n === 'kosher' ? 0 : 1])) }));
+    if (smart.openNow) setOpenNow(true);
+    const hit = smart.city ? await findCity(smart.city, lang, new AbortController().signal).catch(() => null) : null;
+    const isCity = !!hit && isCityName(smart.city!, hit.name);
+    setQuery(isCity || !smart.city ? smart.rest : `${smart.rest} ב${smart.city}`.trim());
+    if (isCity) {
+      setFocus({ key: Date.now(), points: [hit.point], zoom: 13 });
+      setMapCenter(hit.point);
+      setSearchCenter(hit.point);
+      logCity(sb, hit.name, hit.point.lat, hit.point.lng);
+    }
+    setSheet('half');
+  };
+
+  // Remember what people look for, without remembering who: the settled text only, after a pause.
+  useEffect(() => {
+    const term = debouncedQuery.trim();
+    if (term.length < 2) return;
+    const t = setTimeout(() => logSearch(sb, term), 2500);
+    return () => clearTimeout(t);
+  }, [sb, debouncedQuery]);
+
+  // A filter someone always uses stays on this device, and nowhere else: dietary needs can be personal.
+  const [myFilter, setMyFilter] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FILTER_KEY);
+      if (!saved) return;
+      setMyFilter(true);
+      if (!initialNeed) setFilter({ ...NO_FILTER, ...JSON.parse(saved) });
+    } catch { /* blocked storage */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const toggleMyFilter = () => {
+    try {
+      if (myFilter) localStorage.removeItem(FILTER_KEY);
+      else localStorage.setItem(FILTER_KEY, JSON.stringify(filter));
+      setMyFilter(!myFilter);
+      showToast(myFilter ? L('הסינון הקבוע בוטל', 'Your saved filter was removed') : L('שמרנו. הסינון יופעל כאן בכל כניסה', "Saved. This filter will be on every time you come back"));
+    } catch { /* blocked storage */ }
+  };
   const fixAddress = useRef<string | null>(null);
   useEffect(() => {
     if (!user || user.is_anonymous) { setIsAdmin(false); return; }
@@ -892,7 +943,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             <input
               id="q"
               type="search"
-              placeholder={L('חיפוש לפי שם או סוג מקום', 'Search by name or type of place')}
+              placeholder={L('למשל: פיצה כשרה פתוחה עכשיו ברמת גן', 'Try: kosher pizza open now in Ramat Gan')}
               autoComplete="off"
               value={query}
               onChange={(e) => {
@@ -902,7 +953,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               }}
               onFocus={() => sheet === 'peek' && setSheet('half')}
               enterKeyHint="search"
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); applySmart(); } }}
             />
           </div>
           <div className="tabs" role="tablist">
@@ -916,7 +967,12 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
 
         <div className="panel-body" ref={bodyRef}>
-          {cityHit && !selected && (
+          {smart && !selected && (
+            <button type="button" className="city-jump" onClick={applySmart}>
+              <span aria-hidden="true">✨</span> {L('הבנו! לחצו כדי לסנן לפי החיפוש', 'Got it! Tap to filter by your search')}
+            </button>
+          )}
+          {cityHit && !smart && !selected && (
             <button type="button" className="city-jump" onClick={() => {
               setFocus({ key: Date.now(), points: [cityHit.point], zoom: 13 });
               setMapCenter(cityHit.point);
@@ -974,6 +1030,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                   isAdmin={isAdmin}
                   onSignIn={(reason) => setAuth({ reason })}
                   onToast={showToast}
+                  onChanged={() => { setRefreshKey((k) => k + 1); refreshSelected(); }}
                 />
                 <PlaceCommunity
                   key={selected.id}
@@ -990,6 +1047,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           ) : (
             <>
               <FilterBar filter={filter} openNow={openNow} onFilter={setFilter} onOpenNow={setOpenNow} cuisine={cuisine} onCuisine={setCuisine} />
+              {(myFilter || activeNeeds > 0) && (
+                <button type="button" className="link more-needs" onClick={toggleMyFilter}>
+                  {myFilter ? L('⭐ הסינון הקבוע שלך פעיל. לביטול', '⭐ Your saved filter is on. Remove it') : L('⭐ לזכור את הסינון הזה במכשיר הזה', '⭐ Remember this filter on this device')}
+                </button>
+              )}
               <PlaceList
                 places={visible}
                 loading={loading || located === 'pending'}

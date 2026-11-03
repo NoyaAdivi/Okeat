@@ -15,6 +15,7 @@ import { useL } from './LangProvider';
 import DuplicatesPanel from './DuplicatesPanel';
 import UsersPanel from './UsersPanel';
 import MessagesPanel from './MessagesPanel';
+import DashboardPanel from './DashboardPanel';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -131,6 +132,8 @@ export default function AdminView() {
                 </div>
               </div>
             ))}
+
+            <DashboardPanel sb={sb} />
 
             <MessagesPanel sb={sb} />
 

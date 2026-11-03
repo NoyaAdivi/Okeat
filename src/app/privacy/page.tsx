@@ -36,7 +36,10 @@ function PrivacyHe() {
             <li><b>חשבון, אם בחרתם להתחבר.</b> כתובת המייל, ואם התחברתם עם Google גם השם. משמשים לשמירת מה שהוספתם ואישרתם.</li>
             <li><b>פרופיל ציבורי.</b> אם התחברתם עם חשבון, אחרים רואים את השם ותמונת הפרופיל שלו, את האוכל האהוב אם כתבתם אותו, מתי הצטרפתם ומה הוספתם ואישרתם. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה.</li>
             <li><b>מה שהוספתם.</b> מקומות, אישורים, ביקורות ותמונות של תעודות כשרות ושל המקומות. התוכן הזה מוצג לכל המשתמשים, יחד עם השם של מי שהוסיף אותו. תמונה של מקום מוצגת רק אחרי אישור של מנהל.</li>
-            <li><b>מקומות ששמרתם.</b> רשימת המקומות ששמרתם גלויה רק לכם.</li>
+            <li><b>מקומות ששמרתם.</b> רשימת המקומות ששמרתם גלויה רק לכם. רשימה שיצרתם גלויה לכל מי שיש לו את הקישור, יחד עם השם שלכם.</li>
+            <li><b>סינון קבוע.</b> אם בחרתם לזכור סינון, הוא נשמר רק בדפדפן שלכם, ולא אצלנו.</li>
+            <li><b>מילות חיפוש.</b> אנחנו שומרים אילו מילים וערים מחפשים ובאיזו תדירות, כדי לשפר את האתר, בלי קשר למי שחיפש.</li>
+            <li><b>הודעות יצירת קשר.</b> ההודעה ומה שהשארתם לחזרה אליכם נשמרים, ורק מנהלת האתר קוראת אותם.</li>
             <li><b>תקלות באתר.</b> אם משהו נשבר, נשמרים הודעת השגיאה והעמוד שבו קרתה, בלי פרטים עליכם.</li>
             <li><b>מיקום.</b> אם אישרתם בדפדפן, המיקום משמש כדי להראות מקומות קרובים ולנווט. הוא לא נשמר אצלנו.</li>
             <li><b>הגדרות באתר.</b> העדפות נגישות, תצוגה ושפה נשמרות בדפדפן שלכם.</li>
@@ -86,7 +89,10 @@ function PrivacyEn() {
             <li><b>An account, if you choose to sign in.</b> Your email address, and if you sign in with Google, also your name. Used to keep what you added and confirmed.</li>
             <li><b>A public profile.</b> If you signed in with an account, others see its name and picture, your favorite food if you added it, when you joined, and what you added and confirmed. Your e-mail address is not shown to other users, and only the site admin can see it.</li>
             <li><b>What you added.</b> Places, confirmations, reviews, and photos of kosher certificates and of places. This content is shown to all users, together with the name of whoever added it. A photo of a place is shown only after a moderator approves it.</li>
-            <li><b>Places you saved.</b> Your list of saved places is visible only to you.</li>
+            <li><b>Places you saved.</b> Your saved places are visible only to you. A list you create is visible to anyone with the link, together with your name.</li>
+            <li><b>Saved filter.</b> If you choose to remember a filter, it stays only in your browser and not with us.</li>
+            <li><b>Search words.</b> We keep which words and cities people search for and how often, to improve the site, with no link to who searched.</li>
+            <li><b>Contact messages.</b> Your message and what you left for us to reply are kept, and only the site admin reads them.</li>
             <li><b>Site errors.</b> If something breaks, we keep the error message and the page it happened on, with no details about you.</li>
             <li><b>Location.</b> If you allow it in your browser, your location is used to show nearby places and to navigate. We don&apos;t store it.</li>
             <li><b>Site settings.</b> Accessibility, display and language preferences are kept in your browser.</li>

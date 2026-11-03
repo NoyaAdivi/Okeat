@@ -44,7 +44,7 @@ function TermsHe() {
           </ul>
   
           <h2>מה מותר ומה אסור כשמוסיפים מידע</h2>
-          <p>כשאתם מוסיפים מקום, מאשרים מידע, כותבים ביקורת או מעלים תמונה, אתם מצהירים שהמידע נכון למיטב ידיעתכם, שהביקורת מבוססת על ביקור שלכם, ושהתמונה צולמה על ידיכם או שיש לכם זכות להעלות אותה. ביקורות ותמונות הן דעת הכותבים ולא של האתר, ומנהלים רשאים להסיר אותן. אסור:</p>
+          <p>כשאתם מוסיפים מקום, מאשרים מידע, כותבים ביקורת, יוצרים רשימה או מעלים תמונה, אתם מצהירים שהמידע נכון למיטב ידיעתכם, שהביקורת מבוססת על ביקור שלכם, ושהתמונה צולמה על ידיכם או שיש לכם זכות להעלות אותה. ביקורות, רשימות ותמונות הן דעת הכותבים ולא של האתר, ומנהלים רשאים להסיר אותן. אסור:</p>
           <ul>
             <li>להעלות מידע שקרי או מטעה, או לנסות להשפיע על הדירוג של מקום בדרכים לא הוגנות.</li>
             <li>להעלות תמונות של אנשים, תוכן פוגעני, או תוכן שמפר זכויות של אחרים.</li>
@@ -95,7 +95,7 @@ function TermsEn() {
           </ul>
 
           <h2>What is and isn&apos;t allowed when adding information</h2>
-          <p>When you add a place, confirm information, write a review or upload a photo, you declare that the information is correct to the best of your knowledge, that the review is based on your own visit, and that you took the photo or have the right to upload it. Reviews and photos are the opinion of their authors, not of the site, and moderators may remove them. It is not allowed to:</p>
+          <p>When you add a place, confirm information, write a review, create a list or upload a photo, you declare that the information is correct to the best of your knowledge, that the review is based on your own visit, and that you took the photo or have the right to upload it. Reviews, lists and photos are the opinion of their authors, not of the site, and moderators may remove them. It is not allowed to:</p>
           <ul>
             <li>Upload false or misleading information, or try to influence a place&apos;s standing unfairly.</li>
             <li>Upload photos of people, offensive content, or content that infringes other people&apos;s rights.</li>

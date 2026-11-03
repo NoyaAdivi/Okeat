@@ -352,6 +352,7 @@ export interface PublicProfile {
   info_added: number;
   confirmations: number;
   favorite_food: string | null;
+  reviews: number;
 }
 
 /** Site admins only: put a place at its real location, and keep it there. */
@@ -562,4 +563,92 @@ export async function fetchAdminMessages(sb: SupabaseClient): Promise<AdminMessa
 export async function markMessage(sb: SupabaseClient, id: number, handled: boolean) {
   const { error } = await sb.rpc('admin_mark_message', { p_id: id, p_handled: handled });
   if (error) throw error;
+}
+
+// ---------- notifications ----------
+export interface MyNotification { kind: 'approved' | 'expiring'; place_id: string; place_name: string; need: string; happened_at: string; is_new: boolean }
+
+export async function fetchNotifications(sb: SupabaseClient): Promise<MyNotification[]> {
+  const { data, error } = await sb.rpc('my_notifications');
+  if (error) return [];
+  return data as MyNotification[];
+}
+
+export const markNotificationsSeen = (sb: SupabaseClient) => sb.rpc('mark_notifications_seen').then(() => undefined);
+
+// ---------- lists ----------
+export interface MyList { id: string; title: string; list_places: { count: number }[] }
+export interface ListDetails {
+  id: string; title: string; ownerId: string; ownerName: string;
+  places: { id: string; name: string; placeType: string; address: string | null }[];
+}
+
+export async function fetchMyLists(sb: SupabaseClient, userId: string): Promise<MyList[]> {
+  const { data, error } = await sb.from('lists').select('id, title, list_places(count)').eq('owner_id', userId).order('created_at', { ascending: false });
+  if (error) return [];
+  return data as MyList[];
+}
+
+export async function createList(sb: SupabaseClient, userId: string, title: string): Promise<string> {
+  const { data, error } = await sb.from('lists').insert({ owner_id: userId, title: title.trim() }).select('id').single();
+  if (error) throw error;
+  return data.id;
+}
+
+export async function deleteList(sb: SupabaseClient, id: string) {
+  const { error } = await sb.from('lists').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function addToList(sb: SupabaseClient, listId: string, placeId: string) {
+  const { error } = await sb.from('list_places').upsert({ list_id: listId, place_id: placeId }, { ignoreDuplicates: true });
+  if (error) throw error;
+}
+
+export async function removeFromList(sb: SupabaseClient, listId: string, placeId: string) {
+  const { error } = await sb.from('list_places').delete().eq('list_id', listId).eq('place_id', placeId);
+  if (error) throw error;
+}
+
+export async function fetchList(sb: SupabaseClient, id: string): Promise<ListDetails | null> {
+  const { data, error } = await sb.rpc('list_view', { p_id: id });
+  if (error) return null;
+  return data as ListDetails | null;
+}
+
+// ---------- similar places and business details ----------
+export interface SimilarPlace { id: string; name: string; place_type: string; meters: number }
+
+export async function fetchSimilarPlaces(sb: SupabaseClient, id: string): Promise<SimilarPlace[]> {
+  const { data, error } = await sb.rpc('similar_places', { p_id: id });
+  if (error) return [];
+  return data as SimilarPlace[];
+}
+
+export async function fetchPlaceBusiness(sb: SupabaseClient, id: string): Promise<{ menuUrl: string | null; isOwner: boolean }> {
+  const { data, error } = await sb.rpc('place_business', { p_id: id });
+  if (error || !data) return { menuUrl: null, isOwner: false };
+  return data;
+}
+
+export async function ownerUpdatePlace(sb: SupabaseClient, id: string, details: { hours: unknown; phone: string | null; website: string | null; menuUrl: string | null }) {
+  const { error } = await sb.rpc('owner_update_place', { p_id: id, p_hours: details.hours, p_phone: details.phone, p_website: details.website, p_menu_url: details.menuUrl });
+  if (error) throw error;
+}
+
+// ---------- search insights and the dashboard ----------
+export const logSearch = (sb: SupabaseClient, term: string) => sb.rpc('log_search', { p_term: term }).then(() => undefined, () => undefined);
+export const logCity = (sb: SupabaseClient, name: string, lat: number, lng: number) =>
+  sb.rpc('log_city', { p_name: name, p_lat: lat, p_lng: lng }).then(() => undefined, () => undefined);
+
+export interface Dashboard {
+  users: number; newUsers: number; places: number; verified: number; reviews: number; lists: number;
+  searches: { term: string; times: number }[];
+  cities: { name: string; times: number; places: number }[];
+}
+
+export async function fetchDashboard(sb: SupabaseClient): Promise<Dashboard> {
+  const { data, error } = await sb.rpc('admin_dashboard');
+  if (error) throw error;
+  return data as Dashboard;
 }

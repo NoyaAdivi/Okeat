@@ -43,6 +43,12 @@ Places can also come from OpenStreetMap, Overture Maps or a guess from the name.
 - **Merging hides.** A merged duplicate is hidden and remembers the place it went into.
 - **Free services.** Everything runs on free tiers, and no paid key is needed.
 
+## Privacy choices
+
+- **A saved filter stays in the browser.** Dietary needs can be personal, so they aren't sent to the database.
+- **Search insights have no people in them.** Only words, cities and counts are kept.
+- **Notifications are computed when asked for.** No scheduled jobs are needed, and nothing is emailed.
+
 ## Sign-in
 
 Google uses its own sign-in button, and the token is passed to Supabase. If the button isn't available, the site falls back to the standard redirect through `/auth/callback`. Email sends a link to `/auth/confirm` and a code, so it works even when the link opens in another browser. There are no passwords to store or leak.

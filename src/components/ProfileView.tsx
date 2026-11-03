@@ -11,6 +11,8 @@ import { formatDate } from '@/lib/geo';
 import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 import { openProfileForm } from './ProfileSetup';
+import ProfileExtras from './ProfileExtras';
+import { earnedBadges } from '@/lib/checks';
 import Avatar from './Avatar';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -74,6 +76,16 @@ export default function ProfileView({ id }: { id: string }) {
               <div>
                 <h1>{profile.display_name}{mine && <small className="me-tag">{L(' (זה את/ה)', ' (you)')}</small>}</h1>
                 {role && <span className="role-tag">🏅 {role}</span>}
+                {earnedBadges(profile).length > 0 && (
+                  <p className="earned-badges">
+                    {earnedBadges(profile).map((b) => <span key={b} className="role-tag">{{
+                      confirmer: L('✅ מאשר/ת פעיל/ה', '✅ Active confirmer'),
+                      explorer: L('🧭 מגלה מקומות', '🧭 Place finder'),
+                      informer: L('💡 מוסיף/ה מידע', '💡 Info helper'),
+                      critic: L('⭐ מבקר/ת', '⭐ Reviewer'),
+                    }[b]}</span>)}
+                  </p>
+                )}
                 {profile.favorite_food && <p className="fav-food">🍽️ {L('האוכל האהוב:', 'Favorite food:')} <b>{profile.favorite_food}</b></p>}
                 {mine && <button type="button" className="link" onClick={() => openProfileForm(profile.favorite_food ?? '')}>{L('עריכת הפרטים', 'Edit details')}</button>}
                 <p className="muted">{L('הצטרף/ה ל-Okeat ב-', 'Joined Okeat on ')}{formatDate(profile.joined_at.slice(0, 10))}</p>
@@ -99,6 +111,7 @@ export default function ProfileView({ id }: { id: string }) {
             {mine && profile.role !== 'user' && (
               <p className="center"><Link className="btn" href="/admin">{L('לדיווחים ולבקשות', 'Reports and requests')}</Link></p>
             )}
+            {mine && user && <ProfileExtras sb={sb} userId={user.id} />}
             {mine && (
               <section className="sec">
                 <h2>{L('מקומות ששמרתי', 'Saved places')}</h2>

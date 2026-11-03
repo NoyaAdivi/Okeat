@@ -60,8 +60,8 @@ const faqOf = (L: T) => [
   },
   {
     q: L('מה זה "אושר על ידי בעל העסק"?', 'What does "confirmed by the business owner" mean?'),
-    a: L('בעל עסק יכול לאמת את המקום שלו: הוא מקבל קוד, מפרסם אותו לזמן קצר באתר או בעמוד הרשמי של העסק ברשתות, ומנהל בודק שהקוד באמת שם. כך אי אפשר להתחזות לבעל העסק.',
-      "A business owner can verify their place: they get a code, post it for a short while on the business's website or official social page, and an admin checks the code is really there. That way nobody can pretend to be the owner."),
+    a: L('בעל עסק יכול לאמת את המקום שלו: הוא מקבל קוד, מפרסם אותו לזמן קצר באתר או בעמוד הרשמי של העסק ברשתות, ומנהל בודק שהקוד באמת שם. כך אי אפשר להתחזות לבעל העסק. בעל עסק מאומת יכול גם לעדכן שעות, טלפון, אתר וקישור לתפריט.',
+      "A business owner can verify their place: they get a code, post it for a short while on the business's website or official social page, and an admin checks the code is really there. That way nobody can pretend to be the owner. A verified owner can also update hours, phone, website and a menu link."),
   },
   {
     q: L('מה רואים אחרים בפרופיל שלי?', 'What can others see on my profile?'),
@@ -70,13 +70,28 @@ const faqOf = (L: T) => [
   },
   {
     q: L('צריך להירשם?', 'Do I need to sign up?'),
-    a: L('לא. אפשר להוסיף ולאשר בלי חשבון. כדי לכתוב ביקורת, לשמור מקומות או להעלות תמונה של מקום צריך להתחבר. ההתחברות גם שומרת את מה שעשיתם, כשנכנסים ממכשיר אחר.',
-      'No. You can add and confirm without an account. To write a review, save places or add a photo of a place, you need to sign in. Signing in also keeps what you did when you use another device.'),
+    a: L('לא. אפשר להוסיף ולאשר בלי חשבון. כדי לכתוב ביקורת, לשמור מקומות, ליצור רשימות או להעלות תמונה של מקום צריך להתחבר. ההתחברות גם שומרת את מה שעשיתם, כשנכנסים ממכשיר אחר.',
+      'No. You can add and confirm without an account. To write a review, save places, make lists or add a photo of a place, you need to sign in. Signing in also keeps what you did when you use another device.'),
   },
   {
     q: L('מה אפשר לעשות חוץ מלאשר מידע?', 'What else can I do besides confirming?'),
-    a: L('אפשר לכתוב ביקורת עם דירוג של 1 עד 5 כוכבים, לשמור מקומות שאהבתם ברשימה בפרופיל, ולהעלות תמונות של המקום. תמונה מופיעה אחרי אישור של מנהל, ואם ביקורת פוגענית אפשר לדווח עליה.',
-      'You can write a review with a rating of 1 to 5 stars, save places you like to a list on your profile, and add photos of the place. A photo appears after a moderator approves it, and an offensive review can be reported.'),
+    a: L('אפשר לכתוב ביקורת עם דירוג של 1 עד 5 כוכבים, לשמור מקומות שאהבתם, ליצור רשימות ולשתף אותן בקישור, ולהעלות תמונות של המקום. תמונה מופיעה אחרי אישור של מנהל, ואם ביקורת פוגענית אפשר לדווח עליה.',
+      'You can write a review with a rating of 1 to 5 stars, save places you like, make lists and share them with a link, and add photos of the place. A photo appears after a moderator approves it, and an offensive review can be reported.'),
+  },
+  {
+    q: L('איך מחפשים נכון?', 'How do I search?'),
+    a: L('אפשר לכתוב שם של מקום או עיר, או משפט שלם כמו "פיצה כשרה פתוחה עכשיו ברמת גן". כשהאתר מבין את החיפוש, מופיע כפתור שמסנן לפיו. אפשר גם לבחור סינון קבוע, והוא יישמר רק במכשיר שלכם.',
+      'Type the name of a place or a city, or a whole sentence like "kosher pizza open now in Ramat Gan". When the site understands it, a button appears that filters by it. You can also keep a filter on, and it stays only on your device.'),
+  },
+  {
+    q: L('אילו התראות אקבל?', 'What notifications will I get?'),
+    a: L('בפרופיל תראו כשמידע שהוספתם אושר, וכשתעודת כשרות שהעליתם עומדת להסתיים. ההתראות מופיעות באתר, ולא נשלחות במייל.',
+      "On your profile you'll see when your information is confirmed, and when a kosher certificate you added is about to end. Notifications appear on the site and aren't sent by email."),
+  },
+  {
+    q: L('מה אומרים התגים בפרופיל?', 'What do the profile badges mean?'),
+    a: L('תגים מוענקים אוטומטית על עזרה לקהילה: 10 אישורים למאשר/ת פעיל/ה, 5 מקומות למגלה מקומות, 10 פרטי מידע למוסיף/ה מידע ו-5 ביקורות למבקר/ת.',
+      'Badges are given automatically for helping the community: 10 confirmations for an active confirmer, 5 places for a place finder, 10 details for an info helper and 5 reviews for a reviewer.'),
   },
   {
     q: L('איך עובד הניווט?', 'How does navigation work?'),
