@@ -534,3 +534,12 @@ export async function dismissPair(sb: SupabaseClient, pair: DuplicatePair) {
   const { error } = await sb.rpc('dismiss_duplicate', { p_a: pair.a_id, p_b: pair.b_id });
   if (error) throw error;
 }
+
+// ---------- the admin's list of users ----------
+export interface AdminUser { id: string; name: string | null; email: string | null; role: PublicProfile['role']; joined: string; last_seen: string | null }
+
+export async function fetchAdminUsers(sb: SupabaseClient): Promise<AdminUser[]> {
+  const { data, error } = await sb.rpc('admin_users');
+  if (error) throw error;
+  return data as AdminUser[];
+}

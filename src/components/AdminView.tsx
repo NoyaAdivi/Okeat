@@ -13,6 +13,7 @@ import { friendly } from '@/lib/errors';
 import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 import DuplicatesPanel from './DuplicatesPanel';
+import UsersPanel from './UsersPanel';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -129,6 +130,8 @@ export default function AdminView() {
                 </div>
               </div>
             ))}
+
+            {user && <UsersPanel sb={sb} meId={user.id} />}
 
             <DuplicatesPanel sb={sb} />
 

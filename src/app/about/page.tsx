@@ -65,8 +65,8 @@ const faqOf = (L: T) => [
   },
   {
     q: L('מה רואים אחרים בפרופיל שלי?', 'What can others see on my profile?'),
-    a: L('את השם ותמונת הפרופיל מהחשבון שהתחברת איתו, מתי הצטרפת, ומה הוספת ואישרת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מופיעה אף פעם, ורשימת המקומות ששמרת גלויה רק לך.',
-      'The name and picture from the account you signed in with, when you joined, and what you added and confirmed. A review you write is shown with your name. Your e-mail address is never shown, and your saved places are visible only to you.'),
+    a: L('את השם ותמונת הפרופיל מהחשבון שהתחברת איתו, מתי הצטרפת, ומה הוספת ואישרת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה. רשימת המקומות ששמרת גלויה רק לך.',
+      'The name and picture from the account you signed in with, when you joined, and what you added and confirmed. A review you write is shown with your name. Your e-mail address is not shown to other users, and only the site admin can see it. Your saved places are visible only to you.'),
   },
   {
     q: L('צריך להירשם?', 'Do I need to sign up?'),
