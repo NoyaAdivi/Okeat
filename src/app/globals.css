@@ -1442,3 +1442,10 @@ html, body { overscroll-behavior-x: none; }
   html, body { touch-action: pan-y pinch-zoom; }
   html:has(.app), body:has(.app) { position: fixed; inset: 0; width: 100%; overflow: hidden; }
 }
+
+/* ---------- phones: iPhone zooms the whole page into any field under 16px and stays zoomed ---------- */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (pointer: coarse), (max-width: 760px) {
+  input, select, textarea { font-size: max(1rem, 16px) !important; }
+  .mail-code-form .mail-code { font-size: 1.5rem !important; }
+}
