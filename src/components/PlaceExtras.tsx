@@ -112,10 +112,8 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
           });
         }} />
       </div>
-      </>, actions)}
-
       {lists && (
-        <section className="sec">
+        <section className="sec list-picker">
           <div className="mini-form">
             {lists.map((l) => (
               <button key={l.id} type="button" className="btn small" disabled={busy} onClick={() => run(async () => {
@@ -135,6 +133,7 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
           </div>
         </section>
       )}
+      </>, actions)}
 
       {photos.length > 0 && (
         <section className="sec">

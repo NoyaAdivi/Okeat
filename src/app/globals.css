@@ -1495,3 +1495,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .app { --sheet-h: 170px; }
   .app[data-sheet="half"] { --sheet-h: 50svh; }
 }
+
+/* ---------- picking a list, right under the button ---------- */
+.list-picker { flex: 1 0 100%; margin: 0; }
