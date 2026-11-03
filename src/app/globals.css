@@ -1721,3 +1721,5 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 
 .dist-from { display: block; margin-top: 1px; color: var(--muted); font-size: 0.75rem; overflow-wrap: anywhere; }
+
+.far-note { margin: 4px 0 2px; padding: 8px 12px; border-radius: 14px; background: var(--peach-soft); font-size: 0.875rem; }

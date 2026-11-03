@@ -30,7 +30,9 @@ export function estimateWalk(meters: number) {
  */
 export function estimateTrip(meters: number): { walk: number | null; drive: number | null } {
   const walk = estimateWalk(meters).minutes;
-  const drive = Math.max(5, Math.round((meters * 1.3) / 400));
+  // Roads are longer than a straight line, and speed grows with the distance: town, then main roads, then highway.
+  const km = (meters * 1.35) / 1000;
+  const drive = Math.max(5, Math.round(2 + Math.min(km, 5) * 2.1 + Math.min(Math.max(km - 5, 0), 15) * 1.2 + Math.max(km - 20, 0) * 0.7));
   return { walk: walk <= 20 ? walk : null, drive: walk > 10 ? drive : null };
 }
 

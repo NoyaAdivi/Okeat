@@ -17,6 +17,15 @@ export function saveAsked(answer: 'yes' | 'no') {
 /** Our own question, before the browser's. It explains why, and the browser's window comes only after "yes". */
 export default function LocationAsk({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
   const L = useL();
+  // One window at a time: it waits for the sign-in or first-visit window to close.
+  const [clear, setClear] = useState(false);
+  useEffect(() => {
+    const check = () => { if (!document.querySelector('.modal')) setClear(true); };
+    check();
+    const t = setInterval(check, 500);
+    return () => clearInterval(t);
+  }, []);
+  if (!clear) return null;
   return (
     <Modal title={L('לשתף את המיקום שלך? 📍', 'Share your location? 📍')} subtitle={L('כך נראה מה קרוב אלייך וכמה זמן לוקח להגיע. המיקום לא נשמר אצלנו.', "So we can show what's near you and how long it takes to get there. We don't store it.")} onClose={onNo}>
       <div className="modal-acts">

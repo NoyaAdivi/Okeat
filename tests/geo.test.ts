@@ -19,5 +19,7 @@ test('dates are written day first', () => {
 test('close places show the walk, then both, then the drive', () => {
   assert.deepEqual(estimateTrip(300), { walk: 5, drive: null });
   assert.deepEqual(estimateTrip(1000), { walk: 16, drive: 5 });
-  assert.deepEqual(estimateTrip(3000), { walk: null, drive: 10 });
+  assert.deepEqual(estimateTrip(3000), { walk: null, drive: 11 });
+  assert.equal(estimateTrip(19000).drive, 34);
+  assert.equal(estimateTrip(60000).drive, 73);
 });

@@ -97,6 +97,9 @@ export default function PlaceList({ fromLabel, places, loading, error, activeNee
           </select>
         </label>
       </div>
+      {(sorted[0]?.distance_m ?? 0) > 5000 && (
+        <p className="far-note">{L('אין עדיין מקומות ממש קרובים לכאן. אלה הקרובים ביותר.', 'No places very close by yet. These are the nearest.')}</p>
+      )}
       <ul className="list">
         {sorted.slice(0, shown).map((p, i) => {
           const st = openStatus(p.hours, lang);
@@ -111,8 +114,8 @@ export default function PlaceList({ fromLabel, places, loading, error, activeNee
                       const t = estimateTrip(p.distance_m);
                       return (
                         <>
-                          {t.walk !== null && <span>{L(`${t.walk} דק׳ הליכה`, `${t.walk} min walk`)}</span>}
-                          {t.drive !== null && <span>{L(`${t.drive} דק׳ נסיעה`, `${t.drive} min drive`)}</span>}
+                          {t.walk !== null && <span>{L(`כ-${t.walk} דק׳ הליכה`, `~${t.walk} min walk`)}</span>}
+                          {t.drive !== null && <span>{L(`כ-${t.drive} דק׳ נסיעה`, `~${t.drive} min drive`)}</span>}
                         </>
                       );
                     })()}</span>
