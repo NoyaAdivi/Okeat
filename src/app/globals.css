@@ -1728,3 +1728,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .to-top { position: absolute; z-index: 4; inset-inline-end: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: grid; place-items: center; width: 46px; height: 46px; border: 0; border-radius: 50%; background: var(--ink); color: var(--surface); box-shadow: var(--shadow); font-size: 1.25rem; font-weight: 700; cursor: pointer; animation: chip-pop .25s ease; }
 .panel-body { -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain; }
 @media (prefers-reduced-motion: reduce) { .to-top { animation: none; } }
+
+/* the cookie notice sat over the buttons of any open window on a phone; it waits until the window closes */
+body:has(.modal-back) .notice-bar { display: none; }
