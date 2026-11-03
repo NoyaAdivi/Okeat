@@ -518,7 +518,8 @@ export default function MapView({
   useEffect(() => {
     routeRef.current = route;
     const map = mapRef.current;
-    if (map && map.isStyleLoaded() && map.getSource('route')) drawRoute(map, route, true);
+    // not isStyleLoaded(): it is false while tiles load, which is when the real route tends to arrive
+    if (map) safe(() => { if (map.getSource('route')) drawRoute(map, route, true); });
   }, [route]);
 
   // Crosshair while picking a location; markers stop taking clicks so the map gets them.
