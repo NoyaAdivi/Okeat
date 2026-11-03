@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { deleteUser, fetchAdminUsers, setUserRole, type AdminUser, type PublicProfile } from '@/lib/places';
 import { friendly } from '@/lib/errors';
@@ -24,6 +24,8 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
     try { setUsers(await fetchAdminUsers(sb)); } catch (e) { setError(friendly(e, lang)); }
     setBusy(false);
   };
+
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const changeRole = async (user: AdminUser, role: PublicProfile['role']) => {
     setBusy(true);
@@ -55,7 +57,7 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
     <>
       <h2>{L('משתמשים רשומים', 'Registered users')}{users && ` (${users.length})`}</h2>
       {error && <p className="warnbox">{error}</p>}
-      {!users && <button type="button" className="btn small" disabled={busy} onClick={load}>{busy ? L('טוען…', 'Loading…') : L('הצגת המשתמשים', 'Show users')}</button>}
+      {!users && !error && <p className="muted">{L('טוען…', 'Loading…')}</p>}
       {users && (
         <div className="mini-form">
           <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={L('חיפוש לפי שם או מייל', 'Search by name or email')} aria-label={L('חיפוש משתמשים', 'Search users')} />
@@ -70,11 +72,11 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
           </div>
           <div className="acts">
             {u.id === meId ? <span className="muted small">{L('זו את', "That's you")}</span> : (
-              <select value={u.role} disabled={busy} aria-label={L(`תפקיד של ${u.name ?? u.email}`, `Role of ${u.name ?? u.email}`)} onChange={(e) => changeRole(u, e.target.value as PublicProfile['role'])}>
-                <option value="user">{L('משתמש/ת רגיל/ה', 'Regular user')}</option>
-                <option value="trusted">{L('מאשר/ת קהילה', 'Community moderator')}</option>
-                <option value="admin">{L('מנהל/ת', 'Admin')}</option>
-              </select>
+              <div className="role-pills" role="group" aria-label={L(`תפקיד של ${u.name ?? u.email}`, `Role of ${u.name ?? u.email}`)}>
+                {([['user', L('רגיל/ה', 'Regular')], ['trusted', L('מאשר/ת', 'Moderator')], ['admin', L('מנהל/ת', 'Admin')]] as const).map(([value, label]) => (
+                  <button key={value} type="button" disabled={busy} aria-pressed={u.role === value} onClick={() => { if (u.role !== value) changeRole(u, value); }}>{label}</button>
+                ))}
+              </div>
             )}
             {u.id !== meId && u.role !== 'admin' && (deleting === u.id ? (
               <>

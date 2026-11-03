@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { fetchAdminMessages, markMessage, type AdminMessage } from '@/lib/places';
 import { friendly } from '@/lib/errors';
@@ -10,7 +10,7 @@ import { useL } from './LangProvider';
 const looksLikeEmail = (text: string | null) => !!text && /^\S+@\S+\.\S+$/.test(text.trim());
 
 /** For the admin: messages from the contact form. A reply opens in her own email app. */
-export default function MessagesPanel({ sb }: { sb: SupabaseClient }) {
+export default function MessagesPanel({ sb, onChange }: { sb: SupabaseClient; onChange: (open: number) => void }) {
   const L = useL();
   const lang = L.lang;
   const [messages, setMessages] = useState<AdminMessage[] | null>(null);
@@ -23,6 +23,9 @@ export default function MessagesPanel({ sb }: { sb: SupabaseClient }) {
     try { setMessages(await fetchAdminMessages(sb)); } catch (e) { setError(friendly(e, lang)); }
     setBusy(false);
   };
+
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (messages) onChange(messages.filter((m) => !m.handled).length); }, [messages, onChange]);
 
   const toggle = async (m: AdminMessage) => {
     setBusy(true);
@@ -43,7 +46,7 @@ export default function MessagesPanel({ sb }: { sb: SupabaseClient }) {
     <>
       <h2>{L('הודעות מהאתר', 'Messages')}{messages && ` (${open})`}</h2>
       {error && <p className="warnbox">{error}</p>}
-      {!messages && <button type="button" className="btn small" disabled={busy} onClick={load}>{busy ? L('טוען…', 'Loading…') : L('הצגת ההודעות', 'Show messages')}</button>}
+      {!messages && !error && <p className="muted">{L('טוען…', 'Loading…')}</p>}
       {messages?.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
       {messages?.map((m) => {
         const email = looksLikeEmail(m.reply_to) ? m.reply_to!.trim() : m.account_email;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { fetchDashboard, type Dashboard } from '@/lib/places';
 import { friendly } from '@/lib/errors';
@@ -20,6 +20,8 @@ export default function DashboardPanel({ sb }: { sb: SupabaseClient }) {
     setBusy(false);
   };
 
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const tiles = data ? [
     [L('נרשמו', 'Signed up'), data.users], [L('חדשים השבוע', 'New this week'), data.newUsers],
     [L('מקומות', 'Places'), data.places], [L('פרטים מאושרים', 'Confirmed details'), data.verified],
@@ -31,7 +33,7 @@ export default function DashboardPanel({ sb }: { sb: SupabaseClient }) {
     <>
       <h2>{L('לוח נתונים', 'Dashboard')}</h2>
       {error && <p className="warnbox">{error}</p>}
-      {!data && <button type="button" className="btn small" disabled={busy} onClick={load}>{busy ? L('טוען…', 'Loading…') : L('הצגת הנתונים', 'Show the numbers')}</button>}
+      {!data && !error && <p className="muted">{busy ? L('טוען…', 'Loading…') : ''}</p>}
       {data && (
         <>
           <ul className="profile-stats dash-stats">
@@ -39,12 +41,17 @@ export default function DashboardPanel({ sb }: { sb: SupabaseClient }) {
           </ul>
           <h3>{L('מה מחפשים', 'What people search for')}</h3>
           {data.searches.length === 0 ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
-            <p>{data.searches.map((s) => `${s.term} (${s.times})`).join(' · ')}</p>
+            <ul className="dash-terms">
+              {data.searches.map((s) => <li key={s.term}>{s.term} <b>{s.times}</b></li>)}
+            </ul>
           )}
           <h3>{L('ערים שמחפשים, מהכי מעט מקומות', 'Cities people look for, fewest places first')}</h3>
           {few.length === 0 ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
             <ul className="profile-places">
-              {few.map((c) => <li key={c.name}><span className="dash-city"><b>{c.name}</b> <small>{L(`${c.places} מקומות · ${c.times} חיפושים`, `${c.places} places · ${c.times} searches`)}</small></span></li>)}
+              {few.map((c) => <li key={c.name} className="dash-city">
+                <span><b>{c.name}</b> <small>{L(`${c.places} מקומות, ${c.times} חיפושים`, `${c.places} places, ${c.times} searches`)}</small></span>
+                <i aria-hidden="true" style={{ inlineSize: `${Math.max(4, (c.places / Math.max(1, ...few.map((x) => x.places))) * 100)}%` }} />
+              </li>)}
             </ul>
           )}
         </>

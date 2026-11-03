@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { dismissPair, fetchDuplicatePairs, mergePair, type DuplicatePair } from '@/lib/places';
 import { friendly } from '@/lib/errors';
@@ -25,6 +25,8 @@ export default function DuplicatesPanel({ sb }: { sb: SupabaseClient }) {
     try { setPairs(await fetchDuplicatePairs(sb)); } catch (e) { setError(friendly(e, lang)); }
     setBusy(false);
   };
+
+  useEffect(() => { find(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handle = async (pair: DuplicatePair, fn: (s: SupabaseClient, p: DuplicatePair) => Promise<void>) => {
     setBusy(true);
@@ -53,7 +55,7 @@ export default function DuplicatesPanel({ sb }: { sb: SupabaseClient }) {
     <>
       <h2>{L('מקומות כפולים', 'Duplicate places')}{pairs && ` (${pairs.length})`}</h2>
       {error && <p className="warnbox">{error}</p>}
-      {!pairs && <button type="button" className="btn small" disabled={busy} onClick={find}>{busy ? L('מחפש…', 'Looking…') : L('חיפוש כפילויות', 'Find duplicates')}</button>}
+      {!pairs && !error && <p className="muted">{L('מחפש כפילויות…', 'Looking for duplicates…')}</p>}
       {pairs?.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
       {pairs && pairs.length > 0 && (
         <>

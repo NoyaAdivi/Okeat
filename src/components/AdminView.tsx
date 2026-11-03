@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
 import {
   decideOwnership, fetchModerationQueue, moderateClaim, moderatePlace, type ModerationQueue, fetchPendingPhotos, moderatePhoto, placePhotoUrl, type PendingPhoto,
-  clearClientError, deleteReview, dismissReviewReports, fetchClientErrors, fetchReportedReviews, type ClientError, type ReportedReview,
+  clearClientError, deleteReview, fetchAdminMessages, dismissReviewReports, fetchClientErrors, fetchReportedReviews, type ClientError, type ReportedReview,
 } from '@/lib/places';
 import { levelInfo, levelText, needLabel } from '@/lib/types';
 import { friendly } from '@/lib/errors';
@@ -16,6 +16,8 @@ import DuplicatesPanel from './DuplicatesPanel';
 import UsersPanel from './UsersPanel';
 import MessagesPanel from './MessagesPanel';
 import DashboardPanel from './DashboardPanel';
+
+type TabId = 'home' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -28,27 +30,74 @@ export default function AdminView() {
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [badReviews, setBadReviews] = useState<ReportedReview[]>([]);
   const [siteErrors, setSiteErrors] = useState<ClientError[]>([]);
+  const [admin, setAdmin] = useState(false);
+  const [openMessages, setOpenMessages] = useState(0);
+  const [tab, setTab] = useState<TabId>('reports');
 
+  const opened = useRef(false);
   const load = useCallback(() => {
     fetchModerationQueue(sb).then(setQ).catch((e) => setError(friendly(e, lang)));
     fetchPendingPhotos(sb).then(setPhotos);
     fetchReportedReviews(sb).then(setBadReviews);
     fetchClientErrors(sb).then(setSiteErrors);
+    fetchAdminMessages(sb).then((m) => {
+      setAdmin(true);
+      setOpenMessages(m.filter((x) => !x.handled).length);
+      setTab((t) => (t === 'reports' && !opened.current ? 'home' : t));
+    }).catch(() => setAdmin(false));
   }, [sb, lang]);
   useEffect(() => { if (ready && user && !user.is_anonymous) load(); }, [ready, user, load]);
 
-  const act = (fn: () => Promise<void>) => fn().then(load).catch((e) => setError(friendly(e, lang)));
+  const act = (fn: () => Promise<void>) => fn().then(() => { opened.current = true; load(); }).catch((e) => setError(friendly(e, lang)));
+
+  const reports = (q?.reported.length ?? 0) + (q?.claims.length ?? 0) + badReviews.length;
+  const owners = q?.owners.length ?? 0;
+  const waiting = reports + owners + photos.length + openMessages;
+  const everyone: { id: TabId; cls: string; emoji: string; label: string; count: number }[] = [
+    { id: 'reports', cls: 'k', emoji: '🚩', label: L('דיווחים', 'Reports'), count: reports },
+    { id: 'photos', cls: 'v', emoji: '📷', label: L('תמונות', 'Photos'), count: photos.length },
+    { id: 'owners', cls: 'g', emoji: '🏪', label: L('בעלי עסקים', 'Owners'), count: owners },
+  ];
+  const adminOnly: typeof everyone = [
+    { id: 'home', cls: 'h', emoji: '📊', label: L('סקירה', 'Overview'), count: 0 },
+    { id: 'messages', cls: 'e', emoji: '💌', label: L('הודעות', 'Messages'), count: openMessages },
+    { id: 'users', cls: 'v', emoji: '👥', label: L('משתמשים', 'Users'), count: 0 },
+    { id: 'dupes', cls: 'g', emoji: '🔁', label: L('כפילויות', 'Duplicates'), count: 0 },
+    { id: 'errors', cls: 'x', emoji: '🛠️', label: L('שגיאות', 'Errors'), count: siteErrors.length },
+  ];
+  const tabs = admin ? [adminOnly[0], adminOnly[1], ...everyone, ...adminOnly.slice(2)] : everyone;
 
   return (
     <div className="page">
       <SiteHeader />
-      <main id="main" className="admin-page prose">
-        <h1>{L('ניהול הקהילה', 'Community moderation')}</h1>
+      <main id="main" className="admin-page">
+        <header className="admin-hero">
+          <span className="admin-hero-mark" aria-hidden="true">{waiting > 0 ? '🌿' : '🌸'}</span>
+          <div>
+            <h1>{L('ניהול הקהילה', 'Community moderation')}</h1>
+            <p>{q ? (waiting > 0 ? L(`${waiting} דברים מחכים לך היום`, `${waiting} things are waiting for you today`) : L('הכל מטופל. אפשר לנוח', "You're all caught up")) : L('רגע, בודקים מה חדש…', 'Checking what is new…')}</p>
+          </div>
+        </header>
         {ready && (!user || user.is_anonymous) && <p>{L('צריך להתחבר עם חשבון של מנהל.', 'Sign in with a moderator account.')}</p>}
         {error && <div className="err admin-error" role="alert">{error.includes('Moderators only') ? L('הדף הזה רק למאשרי קהילה ולמנהלים.', 'This page is only for moderators and admins.') : error}</div>}
 
         {q && (
-          <>
+          <div className="admin-layout">
+            <div className="admin-tabs" role="tablist" aria-label={L('אזורי הניהול', 'Admin areas')}>
+              {tabs.map((t) => (
+                <button key={t.id} type="button" role="tab" id={`tab-${t.id}`} aria-selected={tab === t.id} aria-controls="admin-panel" className={`admin-tab ${t.cls}`} onClick={() => setTab(t.id)}>
+                  <span className="seal soft admin-tab-seal" aria-hidden="true"><span>{t.emoji}</span></span>
+                  <span className="admin-tab-name">{t.label}</span>
+                  {t.count > 0 && <span className="admin-count">{t.count}</span>}
+                </button>
+              ))}
+            </div>
+            <div id="admin-panel" key={tab} className="admin-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0}>
+            {tab === 'home' && admin && <DashboardPanel sb={sb} />}
+            {tab === 'messages' && admin && <MessagesPanel sb={sb} onChange={setOpenMessages} />}
+            {tab === 'users' && admin && user && <UsersPanel sb={sb} meId={user.id} />}
+            {tab === 'dupes' && admin && <DuplicatesPanel sb={sb} />}
+            {tab === 'photos' && (<>
             <h2>{L('תמונות לאישור', 'Photos to approve')} ({photos.length})</h2>
             {photos.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
             {photos.map((p) => (
@@ -65,6 +114,8 @@ export default function AdminView() {
               </div>
             ))}
 
+            </>)}
+            {tab === 'reports' && (<>
             <h2>{L('ביקורות שדווחו', 'Reported reviews')} ({badReviews.length})</h2>
             {badReviews.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
             {badReviews.map((r) => (
@@ -117,6 +168,9 @@ export default function AdminView() {
               );
             })}
 
+            </>)}
+            {tab === 'owners' && (<>
+            {q.owners.length === 0 && <p className="muted">{L('אין כרגע בקשות של בעלי עסקים.', 'No business owner requests right now.')}</p>}
             {q.owners.length > 0 && <h2>{L('בקשות של בעלי עסקים', 'Business owner requests')} ({q.owners.length})</h2>}
             {q.owners.map((o) => (
               <div key={o.id} className="admin-row">
@@ -133,14 +187,8 @@ export default function AdminView() {
               </div>
             ))}
 
-            <DashboardPanel sb={sb} />
-
-            <MessagesPanel sb={sb} />
-
-            {user && <UsersPanel sb={sb} meId={user.id} />}
-
-            <DuplicatesPanel sb={sb} />
-
+            </>)}
+            {tab === 'errors' && (<>
             <h2>{L('שגיאות באתר', 'Site errors')} ({siteErrors.length})</h2>
             {siteErrors.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
             {siteErrors.map((e) => (
@@ -154,7 +202,9 @@ export default function AdminView() {
                 </div>
               </div>
             ))}
-          </>
+            </>)}
+            </div>
+          </div>
         )}
       </main>
       <SiteFooter />
