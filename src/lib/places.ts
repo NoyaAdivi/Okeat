@@ -704,3 +704,26 @@ export async function adminRestorePlace(sb: SupabaseClient, id: string) {
   const { error } = await sb.rpc('admin_restore_place', { p_place: id });
   if (error) throw error;
 }
+
+// ---------- what you did, on your own profile ----------
+export interface MyActivity {
+  claims: { id: string; placeId: string; place: string; need: Need; level: string; status: string; confirmCount: number }[];
+  votes: { placeId: string; place: string; need: Need; level: string; vote: number }[];
+  reviews: { placeId: string; place: string; rating: number; comment: string | null }[];
+}
+
+export async function fetchMyActivity(sb: SupabaseClient): Promise<MyActivity> {
+  const { data, error } = await sb.rpc('my_activity');
+  if (error) throw error;
+  return data as MyActivity;
+}
+
+export async function withdrawClaim(sb: SupabaseClient, id: string) {
+  const { error } = await sb.rpc('withdraw_claim', { p_claim: id });
+  if (error) throw error;
+}
+
+export async function withdrawPlace(sb: SupabaseClient, id: string) {
+  const { error } = await sb.rpc('withdraw_place', { p_place: id });
+  if (error) throw error;
+}

@@ -85,7 +85,11 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
       <div className="extras-bar">
         <button type="button" className="btn small" aria-pressed={saved} disabled={busy} onClick={() => {
           if (needAccount(L('כדי לשמור מקומות צריך להתחבר עם חשבון.', 'To save places, sign in with an account.'))) return;
-          run(async () => { await setFavorite(sb, place.id, userId!, !saved); setSaved(!saved); });
+          run(async () => {
+            await setFavorite(sb, place.id, userId!, !saved);
+            setSaved(!saved);
+            if (!saved) onToast(L('נשמר. אפשר למצוא אותו בפרופיל, תחת שמורים.', 'Saved. You can find it on your profile, under Saved.'));
+          });
         }}>{saved ? '❤️' : '🤍'} {saved ? L('נשמר', 'Saved') : L('שמירה', 'Save')}</button>
         <button type="button" className="btn small" disabled={busy} onClick={() => {
           if (needAccount(L('כדי להעלות תמונה צריך להתחבר עם חשבון.', 'To add a photo, sign in with an account.'))) return;

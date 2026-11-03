@@ -5,7 +5,8 @@ import PlaceTile from './PlaceTile';
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
-import { fetchMyFavorites, fetchPlacesAddedBy, fetchProfile, setUserRole, type PublicProfile } from '@/lib/places';
+import { fetchMyFavorites, fetchPlacesAddedBy, fetchProfile, setUserRole, withdrawPlace, type PublicProfile } from '@/lib/places';
+import { friendly } from '@/lib/errors';
 import { placeTypeLabel } from '@/lib/types';
 import { placeEmoji } from '@/lib/emoji';
 import { formatDate } from '@/lib/geo';
@@ -31,6 +32,7 @@ function CountUp({ to }: { to: number }) {
   return <>{shown}</>;
 }
 import ProfileExtras from './ProfileExtras';
+import MyActivity from './MyActivity';
 import { earnedBadges } from '@/lib/checks';
 import Avatar from './Avatar';
 
@@ -59,7 +61,7 @@ export default function ProfileView({ id }: { id: string }) {
   // Site admins see role buttons on other people's profiles.
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
-  const [section, setSection] = useState<'notes' | 'lists' | 'saved' | 'added'>('notes');
+  const [section, setSection] = useState<'notes' | 'lists' | 'saved' | 'added' | 'info' | 'votes' | 'reviews'>('notes');
   const [saved, setSaved] = useState<{ id: string; name: string; place_type: string }[]>([]);
   useEffect(() => { if (mine) fetchMyFavorites(sb).then(setSaved); }, [sb, mine]);
   useEffect(() => {
@@ -112,10 +114,22 @@ export default function ProfileView({ id }: { id: string }) {
               </div>
             </section>
             <ul className="profile-numbers">
-              <li className="k"><b><CountUp to={profile.places_added} /></b><span>{L('מקומות שהוסיף/ה', 'places added')}</span></li>
-              <li className="v"><b><CountUp to={profile.info_added} /></b><span>{L('פרטי מידע', 'pieces of info')}</span></li>
-              <li className="h"><b><CountUp to={profile.confirmations} /></b><span>{L('אישורים', 'confirmations')}</span></li>
-              <li className="g"><b><CountUp to={profile.reviews} /></b><span>{L('ביקורות', 'reviews')}</span></li>
+              {([
+                ['added', 'k', profile.places_added, L('מקומות שהוסיף/ה', 'places added')],
+                ['info', 'v', profile.info_added, L('פרטי מידע', 'pieces of info')],
+                ['votes', 'h', profile.confirmations, L('אישורים', 'confirmations')],
+                ['reviews', 'g', profile.reviews, L('ביקורות', 'reviews')],
+              ] as const).map(([value, cls, count, label]) => (
+                <li key={value} className={cls}>
+                  {mine ? (
+                    <button type="button" aria-pressed={section === value} onClick={() => setSection(value)}>
+                      <b><CountUp to={count} /></b><span>{label}</span>
+                    </button>
+                  ) : (
+                    <><b><CountUp to={count} /></b><span>{label}</span></>
+                  )}
+                </li>
+              ))}
             </ul>
             {viewerAdmin && !mine && (
               <section className="role-admin" aria-label={L('הרשאות המשתמש', 'User permissions')}>
@@ -141,7 +155,19 @@ export default function ProfileView({ id }: { id: string }) {
             )}
             <div key={section} className="profile-section">
             {mine && user && section === 'notes' && <ProfileExtras sb={sb} userId={user.id} show="notes" />}
-            {mine && user && section === 'lists' && <ProfileExtras sb={sb} userId={user.id} show="lists" />}
+            {mine && user && section === 'lists' && (
+              <>
+                {saved.length > 0 && (
+                  <button type="button" className="saved-link" onClick={() => setSection('saved')}>
+                    <span aria-hidden="true">❤️</span> {saved.length === 1 ? L('מקום אחד ששמרת', 'One saved place') : L(`${saved.length} מקומות ששמרת`, `${saved.length} saved places`)}
+                  </button>
+                )}
+                <ProfileExtras sb={sb} userId={user.id} show="lists" />
+              </>
+            )}
+            {mine && (section === 'info' || section === 'votes' || section === 'reviews') && (
+              <MyActivity sb={sb} show={section} onChanged={() => { if (target) fetchProfile(sb, target).then(setProfile); }} />
+            )}
             {section === 'saved' && mine && (
               <section className="sec">
                 <h2>{L('מקומות ששמרתי', 'Saved places')}</h2>
@@ -157,10 +183,20 @@ export default function ProfileView({ id }: { id: string }) {
             {(section === 'added' || !mine) && (
             <section className="sec">
               <h2>{L('מקומות שהוסיף/ה', 'Places added')}</h2>
+              {roleError && mine && <div className="err" role="alert">{roleError}</div>}
               {places.length === 0 ? <p className="muted">{L('עוד אין.', 'None yet.')}</p> : (
                 <ul className="tiles">
                   {places.map((p, i) => (
-                    <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={`${placeTypeLabel(p.place_type, lang)}, ${formatDate(p.created_at.slice(0, 10))}`} />
+                    <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={`${placeTypeLabel(p.place_type, lang)}, ${formatDate(p.created_at.slice(0, 10))}`} action={mine ? (
+                      <button type="button" className="link" onClick={async () => {
+                        setRoleError('');
+                        try {
+                          await withdrawPlace(sb, p.id);
+                          setPlaces(places.filter((x) => x.id !== p.id));
+                          if (target) fetchProfile(sb, target).then(setProfile);
+                        } catch (e) { setRoleError(friendly(e, lang)); }
+                      }}>{L('מחיקה', 'Delete')}</button>
+                    ) : undefined} />
                   ))}
                 </ul>
               )}

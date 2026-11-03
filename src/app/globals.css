@@ -1335,3 +1335,21 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; }
 .app { overflow: hidden; }
 .shared, .panel-body { overflow-x: hidden; }
 .detail-top, .detail-tools { flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .detail-top { margin-inline: 0; padding-inline: 0; }
+}
+
+/* profile: your numbers open what is behind them */
+.profile-numbers li button { display: grid; gap: 2px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.profile-numbers li:has(button) { transition: transform .18s, box-shadow .18s; }
+.profile-numbers li:has(button):hover { transform: translateY(-2px); }
+.profile-numbers li:has(button[aria-pressed="true"]) { box-shadow: 0 0 0 3px var(--c); }
+.my-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.my-rows li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-sm); }
+.my-rows li > a:first-child { min-width: 0; flex: 1; display: grid; gap: 2px; color: var(--ink); text-decoration: none; }
+.my-rows small { color: var(--muted); overflow-wrap: anywhere; }
+.saved-link { display: block; width: 100%; margin-bottom: 12px; padding: 12px 14px; border: 0; border-radius: 18px; background: var(--peach-soft); color: var(--ink); font: inherit; font-weight: 600; text-align: start; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) {
+  .profile-numbers li:has(button) { transition: none; }
+  .profile-numbers li:has(button):hover { transform: none; }
+}

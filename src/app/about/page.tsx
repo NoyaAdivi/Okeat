@@ -141,7 +141,7 @@ export default async function About() {
           <div className="hero-inner">
             <span className="hero-emoji" aria-hidden="true">💡</span>
             <h1>{L('איך זה עובד', 'How it works')}</h1>
-            <p className="lead">{L('Okeat (מבטאים "אוקיי-איט") בא מ-OK to eat: בטוח לי לאכול כאן? חותמת מלאה אומרת שאנשים שהיו במקום אישרו את המידע, וחותמת בהירה אומרת שעוד לא.', 'Okeat (say "okay-eat") comes from OK to eat: is it safe for me to eat here? A full seal means people who were there confirmed it. A pale seal means not yet.')}</p>
+            <p className="lead">{L('חותמת מלאה: אנשים אישרו. חותמת בהירה: עוד לא.', 'A full seal: people confirmed it. A pale seal: not yet.')}</p>
           </div>
         </section>
 
@@ -197,10 +197,7 @@ export default async function About() {
           </div>
         </section>
 
-        <section className="section center">
-          <Link href="/map" className="cta primary"><span aria-hidden="true">🗺️</span> {L('למפה', 'To the map')}</Link>
-        </section>
-      </main>
+        </main>
       <SiteFooter />
     </div>
   );
