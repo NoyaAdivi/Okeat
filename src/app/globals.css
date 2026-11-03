@@ -1162,3 +1162,22 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .city-grid li:nth-child(3n + 2) a { background: var(--kosher-soft); }
 .city-grid li:nth-child(3n) a { background: var(--vegan-soft); }
 .city-grid a:hover { transform: translateY(-2px); }
+
+/* cities: tiles that pop in one after another */
+.city-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.city-grid li { animation: city-pop .45s cubic-bezier(.3, 1.5, .5, 1) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+.city-grid a { display: grid; justify-items: center; gap: 8px; padding: 22px 12px 18px; border-radius: 26px; }
+.city-grid li:nth-child(4n + 1) a { background: var(--peach-soft); }
+.city-grid li:nth-child(4n + 2) a { background: var(--kosher-soft); }
+.city-grid li:nth-child(4n + 3) a { background: var(--vegan-soft); }
+.city-grid li:nth-child(4n) a { background: var(--gf-soft); }
+.city-grid b { font-family: var(--font-display); font-size: 18px; }
+.city-emoji { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; background: var(--surface); font-size: 30px; transition: transform .3s cubic-bezier(.3, 1.6, .5, 1); }
+.city-grid a:hover { transform: translateY(-4px); }
+.city-grid a:hover .city-emoji, .city-grid a:focus-visible .city-emoji { transform: rotate(-10deg) scale(1.14); }
+@keyframes city-pop { from { opacity: 0; transform: scale(.8) translateY(10px); } }
+.city-places li { animation: admin-panel-in .3s ease backwards; animation-delay: calc(var(--i, 0) * 30ms); }
+.city-places a { border: 1px solid var(--line); transition: border-color .18s, transform .18s; }
+.city-places a:hover { border-color: var(--peach); transform: translateX(-3px); }
+[dir="ltr"] .city-places a:hover { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .city-grid li, .city-places li { animation: none; } }

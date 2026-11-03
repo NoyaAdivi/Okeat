@@ -17,10 +17,17 @@ export default async function CitiesPage() {
       <main id="main" data-read-root className="page-narrow">
         <header className="admin-hero">
           <span className="admin-hero-mark" aria-hidden="true">🗺️</span>
-          <div><h1>{L('מקומות לפי עיר', 'Places by city')}</h1><p>{L('בחרו עיר וראו איפה אפשר לאכול', 'Choose a city and see where you can eat')}</p></div>
+          <div><h1>{L('לאן הולכים לאכול?', 'Where are we eating?')}</h1><p>{L('בחרו עיר וראו מה יש בה', 'Pick a city and see what it has')}</p></div>
         </header>
         <ul className="city-grid">
-          {CITIES.map((c) => <li key={c.slug}><Link href={`/city/${c.slug}`}>{en ? c.en : c.he}</Link></li>)}
+          {CITIES.map((c, i) => (
+            <li key={c.slug} style={{ '--i': i } as React.CSSProperties}>
+              <Link href={`/city/${c.slug}`}>
+                <span className="city-emoji" aria-hidden="true">{c.emoji}</span>
+                <b>{en ? c.en : c.he}</b>
+              </Link>
+            </li>
+          ))}
         </ul>
       </main>
       <SiteFooter />

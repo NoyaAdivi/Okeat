@@ -39,15 +39,15 @@ export default async function CityPage({ params }: Props) {
       <SiteHeader />
       <main id="main" data-read-root className="page-narrow">
         <header className="admin-hero">
-          <span className="admin-hero-mark" aria-hidden="true">🍽️</span>
+          <span className="admin-hero-mark" aria-hidden="true">{found.emoji}</span>
           <div>
             <h1>{L(`איפה לאכול ב${name}`, `Where to eat in ${name}`)}</h1>
             <p>{L('מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן', 'Kosher, vegan, vegetarian and gluten-free places')}</p>
           </div>
         </header>
-        <ul className="profile-places">
-          {places.map((p) => (
-            <li key={p.id}>
+        <ul className="profile-places city-places">
+          {places.map((p, i) => (
+            <li key={p.id} style={{ '--i': Math.min(i, 14) } as React.CSSProperties}>
               <Link href={`/place/${p.id}`}>
                 <span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b>
                 <small> {placeTypeLabel(p.place_type, lang)}</small>
