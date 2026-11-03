@@ -117,7 +117,7 @@ export default async function Home() {
             <div className="join-art" aria-hidden="true">📸</div>
             <div>
               <h2 className="section-title">{L('מכירים מקום שחסר?', 'Know a place that is missing?')}</h2>
-              <p>{L('מוסיפים אותו בחצי דקה, בלי הרשמה. אם יש שם תעודת כשרות, מצלמים אותה והפרטים נקראים לבד.', 'Add it in half a minute, no sign-up needed. If there is a kosher certificate, photograph it and the details are read automatically.')}</p>
+              <p>{L('מתחברים, ומוסיפים אותו בחצי דקה. אם יש שם תעודת כשרות, מצלמים אותה והפרטים נקראים לבד.', 'Sign in and add it in half a minute. If there is a kosher certificate, take a photo and the details are read for you.')}</p>
               <Link href="/map?add=1" className="cta primary"><span aria-hidden="true">➕</span> {L('הוספת מקום', 'Add a place')}</Link>
             </div>
           </div>
