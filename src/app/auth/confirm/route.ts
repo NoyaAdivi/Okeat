@@ -24,8 +24,11 @@ export async function POST(request: NextRequest) {
 
   if (tokenHash) {
     const sb = await createClient();
-    const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type: 'email' });
-    if (!error) target = `${origin}/map?signed_in=1`;
+    // first-time and returning accounts get different kinds of token
+    for (const type of ['email', 'magiclink', 'signup'] as const) {
+      const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type });
+      if (!error) { target = `${origin}/map?signed_in=1`; break; }
+    }
   }
   const res = NextResponse.redirect(target, 303);
   res.cookies.set(COOKIE, '', { path: '/auth', maxAge: 0 });
