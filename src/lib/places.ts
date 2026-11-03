@@ -549,3 +549,17 @@ export async function deleteUser(sb: SupabaseClient, id: string) {
   const { error } = await sb.rpc('admin_delete_user', { p_user: id });
   if (error) throw error;
 }
+
+// ---------- contact messages, for the admin ----------
+export interface AdminMessage { id: number; topic: string; message: string; reply_to: string | null; account_email: string | null; created_at: string; handled: boolean }
+
+export async function fetchAdminMessages(sb: SupabaseClient): Promise<AdminMessage[]> {
+  const { data, error } = await sb.rpc('admin_messages');
+  if (error) throw error;
+  return data as AdminMessage[];
+}
+
+export async function markMessage(sb: SupabaseClient, id: number, handled: boolean) {
+  const { error } = await sb.rpc('admin_mark_message', { p_id: id, p_handled: handled });
+  if (error) throw error;
+}

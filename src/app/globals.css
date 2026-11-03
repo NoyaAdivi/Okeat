@@ -909,3 +909,7 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 
 /* favorite food on the profile */
 .fav-food { margin: 4px 0; font-size: 15px; }
+
+/* contact messages in the admin page */
+.message-text { margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-row.handled { opacity: .6; }

@@ -14,6 +14,7 @@ import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 import DuplicatesPanel from './DuplicatesPanel';
 import UsersPanel from './UsersPanel';
+import MessagesPanel from './MessagesPanel';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -130,6 +131,8 @@ export default function AdminView() {
                 </div>
               </div>
             ))}
+
+            <MessagesPanel sb={sb} />
 
             {user && <UsersPanel sb={sb} meId={user.id} />}
 

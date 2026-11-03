@@ -1,0 +1,69 @@
+'use client';
+
+import { useState } from 'react';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { fetchAdminMessages, markMessage, type AdminMessage } from '@/lib/places';
+import { friendly } from '@/lib/errors';
+import { formatDate } from '@/lib/geo';
+import { useL } from './LangProvider';
+
+const looksLikeEmail = (text: string | null) => !!text && /^\S+@\S+\.\S+$/.test(text.trim());
+
+/** For the admin: messages from the contact form. A reply opens in her own email app. */
+export default function MessagesPanel({ sb }: { sb: SupabaseClient }) {
+  const L = useL();
+  const lang = L.lang;
+  const [messages, setMessages] = useState<AdminMessage[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const load = async () => {
+    setBusy(true);
+    setError('');
+    try { setMessages(await fetchAdminMessages(sb)); } catch (e) { setError(friendly(e, lang)); }
+    setBusy(false);
+  };
+
+  const toggle = async (m: AdminMessage) => {
+    setBusy(true);
+    try {
+      await markMessage(sb, m.id, !m.handled);
+      setMessages((list) => list?.map((x) => (x.id === m.id ? { ...x, handled: !m.handled } : x)) ?? null);
+    } catch (e) { setError(friendly(e, lang)); }
+    setBusy(false);
+  };
+
+  const topics: Record<string, string> = {
+    general: L('כללי', 'General'), accessibility: L('נגישות', 'Accessibility'), privacy: L('פרטיות', 'Privacy'),
+    report: L('דיווח', 'Report'), business: L('בית עסק', 'Business'),
+  };
+  const open = messages?.filter((m) => !m.handled).length ?? 0;
+
+  return (
+    <>
+      <h2>{L('הודעות מהאתר', 'Messages')}{messages && ` (${open})`}</h2>
+      {error && <p className="warnbox">{error}</p>}
+      {!messages && <button type="button" className="btn small" disabled={busy} onClick={load}>{busy ? L('טוען…', 'Loading…') : L('הצגת ההודעות', 'Show messages')}</button>}
+      {messages?.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
+      {messages?.map((m) => {
+        const email = looksLikeEmail(m.reply_to) ? m.reply_to!.trim() : m.account_email;
+        const mail = email && `mailto:${email}?subject=${encodeURIComponent(L('תשובה מ-Okeat', 'A reply from Okeat'))}&body=${encodeURIComponent(`\n\n---\n${m.message}`)}`;
+        return (
+          <div key={m.id} className={`admin-row${m.handled ? ' handled' : ''}`}>
+            <div>
+              <b>{topics[m.topic] ?? m.topic}</b> <span className="muted small">{formatDate(m.created_at.slice(0, 10))}</span>
+              <p className="message-text">{m.message}</p>
+              <div className="muted small" dir="auto">
+                {m.reply_to || m.account_email || L('לא השאירו דרך לחזור', 'No way to reply was left')}
+              </div>
+            </div>
+            <div className="acts">
+              {mail && <a className="btn small" href={mail}>{L('מענה במייל', 'Reply by email')}</a>}
+              <button type="button" className="btn small ghost" disabled={busy} onClick={() => toggle(m)}>{m.handled ? L('החזרה לטיפול', 'Reopen') : L('טופל', 'Handled')}</button>
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
