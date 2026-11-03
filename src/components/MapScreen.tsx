@@ -438,6 +438,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     setMe(loc);
     setLocated('ok');
     setSearchCenter(loc);
+    setMapCenter(loc); // or the list follows the old map position straight back
     setManualLabel(label);
     saveManual({ ...loc, label });
     setFocus({ key: Date.now(), points: selected ? [loc, selected] : [loc] });
@@ -457,6 +458,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         setMe(loc);
         setLocated('ok');
         setSearchCenter(loc);
+        setMapCenter(loc);
         setFocus({ key: Date.now(), points: [loc] });
         setFollowPaused(false);
         if (pos.coords.accuracy > 1500) showToast(L('המיקום לא מדויק (כנראה לפי האינטרנט). בטלפון הוא יהיה מדויק יותר.', 'The location is not accurate (probably from your internet connection). It will be more accurate on a phone.'));
