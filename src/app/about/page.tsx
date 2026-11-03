@@ -75,6 +75,12 @@ const faqOf = (L: T) => [
   },
   {
     group: 'account',
+    q: L('אפשר לערוך או למחוק את מה שהוספתי?', 'Can I edit or delete what I added?'),
+    a: L('כן. בחשבון, תחת "הפעילות שלי", מופיע כל מה שהוספתם, ואפשר לערוך או למחוק משם. מידע שנערך חוזר לאישור מההתחלה, ועריכה של מקום נשלחת לבדיקה של מנהל. כשרות לא עורכים אלא מוחקים ומוסיפים מחדש. מקום שאחרים כבר הוסיפו לו מידע אי אפשר למחוק, אבל אפשר לכתוב לנו.',
+      'Yes. On your account, under "My activity", you will find everything you added, and you can edit or delete it from there. Edited information starts its confirmation again, and an edited place goes to an admin for review. Kosher details are deleted and added again rather than edited. A place others have already added to cannot be deleted, but you can write to us.'),
+  },
+  {
+    group: 'account',
     q: L('מה רואים אחרים בפרופיל שלי?', 'What can others see on my profile?'),
     a: L('את השם ותמונת הפרופיל, האוכל האהוב אם כתבת אותו, מתי הצטרפת, ומה הוספת ואישרת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה. רשימת המקומות ששמרת גלויה רק לך.',
       'Your name and picture, your favorite food if you added it, when you joined, and what you added and confirmed. A review you write is shown with your name. Your e-mail address is not shown to other users, and only the site admin can see it. Your saved places are visible only to you.'),

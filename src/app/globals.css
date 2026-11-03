@@ -1635,3 +1635,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (min-width: 500px) and (max-width: 760px) {
   .city-grid.topic-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* the accessibility panel is centered with a transform, so it only fades in: any movement here made it jump */
+.a11y-panel { animation-name: a11y-fade; }
+@keyframes a11y-fade { from { opacity: 0; } }
+.head-foods .foods-guess { background: none; color: var(--muted); box-shadow: none; font-size: 0.75rem; }

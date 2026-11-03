@@ -97,6 +97,7 @@ export default function PlaceDetail({
         {foods.length > 0 && (
           <ul className="head-foods" aria-label={L('מה אוכלים כאן', 'What they serve')}>
             {foods.map((c) => <li key={c}><span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}</li>)}
+            {place.cuisine_source !== 'community' && <li className="foods-guess">{L('לא מאושר', 'Not confirmed')}</li>}
           </ul>
         )}
         <div className="meta">

@@ -40,7 +40,7 @@ function PrivacyHe() {
             <li><b>מילות חיפוש.</b> אנחנו שומרים אילו מילים וערים מחפשים ובאיזו תדירות, כדי לשפר את האתר, בלי קשר למי שחיפש.</li>
             <li><b>הודעות יצירת קשר.</b> ההודעה ומה שהשארתם לחזרה אליכם נשמרים, ורק מנהלת האתר קוראת אותם.</li>
             <li><b>תקלות באתר.</b> אם משהו נשבר, נשמרים הודעת השגיאה והעמוד שבו קרתה, בלי פרטים עליכם.</li>
-            <li><b>מיקום.</b> אם אישרתם בדפדפן, המיקום משמש כדי להראות מקומות קרובים ולנווט. הוא לא נשמר אצלנו.</li>
+            <li><b>מיקום.</b> אם אישרתם בדפדפן, המיקום משמש כדי להראות מקומות קרובים ולנווט. הוא לא נשמר אצלנו. מיקום שבחרתם בעצמכם נשמר רק בדפדפן שלכם.</li>
             <li><b>הגדרות באתר.</b> העדפות נגישות, תצוגה ושפה נשמרות בדפדפן שלכם.</li>
           </ul>
   
@@ -55,12 +55,13 @@ function PrivacyHe() {
               <li><b>חיפוש של OpenStreetMap (Photon, של Komoot)</b>: כשאתם מקלידים כתובת כדי לקבוע את המיקום שלכם, הטקסט שהקלדתם נשלח אליו.</li>
               <li><b>Vercel</b>: אחסון האתר. כמו בכל אתר, השרת מקבל פרטים טכניים כמו כתובת IP.</li>
               <li><b>Google</b>: התחברות עם חשבון Google, רק אם בחרתם בה.</li>
+          <li><b>שירות שליחת מיילים</b>: כתובת המייל שלכם עוברת דרכו כדי לשלוח את קישור וקוד ההתחברות.</li>
             <li><b>jsDelivr</b>: טעינת כלי קריאת התעודות לדפדפן. התמונה עצמה נקראת בתוך הדפדפן שלכם.</li>
           </ul>
           <p>חלק מהספקים פועלים מחוץ לישראל, והמידע עשוי להיות מאוחסן שם.</p>
   
           <h2>הזכויות שלכם</h2>
-          <p>אתם רשאים לבקש לעיין במידע שנשמר עליכם, לתקן אותו או למחוק אותו. כתבו לנו ב<Link href="/contact?topic=privacy">טופס יצירת הקשר</Link> ונטפל בבקשה תוך 30 יום.</p>
+          <p>את רוב מה שהוספתם אפשר לערוך ולמחוק בעצמכם בחשבון, תחת &quot;הפעילות שלי&quot;. אתם גם רשאים לבקש לעיין במידע שנשמר עליכם, לתקן אותו או למחוק אותו. כתבו לנו ב<Link href="/contact?topic=privacy">טופס יצירת הקשר</Link> ונטפל בבקשה תוך 30 יום.</p>
   
           <h2>אבטחה</h2>
           <p>אנחנו נוקטים אמצעים סבירים להגנה על המידע: החיבור לאתר מוצפן (HTTPS), באתר אין סיסמאות כי ההתחברות היא עם Google או קוד במייל, וכל משתמש מקבל גישה רק למה שמותר לו. שום מערכת אינה מוגנת לגמרי.</p>
@@ -92,7 +93,7 @@ function PrivacyEn() {
             <li><b>Search words.</b> We keep which words and cities people search for and how often, to improve the site, with no link to who searched.</li>
             <li><b>Contact messages.</b> Your message and what you left for us to reply are kept, and only the site admin reads them.</li>
             <li><b>Site errors.</b> If something breaks, we keep the error message and the page it happened on, with no details about you.</li>
-            <li><b>Location.</b> If you allow it in your browser, your location is used to show nearby places and to navigate. We don&apos;t store it.</li>
+            <li><b>Location.</b> If you allow it in your browser, your location is used to show nearby places and to navigate. We don&apos;t store it. A location you choose yourself stays only in your browser.</li>
             <li><b>Site settings.</b> Accessibility, display and language preferences are kept in your browser.</li>
           </ul>
 
@@ -107,12 +108,13 @@ function PrivacyEn() {
             <li><b>OpenStreetMap search (Photon, by Komoot)</b>: when you type an address to set your location, the text you type is sent to it.</li>
             <li><b>Vercel</b>: hosting the site. As with any site, the server receives technical details such as your IP address.</li>
             <li><b>Google</b>: signing in with a Google account, only if you choose it.</li>
+          <li><b>An email service</b>: your email address goes through it so we can send your sign-in link and code.</li>
             <li><b>jsDelivr</b>: loading the certificate reader into your browser. The photo itself is read inside your browser.</li>
           </ul>
           <p>Some providers operate outside Israel, and the information may be stored there.</p>
 
           <h2>Your rights</h2>
-          <p>You may ask to see, correct or delete the information stored about you. Write to us using the <Link href="/contact?topic=privacy">contact form</Link> and we will handle it within 30 days.</p>
+          <p>You can edit and delete most of what you added yourself, on your account under &quot;My activity&quot;. You may also ask to see, correct or delete the information stored about you. Write to us using the <Link href="/contact?topic=privacy">contact form</Link> and we will handle it within 30 days.</p>
 
           <h2>Security</h2>
           <p>We take reasonable measures to protect the information: the connection to the site is encrypted (HTTPS), the site has no passwords because you sign in with Google or an email code, and each user can reach only what they are allowed to. No system is completely secure.</p>
