@@ -12,18 +12,8 @@ const FLOATERS = [
   { e: '🍦', x: 14, y: 44, d: 2.3 },
 ];
 
-type T = (he: string, en: string) => string;
-
-const needsOf = (L: T) => [
-  { key: 'kosher', cls: 'k', letter: L('כ', 'K'), emoji: '🍽️', title: L('כשר', 'Kosher'), text: L('מי משגיח, ועד מתי התעודה', 'Who supervises, and until when') },
-  { key: 'vegan', cls: 'v', letter: L('ט', 'V'), emoji: '🌱', title: L('טבעוני', 'Vegan'), text: L('טבעוני לגמרי, או יש מנות', 'Fully vegan, or some dishes') },
-  { key: 'vegetarian', cls: 'h', letter: L('צ', 'Vg'), emoji: '🥦', title: L('צמחוני', 'Vegetarian'), text: L('הכול צמחוני, או יש מנות', 'All vegetarian, or some dishes') },
-  { key: 'gluten_free', cls: 'g', letter: L('ג', 'G'), emoji: '🌾', title: L('ללא גלוטן', 'Gluten-free'), text: L('תפריט, או מטבח נפרד', 'A menu, or a separate kitchen') },
-];
-
 export default async function Home() {
   const L = await serverL();
-  const NEEDS = needsOf(L);
   return (
     <div className="page">
       <SiteHeader />
@@ -45,25 +35,9 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="band" aria-labelledby="stats-h">
-          <h2 id="stats-h" className="vh">{L('המספרים', 'The numbers')}</h2>
-          <Stats />
-        </section>
-
         <section className="section" aria-labelledby="needs-h">
           <h2 id="needs-h" className="section-title">{L('מה חשוב לכם?', 'What matters to you?')}</h2>
-          <div className="need-cards">
-            {NEEDS.map((n, i) => (
-              <Link key={n.key} href={`/map?need=${n.key}`} className={`need-card ${n.cls}`} style={{ '--i': i } as React.CSSProperties}>
-                <span className="nc-top">
-                  <span className="seal big" aria-hidden="true"><span>{n.letter}</span></span>
-                  <span className="nc-emoji" aria-hidden="true">{n.emoji}</span>
-                </span>
-                <span className="nc-title">{n.title}</span>
-                <span className="nc-text">{n.text}</span>
-              </Link>
-            ))}
-          </div>
+          <Stats />
         </section>
 
         <section className="section">

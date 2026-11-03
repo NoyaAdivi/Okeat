@@ -1460,9 +1460,20 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .my-place-form { display: grid; gap: 12px; }
 .my-place-form .field input { width: 100%; min-height: 46px; border: 0; border-radius: 12px; padding: 10px 14px; background: var(--surface-2); color: var(--ink); box-sizing: border-box; }
 
-/* ---------- home: the numbers come out even on a phone ---------- */
+/* ---------- home: one set of cards, each with its number, each opening the map on that need ---------- */
+.need-cards { grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
+.need-card { gap: 4px; padding: 18px; border-radius: 24px; }
+.need-card.p { --c: var(--peach-deep); --cs: var(--peach-soft); }
+.need-card .stat-num { color: var(--c); font-size: 2rem; }
+.need-card .nc-title { font-size: 1.1875rem; }
+.need-card .nc-text { font-size: 0.8125rem; line-height: 1.35; }
+.need-card .nc-emoji { font-size: 1.75rem; }
+.need-card .small-seal { width: 34px; height: 34px; font-size: 0.875rem; }
+.need-card .small-seal::after { inset: 6px; }
 @media (max-width: 760px) {
-  .stats .stat:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
+  .need-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .need-card { padding: 14px; }
+  .need-card:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
 }
 
 /* ---------- phones: fewer things moving, fewer things on screen ---------- */
@@ -1491,7 +1502,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .brand { gap: 6px; }
   .hero h1 { font-size: 1.75rem; }
   .cta-row { flex-direction: column; align-items: stretch; }
-  .need-cards { grid-template-columns: 1fr; }
 }
 @media (max-height: 600px) and (max-width: 760px) {
   .app { --sheet-h: 170px; }
