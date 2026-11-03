@@ -61,7 +61,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
     const { error } = await sb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: callbackUrl() } });
     if (error) {
       setState('idle');
-      // The hourly limit, or sending failed on the mail side, which is what a used-up daily quota looks like.
+      // The hourly limit, or sending failed on the mail side (a used-up daily quota looks the same as other failures).
       const hourly = /rate limit|over_email/i.test(error.message) && !/only request this after/i.test(error.message);
       const daily = /error sending|smtp|unexpected/i.test(error.message) || (error as Error & { status?: number }).status === 500;
       if (hourly || daily) setMailBusy(hourly ? 'hour' : 'day');
@@ -111,10 +111,10 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
           <div className="mail-busy" role="status">
             <span className="mail-busy-emoji" aria-hidden="true">💌</span>
             <div>
-              <b>{L('איזה ביקוש! תיבת המיילים שלנו מלאה', "So many of you! Our mailbox is full")}</b>
+              <b>{mailBusy === 'hour' ? L('איזה ביקוש! תיבת המיילים שלנו מלאה', 'So many of you! Our mailbox is full') : L('המייל שלנו לוקח הפסקה קצרה', 'Our email is taking a short break')}</b>
               <p>{mailBusy === 'hour'
                 ? L('נשלחו המון מיילים בשעה האחרונה. אפשר להיכנס עכשיו עם Google, או לנסות שוב בעוד שעה.', 'We sent a lot of emails in the last hour. You can continue with Google now, or try again in an hour.')
-                : L('הגענו למכסת המיילים של היום. אפשר להיכנס עכשיו עם Google, או לחזור אלינו מחר. נשמח לראות אתכם!', "We've reached today's email limit. You can continue with Google now, or come back tomorrow. We'd love to see you!")}</p>
+                : L('לא הצלחנו לשלוח מייל כרגע. אפשר להיכנס עכשיו עם Google, או לנסות שוב מאוחר יותר. נשמח לראות אתכם!', "We couldn't send an email right now. You can continue with Google now, or try again later. We'd love to see you!")}</p>
             </div>
           </div>
         )}
