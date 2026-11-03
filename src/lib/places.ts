@@ -651,6 +651,20 @@ export async function fetchDashboard(sb: SupabaseClient): Promise<Dashboard> {
   return data as Dashboard;
 }
 
+export type StatKind = 'users' | 'newUsers' | 'verified' | 'reviews' | 'lists';
+
+export interface StatRow {
+  id: string; title: string; at: string | null;
+  sub?: string | null; by?: string | null; placeId?: string;
+  need?: Need; level?: string; rating?: number; count?: number;
+}
+
+export async function fetchStatDetails(sb: SupabaseClient, kind: StatKind): Promise<StatRow[]> {
+  const { data, error } = await sb.rpc('admin_stat_details', { p_kind: kind });
+  if (error) throw error;
+  return (data ?? []) as StatRow[];
+}
+
 // ---------- limits, for the admin ----------
 export interface Limits {
   mailHour: number; mailDay: number; mailWeek: number; mailMonth: number;
