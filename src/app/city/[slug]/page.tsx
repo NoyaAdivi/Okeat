@@ -9,7 +9,7 @@ import { NEED_ORDER, hasAnyVerified, withoutPending } from '@/lib/claims';
 import { placeEmoji } from '@/lib/emoji';
 import { getLang, serverL } from '@/lib/lang-server';
 import { fetchNearby } from '@/lib/places';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { placeTypeLabel, type NeedFilter } from '@/lib/types';
 
 interface Props { params: Promise<{ slug: string }> }
@@ -33,7 +33,7 @@ export default async function CityPage({ params }: Props) {
   if (!found) notFound();
   const L = await serverL();
   const lang = (await getLang()) === 'en' ? 'en' : 'he';
-  const sb = await createClient();
+  const sb = createPublicClient();
   const places = await fetchNearby(sb, { lat: found.lat, lng: found.lng, radiusM: 4000, filter: NO_FILTER, limit: 40 }).catch(() => []);
   // places with information come first, so the page opens with something useful
   places.sort((a, b) => Number(hasAnyVerified(b)) - Number(hasAnyVerified(a)));

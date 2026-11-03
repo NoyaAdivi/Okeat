@@ -25,3 +25,13 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * For public pages. It ignores the visitor's session, so an expired sign-in
+ * can't turn a place that exists into a "page not found".
+ */
+export function createPublicClient() {
+  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: { getAll: () => [], setAll: () => undefined },
+  });
+}

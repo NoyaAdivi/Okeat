@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { fetchPlace } from '@/lib/places';
 import { levelInfo, levelText, needLabel, placeTypeLabel } from '@/lib/types';
 import { getLang } from '@/lib/lang-server';
@@ -15,7 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function load(id: string) {
   if (!UUID.test(id)) return null;
-  const sb = await createClient();
+  const sb = createPublicClient();
   return fetchPlace(sb, id).catch(() => null);
 }
 

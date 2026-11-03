@@ -10,7 +10,7 @@ import { placeEmoji } from '@/lib/emoji';
 import { FILTER_OPTIONS } from '@/lib/filters';
 import { getLang, serverL } from '@/lib/lang-server';
 import { fetchNearby } from '@/lib/places';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { placeTypeLabel, type NeedFilter } from '@/lib/types';
 
 interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ level?: string }> }
@@ -37,7 +37,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
   const chosen = options.find((o) => String(o.min) === level) ?? options[0];
   const L = await serverL();
   const lang = (await getLang()) === 'en' ? 'en' : 'he';
-  const sb = await createClient();
+  const sb = createPublicClient();
   const places = await fetchNearby(sb, { ...ISRAEL, filter: { ...NO_FILTER, [topic.need]: chosen.min }, limit: 40 }).catch(() => []);
   return (
     <div className="page">
