@@ -27,7 +27,7 @@ export default function Stats() {
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', load); };
   }, [sb]);
 
-  // all the allergies in one tile; it appears once there is something to show
+  // all the allergies in one tile; it appears once there is enough to show
   const allergies = EXTRA_NEEDS.reduce((sum, n) => sum + (counts?.[n] ?? 0), 0);
 
   return (
@@ -44,7 +44,7 @@ export default function Stats() {
           <span className="stat-label">{needLabel(n, L.lang)}</span>
         </li>
       ))}
-      {allergies > 0 && (
+      {allergies >= 50 && (
         <li className="stat e">
           <span className="stat-emoji" aria-hidden="true">🥜</span>
           <CountUp value={allergies} />
