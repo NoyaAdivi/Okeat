@@ -1623,3 +1623,16 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .filters-row .more-filters[aria-expanded="true"] { transform: none; }
   .item:active { transform: none; }
 }
+
+/* ---------- phones: rows that come out even ---------- */
+@media (max-width: 760px) {
+  .city-grid.topic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .faq-groups { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .faq-groups::-webkit-scrollbar { display: none; }
+  .faq-groups > * { flex: none; }
+  .contact-form .topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .contact-form .topics > * { min-width: 0; }
+}
+@media (min-width: 500px) and (max-width: 760px) {
+  .city-grid.topic-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
