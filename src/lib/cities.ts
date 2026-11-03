@@ -15,3 +15,13 @@ export const CITIES: City[] = [
   { slug: 'herzliya', he: 'הרצליה', en: 'Herzliya', lat: 32.1624, lng: 34.8447, emoji: '⛵' },
   { slug: 'eilat', he: 'אילת', en: 'Eilat', lat: 29.5577, lng: 34.9519, emoji: '🐠' },
 ];
+
+// Lists by need, across the country.
+export interface Topic { slug: string; need: 'gluten_free' | 'vegan' | 'kosher' | 'vegetarian'; min: number; he: string; en: string; emoji: string }
+
+export const TOPICS: Topic[] = [
+  { slug: 'celiac', need: 'gluten_free', min: 2, he: 'מטבח נפרד ללא גלוטן', en: 'Separate gluten-free kitchens', emoji: '🌾' },
+  { slug: 'vegan', need: 'vegan', min: 2, he: 'טבעוני לגמרי', en: 'Fully vegan', emoji: '🌱' },
+  { slug: 'vegetarian', need: 'vegetarian', min: 2, he: 'צמחוני לגמרי', en: 'Fully vegetarian', emoji: '🥦' },
+  { slug: 'mehadrin', need: 'kosher', min: 2, he: 'כשר למהדרין ומעלה', en: 'Kosher mehadrin and up', emoji: '🍽️' },
+];

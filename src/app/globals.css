@@ -1181,3 +1181,6 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .city-places a:hover { border-color: var(--peach); transform: translateX(-3px); }
 [dir="ltr"] .city-places a:hover { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) { .city-grid li, .city-places li { animation: none; } }
+
+.topics-title { margin: 34px 0 14px; font-family: var(--font-display); font-size: 24px; }
+.topic-grid b { font-size: 16px; text-align: center; }

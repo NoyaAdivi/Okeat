@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
-import { CITIES } from '@/lib/cities';
+import { CITIES, TOPICS } from '@/lib/cities';
 import { getLang, serverL } from '@/lib/lang-server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,6 +25,17 @@ export default async function CitiesPage() {
               <Link href={`/city/${c.slug}`}>
                 <span className="city-emoji" aria-hidden="true">{c.emoji}</span>
                 <b>{en ? c.en : c.he}</b>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <h2 className="topics-title">{L('או לפי מה שחשוב לכם', 'Or by what matters to you')}</h2>
+        <ul className="city-grid topic-grid">
+          {TOPICS.map((t, i) => (
+            <li key={t.slug} style={{ '--i': CITIES.length + i } as React.CSSProperties}>
+              <Link href={`/topic/${t.slug}`}>
+                <span className="city-emoji" aria-hidden="true">{t.emoji}</span>
+                <b>{en ? t.en : t.he}</b>
               </Link>
             </li>
           ))}
