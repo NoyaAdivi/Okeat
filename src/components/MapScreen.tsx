@@ -470,6 +470,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         else setToast('');
       },
       (err) => {
+        setToast('');
         if (err.code === err.PERMISSION_DENIED) setLocHelp(true);
         else showToast(L('לא קיבלנו את המיקום. בדקו שהרשיתם לאתר לראות מיקום.', "We didn't get your location. Check that the site is allowed to see it."));
       },
@@ -1191,7 +1192,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
       </aside>
 
-      {locHelp && <LocationHelp onClose={() => setLocHelp(false)} onRetry={() => { setLocHelp(false); locateMe(); }} />}
+      {locHelp && <LocationHelp onClose={() => setLocHelp(false)} onPick={() => { setLocHelp(false); setLocOpen(true); }} onRetry={() => { setLocHelp(false); locateMe(); }} />}
       {auth && <AuthDialog sb={sb} reason={auth.reason} startWithCode={auth.startWithCode} onClose={() => setAuth(null)} />}
 
       {addAt && (
