@@ -1236,3 +1236,13 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
   .tile:hover { transform: none; }
   .tile-top span { transition: none; }
 }
+
+/* ---------- topic pages: pick a level ---------- */
+.topic-grid a { height: 100%; align-content: start; }
+.level-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 22px; }
+.level-pills a { padding: 10px 18px; border-radius: 999px; background: var(--cs); color: var(--ink); font-weight: 600; text-decoration: none; transition: transform .22s cubic-bezier(.3, 1.5, .5, 1), background .18s, color .18s; animation: city-pop .4s cubic-bezier(.3, 1.5, .5, 1) backwards; animation-delay: calc(var(--i, 0) * 50ms); }
+.level-pills a:hover { transform: translateY(-2px) rotate(-1.5deg); }
+.level-pills a[aria-current="true"] { background: var(--c); color: var(--surface); transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce) {
+  .level-pills a { animation: none; transition: none; }
+}
