@@ -10,10 +10,8 @@ import type { LatLng } from './geo';
  */
 export async function ensureUser(sb: SupabaseClient) {
   const { data } = await sb.auth.getUser();
-  if (data.user) return data.user;
-  const { data: anon, error } = await sb.auth.signInAnonymously();
-  if (error || !anon.user) throw error ?? new Error('anonymous sign-in failed');
-  return anon.user;
+  if (data.user && !data.user.is_anonymous) return data.user;
+  throw new Error('Sign in with an account');
 }
 
 // Data access. Every function takes a Supabase client so it works from

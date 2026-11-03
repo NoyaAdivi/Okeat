@@ -95,7 +95,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
   }
 
   return (
-    <Modal title={L('התחברות', 'Sign in')} subtitle={reason ?? L('ההתחברות לא חובה. היא שומרת את מה שהוספת ואישרת, גם כשנכנסים ממכשיר אחר.', "Signing in is optional. It keeps what you added and confirmed, even on another device.")} onClose={onClose}>
+    <Modal title={L('התחברות', 'Sign in')} subtitle={reason ?? L('כדי להוסיף, לאשר או לדווח צריך חשבון. ההתחברות גם שומרת את מה שעשית, בכל מכשיר.', 'You need an account to add, confirm or report. It also keeps what you did, on any device.')} onClose={onClose}>
       {GOOGLE_CLIENT_ID && !googleOld ? (
         <GoogleButton sb={sb} onDone={() => { announceSignedIn(); onClose(); }} onError={(e) => setError(friendly(e, L.lang))} onUnavailable={() => setGoogleOld(true)} />
       ) : (

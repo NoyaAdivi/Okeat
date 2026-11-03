@@ -32,7 +32,6 @@ function PrivacyHe() {
   
           <h2>מה אנחנו אוספים</h2>
           <ul>
-            <li><b>מזהה אנונימי.</b> כשאתם מוסיפים או מאשרים מידע בלי להירשם, הדפדפן מקבל מזהה אקראי, בלי שם ובלי מייל. הוא משמש רק כדי שכל אדם יאשר כל פרט פעם אחת.</li>
             <li><b>חשבון, אם בחרתם להתחבר.</b> כתובת המייל, ואם התחברתם עם Google גם השם. משמשים לשמירת מה שהוספתם ואישרתם.</li>
             <li><b>פרופיל ציבורי.</b> אם התחברתם עם חשבון, אחרים רואים את השם ותמונת הפרופיל שלו, את האוכל האהוב אם כתבתם אותו, מתי הצטרפתם ומה הוספתם ואישרתם. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה.</li>
             <li><b>מה שהוספתם.</b> מקומות, אישורים, ביקורות ותמונות של תעודות כשרות ושל המקומות. התוכן הזה מוצג לכל המשתמשים, יחד עם השם של מי שהוסיף אותו. תמונה של מקום מוצגת רק אחרי אישור של מנהל.</li>
@@ -85,7 +84,6 @@ function PrivacyEn() {
 
           <h2>What we collect</h2>
           <ul>
-            <li><b>An anonymous ID.</b> When you add or confirm information without signing up, your browser gets a random ID, with no name and no email. It is only used so that each person confirms each detail once.</li>
             <li><b>An account, if you choose to sign in.</b> Your email address, and if you sign in with Google, also your name. Used to keep what you added and confirmed.</li>
             <li><b>A public profile.</b> If you signed in with an account, others see its name and picture, your favorite food if you added it, when you joined, and what you added and confirmed. Your e-mail address is not shown to other users, and only the site admin can see it.</li>
             <li><b>What you added.</b> Places, confirmations, reviews, and photos of kosher certificates and of places. This content is shown to all users, together with the name of whoever added it. A photo of a place is shown only after a moderator approves it.</li>

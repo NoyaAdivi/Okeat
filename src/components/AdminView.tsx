@@ -45,7 +45,7 @@ export default function AdminView() {
       <main id="main" className="admin-page prose">
         <h1>{L('ניהול הקהילה', 'Community moderation')}</h1>
         {ready && (!user || user.is_anonymous) && <p>{L('צריך להתחבר עם חשבון של מנהל.', 'Sign in with a moderator account.')}</p>}
-        {error && <div className="err" role="alert">{error.includes('Moderators only') ? L('הדף הזה רק למאשרי קהילה ולמנהלים.', 'This page is only for moderators and admins.') : error}</div>}
+        {error && <div className="err admin-error" role="alert">{error.includes('Moderators only') ? L('הדף הזה רק למאשרי קהילה ולמנהלים.', 'This page is only for moderators and admins.') : error}</div>}
 
         {q && (
           <>

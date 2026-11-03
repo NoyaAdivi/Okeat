@@ -21,7 +21,7 @@
 - **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
 - **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. The site reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
 - **Turn-by-turn navigation** inside the site (walking, cycling, driving) with Hebrew voice guidance, rerouting and "choose my location"
-- **No sign-up needed** – anonymous accounts; optional Google / email sign-in
+- **Open to read, accounts to contribute** – anyone can search; adding, confirming and reporting need Google or email sign-in
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
 - **Reviews, saved places and photos** – 1–5 star reviews with a short comment, a private saved list on your profile, and place photos that appear after moderator approval
@@ -71,7 +71,7 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0024 (schema, RLS, functions)
+│   ├── migrations/          0001 … 0025 (schema, RLS, functions)
 │   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
 │   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
 │   ├── RUN-ME-3-IN-SUPABASE.sql same as 0009
@@ -86,7 +86,7 @@
 ## 💻 Running locally
 
 1. Create free accounts: [Supabase](https://supabase.com), [Mapbox](https://mapbox.com), [Anthropic](https://console.anthropic.com).
-2. In Supabase → SQL Editor, run the files in `supabase/migrations/` in order, and enable **Anonymous sign-ins** (Authentication → Providers).
+2. In Supabase → SQL Editor, run the files in `supabase/migrations/` in order.
 3. Copy `.env.example` to `.env.local` and fill in the keys.
 4. Install and start:
    ```bash

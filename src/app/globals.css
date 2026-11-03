@@ -927,3 +927,6 @@ select option, select optgroup { background: var(--surface); color: var(--ink); 
 .own-hours { margin-top: 8px; }
 .own-day { display: grid; grid-template-columns: 70px 1fr; gap: 8px; align-items: center; }
 @media (max-width: 480px) { .dash-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* errors stay in view on the long admin page */
+.admin-error { position: sticky; top: 8px; z-index: 5; background: var(--warn-soft); padding: 10px 14px; border-radius: 14px; }

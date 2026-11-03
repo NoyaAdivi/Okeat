@@ -70,8 +70,8 @@ const faqOf = (L: T) => [
   },
   {
     q: L('צריך להירשם?', 'Do I need to sign up?'),
-    a: L('לא. אפשר להוסיף ולאשר בלי חשבון. כדי לכתוב ביקורת, לשמור מקומות, ליצור רשימות או להעלות תמונה של מקום צריך להתחבר. ההתחברות גם שומרת את מה שעשיתם, כשנכנסים ממכשיר אחר.',
-      'No. You can add and confirm without an account. To write a review, save places, make lists or add a photo of a place, you need to sign in. Signing in also keeps what you did when you use another device.'),
+    a: L('כדי לחפש ולראות מידע לא צריך להירשם. כדי להוסיף, לאשר, לתקן או לדווח צריך להתחבר עם Google או מייל, וכך המידע באתר נשאר אמין. ההתחברות גם שומרת את מה שעשיתם, כשנכנסים ממכשיר אחר.',
+      'To search and see information, no account is needed. To add, confirm, fix or report, sign in with Google or email, which keeps the site reliable. Signing in also keeps what you did when you use another device.'),
   },
   {
     q: L('מה אפשר לעשות חוץ מלאשר מידע?', 'What else can I do besides confirming?'),

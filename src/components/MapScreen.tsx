@@ -672,8 +672,16 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     }
   };
 
+  // Looking is open to everyone. Changing what's on the site needs an account.
+  const needAccount = () => {
+    if (user && !user.is_anonymous) return false;
+    setAuth({ reason: L('כדי להוסיף, לאשר או לתקן מידע צריך להתחבר. כך המידע באתר נשאר אמין.', 'To add, confirm or fix information, please sign in. This keeps the site reliable.') });
+    return true;
+  };
+
   const onVote = useCallback(
     async (claimId: string, value: 1 | -1) => {
+      if (needAccount()) return;
       try {
         await vote(sb, claimId, value);
         setVoted((m) => new Map(m).set(claimId, value));
@@ -684,10 +692,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         showToast(friendly(e, lang));
       }
     },
-    [sb, showToast, refreshSelected],
+    [sb, user, showToast, refreshSelected],
   );
 
   const startAdd = () => {
+    if (needAccount()) return;
     deselect();
     setPicking(true);
     setSheet('peek');
@@ -1017,8 +1026,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               certificateUrl={(path) => certificateUrl(sb, path)}
               onBack={deselect}
               onVote={onVote}
-              onAddCertificate={() => setCertFor(selected)}
-              onAddInfo={(need) => setInfoFor({ place: selected, need })}
+              onAddCertificate={() => { if (!needAccount()) setCertFor(selected); }}
+              onAddInfo={(need) => { if (!needAccount()) setInfoFor({ place: selected, need }); }}
               onShare={() => share(selected)}
               extra={
                 <>

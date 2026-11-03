@@ -39,7 +39,7 @@ Places can also come from OpenStreetMap, Overture Maps or a guess from the name.
 - **Rules in the database.** Row Level Security and triggers protect the data even if someone calls the API without the site.
 - **Moderators are appointed.** Only the admin can give the role, through a checked function, and users cannot change their own role.
 - **The map loads light points.** `map_points` returns a small record for each place and the map clusters them, so 20,000 places stay fast.
-- **Anonymous accounts.** People can add and confirm without signing up. Reviews, saved places and place photos need a real account.
+- **Open to read, accounts to contribute.** Anyone can search. Adding, confirming, reporting and fixing need a real account, and a trigger enforces this in the database.
 - **Merging hides.** A merged duplicate is hidden and remembers the place it went into.
 - **Free services.** Everything runs on free tiers, and no paid key is needed.
 
