@@ -1484,7 +1484,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .floater { filter: none; }
   .floater:nth-child(n + 6) { display: none; }
   .mk .mk-seals { filter: none; }
-  .list li { content-visibility: auto; contain-intrinsic-size: auto 84px; animation: none; }
+  .list li { content-visibility: auto; contain-intrinsic-size: auto 68px; animation: none; }
   .panel-body { contain: layout paint; }
   .mapboxgl-ctrl-top-left { display: none; }
   .app:not([data-sheet="peek"]) .fab, .app[data-place="open"] .fab { display: none; }
@@ -1723,3 +1723,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .dist-from { display: block; margin-top: 1px; color: var(--muted); font-size: 0.75rem; overflow-wrap: anywhere; }
 
 .far-note { margin: 4px 0 2px; padding: 8px 12px; border-radius: 14px; background: var(--peach-soft); font-size: 0.875rem; }
+
+/* ---------- a long menu: one tap back to the top, and scrolling that keeps moving ---------- */
+.to-top { position: absolute; z-index: 4; inset-inline-end: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: grid; place-items: center; width: 46px; height: 46px; border: 0; border-radius: 50%; background: var(--ink); color: var(--surface); box-shadow: var(--shadow); font-size: 1.25rem; font-weight: 700; cursor: pointer; animation: chip-pop .25s ease; }
+.panel-body { -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain; }
+@media (prefers-reduced-motion: reduce) { .to-top { animation: none; } }

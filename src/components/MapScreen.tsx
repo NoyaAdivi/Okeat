@@ -166,6 +166,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [addAddress, setAddAddress] = useState('');
   const [addSearch, setAddSearch] = useState(false);
   const [locHelp, setLocHelp] = useState(false);
+  const [showTop, setShowTop] = useState(false);
   const [ask, setAsk] = useState(false);
   const [certFor, setCertFor] = useState<Place | null>(null);
   const [infoFor, setInfoFor] = useState<{ place: Place; need: Need } | null>(null);
@@ -1105,7 +1106,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           </div>}
         </div>
 
-        <div className="panel-body" ref={bodyRef}>
+        <div className="panel-body" ref={bodyRef} onScroll={(e) => {
+          const far = e.currentTarget.scrollTop > 320;
+          if (far !== showTop) setShowTop(far);
+        }}>
           {smart?.city && !selected && (
             <button type="button" className="city-jump" onClick={applySmart}>
               <span aria-hidden="true">✨</span> {L('הבנו! לחצו כדי לסנן לפי החיפוש', 'Got it! Tap to filter by your search')}
@@ -1209,6 +1213,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             </>
           )}
         </div>
+        {showTop && (
+          <button type="button" className="to-top" aria-label={L('חזרה למעלה', 'Back to top')} title={L('חזרה למעלה', 'Back to top')} onClick={() => bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <span aria-hidden="true">↑</span>
+          </button>
+        )}
       </aside>
 
       {ask && <LocationAsk onNo={() => { saveAsked('no'); setAsk(false); }} onYes={() => { saveAsked('yes'); setAsk(false); locateMe(); }} />}

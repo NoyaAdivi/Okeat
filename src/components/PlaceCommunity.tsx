@@ -28,6 +28,7 @@ interface Props {
 
 /** Bottom of a place: who added it, the owner's badge, "report", "I own this business", and moderator tools. */
 const REPORT_KINDS = [
+  { id: 'notfood', he: 'לא קשור לאוכל', en: 'Not a food place' },
   { id: 'closed', he: 'המקום נסגר', en: 'It closed' },
   { id: 'gone', he: 'המקום לא קיים', en: "It doesn't exist" },
   { id: 'address', he: 'הכתובת לא נכונה', en: 'Wrong address' },
