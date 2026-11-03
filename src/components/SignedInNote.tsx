@@ -18,7 +18,9 @@ export default function SignedInNote() {
     const show = async () => {
       const { data } = await createClient().auth.getUser();
       if (!data.user || data.user.is_anonymous) return;
-      const isNew = Date.now() - new Date(data.user.created_at).getTime() < 5 * 60_000;
+      // On the very first sign-in the account is confirmed at that same moment.
+      const { email_confirmed_at: confirmed, last_sign_in_at: lastSignIn } = data.user;
+      const isNew = !!confirmed && !!lastSignIn && Math.abs(new Date(lastSignIn).getTime() - new Date(confirmed).getTime()) < 10_000;
       setNote(isNew
         ? L('נרשמת בהצלחה! ברוכים הבאים ל-Okeat 🎉', 'You signed up! Welcome to Okeat 🎉')
         : L('התחברת בהצלחה! כיף לראות אותך שוב 🎉', 'You signed in! Good to see you again 🎉'));
