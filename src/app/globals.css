@@ -1318,3 +1318,6 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 @media (max-width: 640px) {
   body:has(.app) .a11y-tab { top: 24%; }
 }
+
+/* a row that scrolls sideways must not widen the card around it */
+.detail, .place-part, .place-part > *, .place-part .sec { min-width: 0; max-width: 100%; }
