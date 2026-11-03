@@ -744,7 +744,7 @@ export async function adminRestorePlace(sb: SupabaseClient, id: string) {
 // ---------- what you did, on your own profile ----------
 export interface MyActivity {
   claims: { id: string; placeId: string; place: string; need: Need; level: string; status: string; confirmCount: number }[];
-  votes: { placeId: string; place: string; need: Need; level: string; vote: number }[];
+  votes: { claimId: string; placeId: string; place: string; need: Need; level: string; vote: number }[];
   reviews: { placeId: string; place: string; rating: number; comment: string | null }[];
 }
 
@@ -797,6 +797,11 @@ export async function fetchPendingSuggestions(sb: SupabaseClient): Promise<Place
 
 export async function decideSuggestion(sb: SupabaseClient, id: string, approve: boolean) {
   const { error } = await sb.rpc('decide_suggestion', { p_id: id, p_approve: approve });
+  if (error) throw error;
+}
+
+export async function withdrawVote(sb: SupabaseClient, claimId: string) {
+  const { error } = await sb.rpc('withdraw_vote', { p_claim: claimId });
   if (error) throw error;
 }
 

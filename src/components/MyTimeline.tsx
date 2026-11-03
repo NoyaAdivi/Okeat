@@ -22,7 +22,7 @@ const LOOK: Record<FeedKind, { emoji: string; cls: string }> = {
 };
 
 /** Everything you added, newest first. Comes back up to date whenever you return to the page. */
-export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onManage: (section: 'added' | 'info' | 'lists' | 'saved') => void }) {
+export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onManage: (section: 'added' | 'info' | 'votes' | 'lists' | 'saved') => void }) {
   const L = useL();
   const lang = L.lang;
   const [rows, setRows] = useState<FeedRow[] | null>(null);
@@ -156,6 +156,7 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
                       {pill(r)}
                       {r.kind === 'claim' && <button type="button" className="link" onClick={() => onManage('info')}>{L('עריכה', 'Edit')}</button>}
                       {r.kind === 'place' && <button type="button" className="link" onClick={() => onManage('added')}>{L('עריכה', 'Edit')}</button>}
+                      {r.kind === 'vote' && <button type="button" className="link" onClick={() => onManage('votes')}>{L('עריכה', 'Edit')}</button>}
                       {r.kind === 'list' && <button type="button" className="link" onClick={() => onManage('lists')}>{L('עריכה', 'Edit')}</button>}
                       {r.kind === 'saved' && <button type="button" className="link" onClick={() => onManage('saved')}>{L('עריכה', 'Edit')}</button>}
                       {r.kind === 'review' && <Link className="link" href={href(r)}>{L('עריכה', 'Edit')}</Link>}

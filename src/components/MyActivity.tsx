@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { deleteReview, fetchMyActivity, updateMyClaim, withdrawClaim, type MyActivity as Activity } from '@/lib/places';
+import { deleteReview, fetchMyActivity, updateMyClaim, withdrawClaim, withdrawVote, type MyActivity as Activity } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { LEVELS, levelInfo, levelText, needLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
@@ -79,7 +79,7 @@ export default function MyActivity({ sb, userId, show, onChanged }: Props) {
               <li key={c.id}>
                 <Link href={`/map?place=${c.placeId}`}><b>{c.place}</b><small>{levelName(c.need, c.level)}, {statusName(c.status)}</small></Link>
                 <span className="my-acts">
-                  {c.need !== 'kosher' && LEVELS[c.need].length > 1 && (
+                  {LEVELS[c.need].filter((l) => l.value !== 'marked').length > 1 && (
                     <button type="button" className="link" onClick={() => setEditing({ id: c.id, level: c.level })}>{L('עריכה', 'Edit')}</button>
                   )}
                   {remove(c.id, () => withdrawClaim(sb, c.id))}
@@ -107,11 +107,15 @@ export default function MyActivity({ sb, userId, show, onChanged }: Props) {
     return (
       <section className="sec">
         <h2>{L('מה שאישרתי', 'What I confirmed')}</h2>
+        {note}
         {data.votes.length === 0 ? empty(L('עוד אין. הייתם במקום? אפשר לאשר את המידע עליו.', "None yet. Been to a place? You can confirm what's written.")) : (
           <ul className="my-rows">
             {data.votes.map((v, i) => (
               <li key={`${v.placeId}-${i}`}>
                 <Link href={`/map?place=${v.placeId}`}><b>{v.place}</b><small>{levelName(v.need, v.level)}, {v.vote === 1 ? L('אישרת', 'You confirmed') : L('דיווחת שלא נכון', 'You reported it')}</small></Link>
+                <span className="my-acts">{sure === v.claimId
+                  ? <button type="button" className="btn small ghost danger" onClick={() => act(() => withdrawVote(sb, v.claimId), L('האישור בוטל.', 'Your confirmation was removed.'))}>{L('לבטל?', 'Remove?')}</button>
+                  : <button type="button" className="link" onClick={() => setSure(v.claimId)}>{L('ביטול', 'Undo')}</button>}</span>
               </li>
             ))}
           </ul>

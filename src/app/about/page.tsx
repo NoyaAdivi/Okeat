@@ -76,8 +76,8 @@ const faqOf = (L: T) => [
   {
     group: 'account',
     q: L('אפשר לערוך או למחוק את מה שהוספתי?', 'Can I edit or delete what I added?'),
-    a: L('כן. בחשבון, תחת "הפעילות שלי", מופיע כל מה שהוספתם, ואפשר לערוך או למחוק משם. מידע שנערך חוזר לאישור מההתחלה, ועריכה של מקום נשלחת לבדיקה של מנהל. כשרות לא עורכים אלא מוחקים ומוסיפים מחדש. מקום שאחרים כבר הוסיפו לו מידע אי אפשר למחוק, אבל אפשר לכתוב לנו.',
-      'Yes. On your account, under "My activity", you will find everything you added, and you can edit or delete it from there. Edited information starts its confirmation again, and an edited place goes to an admin for review. Kosher details are deleted and added again rather than edited. A place others have already added to cannot be deleted, but you can write to us.'),
+    a: L('כן. בחשבון, תחת "הפעילות שלי", מופיע כל מה שהוספתם, ואפשר לערוך או למחוק משם. מידע שנערך חוזר לאישור מההתחלה, ועריכה של מקום נשלחת לבדיקה של מנהל. גם אישור שנתתם אפשר לבטל. מקום שאחרים כבר הוסיפו לו מידע אי אפשר למחוק, אבל אפשר לכתוב לנו.',
+      'Yes. On your account, under "My activity", you will find everything you added, and you can edit or delete it from there. Edited information starts its confirmation again, and an edited place goes to an admin for review. You can also take back a confirmation. A place others have already added to cannot be deleted, but you can write to us.'),
   },
   {
     group: 'account',
