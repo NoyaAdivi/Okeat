@@ -31,7 +31,7 @@ export function isOpen(hours: WeeklyHours | null, now = new Date()): boolean {
 /** "פתוח עד 22:00", "סגור, נפתח מחר ב-08:00", "סגור, נפתח במוצאי שבת ב-19:30" */
 export function openStatus(hours: WeeklyHours | null, lang: Lang = 'he', now = new Date()): { open: boolean; text: string } {
   const en = lang === 'en';
-  if (!hours) return { open: false, text: en ? 'Opening hours not added yet' : 'שעות פתיחה עוד לא נוספו' };
+  if (!hours) return { open: false, text: '' };
   const { day, minutes } = israelNow(now);
 
   const current = (rangesFor(hours, day) ?? []).find(([a, b]) => minutes >= toMin(a) && minutes < toMin(b));

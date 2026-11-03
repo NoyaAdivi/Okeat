@@ -76,6 +76,30 @@ export const googleMapsUrl = (p: LatLng) =>
   `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=walking`;
 
 /** Shortest distance in meters from a point to a line of [lng, lat] coordinates (good enough for a few km). */
+/** The closest point on a line to p, and the line segment it falls on. */
+export function snapToLine(p: LatLng, coords: [number, number][]): { point: LatLng; index: number; meters: number } | null {
+  if (coords.length < 2) return null;
+  const k = Math.cos((p.lat * Math.PI) / 180);
+  const toXY = ([lng, lat]: [number, number]) => [(lng - p.lng) * 111320 * k, (lat - p.lat) * 110540] as const;
+  let best: { point: LatLng; index: number; meters: number } | null = null;
+  for (let i = 0; i < coords.length - 1; i++) {
+    const [ax, ay] = toXY(coords[i]);
+    const [bx, by] = toXY(coords[i + 1]);
+    const dx = bx - ax, dy = by - ay;
+    const len = dx * dx + dy * dy;
+    const t = len ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len)) : 0;
+    const meters = Math.hypot(ax + t * dx, ay + t * dy);
+    if (!best || meters < best.meters) {
+      best = {
+        meters,
+        index: i,
+        point: { lng: coords[i][0] + t * (coords[i + 1][0] - coords[i][0]), lat: coords[i][1] + t * (coords[i + 1][1] - coords[i][1]) },
+      };
+    }
+  }
+  return best;
+}
+
 export function distanceToLine(p: LatLng, coords: [number, number][]): number {
   if (coords.length === 0) return Infinity;
   const k = Math.cos((p.lat * Math.PI) / 180);

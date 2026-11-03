@@ -737,6 +737,24 @@ export async function withdrawClaim(sb: SupabaseClient, id: string) {
   if (error) throw error;
 }
 
+export async function updateMyClaim(sb: SupabaseClient, id: string, level: string) {
+  const { error } = await sb.rpc('update_my_claim', { p_claim: id, p_level: level });
+  if (error) throw error;
+}
+
+export interface MyPlaceFields { name: string; address: string; phone: string; website: string }
+
+export async function fetchMyPlaceFields(sb: SupabaseClient, id: string): Promise<MyPlaceFields> {
+  const { data, error } = await sb.from('places').select('name, address, phone, website').eq('id', id).single();
+  if (error) throw error;
+  return { name: data.name ?? '', address: data.address ?? '', phone: data.phone ?? '', website: data.website ?? '' };
+}
+
+export async function updateMyPlace(sb: SupabaseClient, id: string, f: MyPlaceFields) {
+  const { error } = await sb.rpc('update_my_place', { p_place: id, p_name: f.name, p_address: f.address, p_phone: f.phone, p_website: f.website });
+  if (error) throw error;
+}
+
 export async function withdrawPlace(sb: SupabaseClient, id: string) {
   const { error } = await sb.rpc('withdraw_place', { p_place: id });
   if (error) throw error;

@@ -15,7 +15,7 @@ const journeyOf = (L: T) => [
   { emoji: '➕', title: L('מישהו מוסיף', 'Someone adds it'), text: L('למשל "המקום הזה טבעוני לגמרי". בכשרות אפשר לצרף צילום של התעודה כדי לחזק את המידע.', 'For example "this place is fully vegan". For kosher, a photo of the certificate can be added to make it stronger.') },
   { emoji: '👀', title: L('אחרים מאשרים', 'Others confirm'), text: L('אנשים שהיו במקום לוחצים "נכון, ראיתי בעצמי". אי אפשר לאשר משהו שהוספתם בעצמכם.', 'People who were there tap "True, I saw it myself". You can\'t confirm something you added yourself.') },
   { emoji: '✅', title: L('מאושר', 'It gets confirmed'), text: L('אחרי שלושה אישורים המידע מסומן כמאושר, ומופיע בסינון.', 'After three confirmations it is marked as confirmed and shows up in the filters.') },
-  { emoji: '⏰', title: L('נשאר עדכני', 'It stays up to date'), text: L('תעודה שפג תוקפה מסומנת לבד, ופרט שלא אושר יותר משנה מסומן לבדיקה. אם שלושה אנשים מדווחים שמשהו כבר לא נכון, הוא עובר לבדיקה של מנהלי הקהילה.', 'An expired certificate is flagged automatically, and a detail not confirmed for over a year is marked for checking. If three people report something is no longer true, it goes to the community moderators for review.') },
+  { emoji: '⏰', title: L('נשאר עדכני', 'It stays up to date'), text: L('תעודה שפג תוקפה מסומנת לבד. אם שלושה אנשים מדווחים שמשהו לא נכון, זה עובר לבדיקה.', 'An expired certificate is flagged automatically, and a detail not confirmed for over a year is marked for checking. If three people report something is no longer true, it goes to the community moderators for review.') },
 ];
 
 const faqOf = (L: T) => [

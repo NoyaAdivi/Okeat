@@ -1449,3 +1449,49 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   input, select, textarea { font-size: max(1rem, 16px) !important; }
   .mail-code-form .mail-code { font-size: 1.5rem !important; }
 }
+
+/* ---------- editing what you added ---------- */
+.my-rows li { flex-wrap: wrap; }
+.my-acts { display: inline-flex; flex: none; align-items: center; gap: 12px; }
+.my-done { margin: 0 0 10px; color: var(--ink); font-weight: 600; }
+.my-edit { display: grid; flex: 1 0 100%; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.my-edit select { width: 100%; min-height: 44px; border: 0; border-radius: 12px; padding: 8px 12px; background: var(--surface-2); color: var(--ink); }
+.my-edit div { display: flex; gap: 8px; }
+.my-place-form { display: grid; gap: 12px; }
+.my-place-form .field input { width: 100%; min-height: 46px; border: 0; border-radius: 12px; padding: 10px 14px; background: var(--surface-2); color: var(--ink); box-sizing: border-box; }
+
+/* ---------- home: one number, not a board of them ---------- */
+.places-count { margin: 0; color: var(--muted); font-weight: 600; }
+
+/* ---------- phones: fewer things moving, fewer things on screen ---------- */
+@media (max-width: 760px) {
+  .modal-back, .site-head { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .site-head { background: var(--bg); }
+  .hero-logo .logo-mark { animation: none; }
+  .floater { filter: none; }
+  .floater:nth-child(n + 6) { display: none; }
+  .mk .mk-seals { filter: none; }
+  .list li { content-visibility: auto; contain-intrinsic-size: auto 84px; animation: none; }
+  .panel-body { contain: layout paint; }
+  .mapboxgl-ctrl-top-left { display: none; }
+  .app:not([data-sheet="peek"]) .fab, .app[data-place="open"] .fab { display: none; }
+  .app[data-place="open"] .map-tools { display: none; }
+}
+
+/* ---------- very small phones ---------- */
+@media (max-width: 340px) {
+  .site-head { padding-inline: 10px; }
+  .site-tools { gap: 4px; }
+  .site-head nav { flex-wrap: nowrap; }
+  .site-head .nav-link { padding: 6px 4px; font-size: 0.8125rem; }
+  .site-head .nav-link span[aria-hidden] { display: none; }
+  .map-top { padding-inline: 10px; }
+  .brand { gap: 6px; }
+  .hero h1 { font-size: 1.75rem; }
+  .cta-row { flex-direction: column; align-items: stretch; }
+  .need-cards { grid-template-columns: 1fr; }
+}
+@media (max-height: 600px) and (max-width: 760px) {
+  .app { --sheet-h: 170px; }
+  .app[data-sheet="half"] { --sheet-h: 50svh; }
+}

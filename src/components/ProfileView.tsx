@@ -33,6 +33,7 @@ function CountUp({ to }: { to: number }) {
 }
 import ProfileExtras from './ProfileExtras';
 import MyActivity from './MyActivity';
+import EditMyPlace from './EditMyPlace';
 import { earnedBadges } from '@/lib/checks';
 import Avatar from './Avatar';
 
@@ -61,6 +62,7 @@ export default function ProfileView({ id }: { id: string }) {
   // Site admins see role buttons on other people's profiles.
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
+  const [editPlace, setEditPlace] = useState<string | null>(null);
   const [section, setSection] = useState<'notes' | 'lists' | 'saved' | 'added' | 'info' | 'votes' | 'reviews'>('notes');
   const [saved, setSaved] = useState<{ id: string; name: string; place_type: string }[]>([]);
   useEffect(() => { if (mine) fetchMyFavorites(sb).then(setSaved); }, [sb, mine]);
@@ -166,7 +168,7 @@ export default function ProfileView({ id }: { id: string }) {
               </>
             )}
             {mine && (section === 'info' || section === 'votes' || section === 'reviews') && (
-              <MyActivity sb={sb} show={section} onChanged={() => { if (target) fetchProfile(sb, target).then(setProfile); }} />
+              <MyActivity sb={sb} userId={user!.id} show={section} onChanged={() => { if (target) fetchProfile(sb, target).then(setProfile); }} />
             )}
             {section === 'saved' && mine && (
               <section className="sec">
@@ -184,10 +186,18 @@ export default function ProfileView({ id }: { id: string }) {
             <section className="sec">
               <h2>{L('מקומות שהוסיף/ה', 'Places added')}</h2>
               {roleError && mine && <div className="err" role="alert">{roleError}</div>}
+              {editPlace && (
+                <EditMyPlace sb={sb} id={editPlace} onClose={() => setEditPlace(null)} onSaved={(name) => {
+                  setPlaces(places.map((x) => (x.id === editPlace ? { ...x, name } : x)));
+                  setEditPlace(null);
+                }} />
+              )}
               {places.length === 0 ? <p className="muted">{L('עוד אין.', 'None yet.')}</p> : (
                 <ul className="tiles">
                   {places.map((p, i) => (
                     <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={`${placeTypeLabel(p.place_type, lang)}, ${formatDate(p.created_at.slice(0, 10))}`} action={mine ? (
+                      <span className="my-acts">
+                      <button type="button" className="link" onClick={() => setEditPlace(p.id)}>{L('עריכה', 'Edit')}</button>
                       <button type="button" className="link" onClick={async () => {
                         setRoleError('');
                         try {
@@ -196,6 +206,7 @@ export default function ProfileView({ id }: { id: string }) {
                           if (target) fetchProfile(sb, target).then(setProfile);
                         } catch (e) { setRoleError(friendly(e, lang)); }
                       }}>{L('מחיקה', 'Delete')}</button>
+                      </span>
                     ) : undefined} />
                   ))}
                 </ul>

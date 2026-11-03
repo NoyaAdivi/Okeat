@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import Stats from '@/components/Stats';
+import { PlacesCount } from '@/components/Stats';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { serverL } from '@/lib/lang-server';
 
@@ -21,16 +21,9 @@ const needsOf = (L: T) => [
   { key: 'gluten_free', cls: 'g', letter: L('ג', 'G'), emoji: '🌾', title: L('ללא גלוטן', 'Gluten-free'), text: L('תפריט, או מטבח נפרד', 'A menu, or a separate kitchen') },
 ];
 
-const stepsOf = (L: T) => [
-  { emoji: '📍', title: L('מוצאים', 'Find'), text: L('בוחרים מה חשוב, ורואים מה קרוב', 'Choose what matters and see what is near') },
-  { emoji: '🧭', title: L('מגיעים', 'Go'), text: L('ניווט עד הדלת', 'Directions to the door') },
-  { emoji: '✅', title: L('מאשרים', 'Confirm'), text: L('הייתם שם? מאשרים בלחיצה', 'Been there? Confirm in one tap') },
-];
-
 export default async function Home() {
   const L = await serverL();
   const NEEDS = needsOf(L);
-  const STEPS = stepsOf(L);
   return (
     <div className="page">
       <SiteHeader />
@@ -49,12 +42,8 @@ export default async function Home() {
               <Link href="/map" className="cta primary"><span aria-hidden="true">🗺️</span> {L('לפתוח את המפה', 'Open the map')}</Link>
               <Link href="/about" className="cta">{L('איך זה עובד', 'How it works')}</Link>
             </div>
+            <PlacesCount />
           </div>
-        </section>
-
-        <section className="band" aria-labelledby="stats-h">
-          <h2 id="stats-h" className="vh">{L('המספרים', 'The numbers')}</h2>
-          <Stats />
         </section>
 
         <section className="section" aria-labelledby="needs-h">
@@ -73,27 +62,12 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="section" aria-labelledby="how-h">
-          <h2 id="how-h" className="section-title">{L('איך משתמשים', 'How to use it')}</h2>
-          <ol className="steps-row">
-            {STEPS.map((s, i) => (
-              <li key={s.title} className="step-card" style={{ '--i': i } as React.CSSProperties}>
-                <span className="step-num" aria-hidden="true">{i + 1}</span>
-                <span className="step-emoji" aria-hidden="true">{s.emoji}</span>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
         <section className="section">
           <div className="join">
             <div className="join-art" aria-hidden="true">📸</div>
             <div>
               <h2 className="section-title">{L('מכירים מקום שחסר?', 'Know a place that is missing?')}</h2>
-              <p>{L('מתחברים ומוסיפים אותו בחצי דקה.', 'Sign in and add it in half a minute.')}</p>
-              <Link href="/map?add=1" className="cta primary"><span aria-hidden="true">➕</span> {L('הוספת מקום', 'Add a place')}</Link>
+                            <Link href="/map?add=1" className="cta primary"><span aria-hidden="true">➕</span> {L('הוספת מקום', 'Add a place')}</Link>
             </div>
           </div>
         </section>

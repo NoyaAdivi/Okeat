@@ -426,12 +426,13 @@ export default function MapView({
   };
 
   const queueSync = () => {
+    // The map renders every frame while moving; looking through the tiles that often stalls a phone.
     if (syncQueued.current) return;
     syncQueued.current = true;
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       syncQueued.current = false;
       syncMarkers();
-    });
+    }, 180);
   };
 
   // Wire the cluster layers once the map exists (and again after a theme switch).
@@ -518,10 +519,13 @@ export default function MapView({
 
   // Route.
   useEffect(() => {
+    // Only a new route is revealed; a GPS step just moves the start of the line.
+    const end = (r: RouteLine | null) => r?.coordinates[r.coordinates.length - 1]?.join();
+    const fresh = !routeRef.current || end(routeRef.current) !== end(route);
     routeRef.current = route;
     const map = mapRef.current;
     // not isStyleLoaded(): it is false while tiles load, which is when the real route tends to arrive
-    if (map) safe(() => { if (map.getSource('route')) drawRoute(map, route, true); });
+    if (map) safe(() => { if (map.getSource('route')) drawRoute(map, route, fresh); });
   }, [route]);
 
   // Crosshair while picking a location; markers stop taking clicks so the map gets them.

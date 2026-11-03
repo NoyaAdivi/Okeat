@@ -19,6 +19,8 @@ export function friendly(e: unknown, lang: Lang = 'he'): string {
   if (msg.includes('must start with https')) return 'הקישור צריך להתחיל ב-https://';
   if (msg.includes('duplicate key') && msg.includes('place_reports')) return 'כבר דיווחת על המקום הזה. תודה!';
   if (msg.includes('A place needs a name')) return 'צריך שם למקום.';
+  if (msg.includes('only change your own')) return 'אפשר לשנות רק מה שהוספת.';
+  if (msg.includes('text is too long')) return 'הטקסט ארוך מדי.';
   if (msg.includes('Others already rely')) return 'אחרים כבר אישרו את זה, אז אי אפשר למחוק. אפשר לכתוב לנו ביצירת קשר.';
   if (msg.includes('Sign in with an account')) return 'צריך להתחבר עם חשבון (Google או מייל).';
   if (msg.includes('claim you proposed')) return 'הוספת את זה בעצמך. אנשים אחרים צריכים לאשר.';
@@ -52,10 +54,14 @@ function friendlyEn(e: unknown): string {
   if (msg.includes('Too many requests')) return 'Too many requests today. Try again tomorrow.';
   if (msg.includes('Moderators only') || msg.includes('Admins only')) return 'Only community moderators and admins can do this.';
   if (msg.includes('A place needs a name')) return 'A place needs a name.';
+  if (msg.includes('only change your own')) return 'You can only change what you added.';
+  if (msg.includes('text is too long')) return 'That text is too long.';
   if (msg.includes('Others already rely')) return 'Others already confirmed this, so it cannot be deleted. You can write to us on the contact page.';
   if (msg.includes('must start with https')) return 'The link must start with https://';
   if (msg.includes('duplicate key') && msg.includes('place_reports')) return 'You already reported this place. Thanks!';
   if (msg.includes('A place needs a name')) return 'צריך שם למקום.';
+  if (msg.includes('only change your own')) return 'אפשר לשנות רק מה שהוספת.';
+  if (msg.includes('text is too long')) return 'הטקסט ארוך מדי.';
   if (msg.includes('Others already rely')) return 'אחרים כבר אישרו את זה, אז אי אפשר למחוק. אפשר לכתוב לנו ביצירת קשר.';
   if (msg.includes('Sign in with an account')) return 'Sign in with an account (Google or e-mail).';
   if (msg.includes('claim you proposed')) return 'You added this yourself. Other people need to confirm it.';

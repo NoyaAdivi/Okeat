@@ -115,7 +115,7 @@ export default function PlaceList({ places, loading, error, activeNeeds, onSelec
                 </span>
                 <span className="row2">
                   <span>{p.cuisine?.length ? p.cuisine.slice(0, 2).map((c) => cuisineLabel(c, lang)).join(', ') : placeTypeLabel(p.place_type, lang)}</span>
-                  <span className={st.open ? 'st-open' : undefined}>{st.text}</span>
+                  {st.text && <span className={st.open ? 'st-open' : undefined}>{st.text}</span>}
                 </span>
                 <Badges place={p} />
               </button>

@@ -9,7 +9,7 @@ import { NEED_ORDER, placeToPoint, withoutPending } from '@/lib/claims';
 import { matchesAnyCuisine } from '@/lib/cuisine';
 import type { MapPoint, Need, NeedFilter, PendingClaim, Place } from '@/lib/types';
 import { isOpen } from '@/lib/hours';
-import { RAMAT_GAN, distanceToLine, haversine, type LatLng } from '@/lib/geo';
+import { snapToLine, RAMAT_GAN, distanceToLine, haversine, type LatLng } from '@/lib/geo';
 import { fetchDirections, type Directions, type TravelMode } from '@/lib/directions';
 import { friendly } from '@/lib/errors';
 import { MAPBOX_TOKEN } from '@/lib/mapboxToken';
@@ -111,8 +111,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       const active = document.activeElement as HTMLElement | null;
       if (active?.matches('.panel-head input') && !(e.target as HTMLElement).closest('.panel-head input')) active.blur();
     };
+    // iPhone pushes the page up for the keyboard and doesn't always bring it back.
+    const onBlur = () => setTimeout(() => window.scrollTo(0, 0), 60);
     document.addEventListener('touchstart', onTouch, { passive: true });
-    return () => document.removeEventListener('touchstart', onTouch);
+    document.addEventListener('focusout', onBlur);
+    return () => { document.removeEventListener('touchstart', onTouch); document.removeEventListener('focusout', onBlur); };
   }, []);
   /** The exact point under the pin at this moment. */
   const pinPoint = () => centerGetter.current?.() ?? viewCenter ?? mapCenter;
@@ -460,6 +463,32 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     loadRoute(selected, me, m);
   }, [selected, me, directions, dirLoading, navigating, mode, loadRoute]);
 
+  // The dot stays live before navigation starts too. Small GPS wobble is ignored.
+  const liveMe = useRef<LatLng | null>(null);
+  liveMe.current = me;
+  useEffect(() => {
+    if (located !== 'ok' || manualLabel || navigating || !('geolocation' in navigator)) return;
+    const id = navigator.geolocation.watchPosition(
+      (pos) => {
+        if (pos.coords.accuracy > 100) return;
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (!liveMe.current || haversine(liveMe.current, next) >= 12) setMe(next);
+      },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [located, manualLabel, navigating]);
+
+  // A better fix can land away from the route preview: draw it again from there.
+  useEffect(() => {
+    if (navigating || !selected || !me || !directions || dirLoading || manualLabel) return;
+    if (distanceToLine(me, directions.geometry.coordinates) <= OFF_ROUTE_M[mode]) return;
+    if (Date.now() - lastReroute.current < 12000) return;
+    lastReroute.current = Date.now();
+    loadRoute(selected, me, mode, true);
+  }, [me, navigating, selected, directions, dirLoading, manualLabel, mode, loadRoute]);
+
   // After moving the map by hand, the view returns to the person by itself.
   const followTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pauseFollow = () => {
@@ -742,17 +771,26 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     setQuery('');
   };
 
+  const snapped = useMemo(() => {
+    if (!navigating || !me || !directions) return null;
+    const s = snapToLine(me, directions.geometry.coordinates);
+    return s && s.meters <= OFF_ROUTE_M[mode] ? s : null;
+  }, [navigating, me, directions, mode]);
+
   // Roads rarely pass exactly through a point, so the line is joined to the person and to the place.
   const route = useMemo(() => {
     if (!directions) return dirLoading ? straight : null;
-    const coordinates = [...directions.geometry.coordinates];
-    if (me && !navigating) coordinates.unshift([me.lng, me.lat]);
+    const line = directions.geometry.coordinates;
+    // On the way the dot rides the line and the part already walked disappears.
+    const coordinates: [number, number][] = snapped
+      ? [[snapped.point.lng, snapped.point.lat], ...line.slice(snapped.index + 1)]
+      : me ? [[me.lng, me.lat], ...line] : [...line];
     if (selected) coordinates.push([selected.lng, selected.lat]);
     return { ...directions.geometry, coordinates };
-  }, [directions, dirLoading, straight, me, navigating, selected]);
+  }, [directions, dirLoading, straight, me, snapped, selected]);
   const activeNeeds = Object.values(filter).filter((v) => v !== null && v !== undefined).length;
   const showSearchHere = false;
-  const swipe = useRef<{ y: number; t: number; scrolled: boolean } | null>(null);
+  const swipe = useRef<{ x: number; y: number; t: number; scrolled: boolean } | null>(null);
   const cycleSheet = () => {
     if (dragged.current) { dragged.current = false; return; }
     setSheet((s) => (s === 'peek' ? 'half' : s === 'half' ? 'full' : 'peek'));
@@ -846,7 +884,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         ) : (
           <MapView
             initialCenter={searchCenter}
-            user={me}
+            user={snapped?.point ?? me}
             places={mapPlaces}
             selectedId={selectedId}
             route={route}
@@ -902,8 +940,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           <button type="button" className="search-here" onClick={() => setSearchCenter(mapCenter)}>
             {L('חיפוש באזור הזה', 'Search this area')}
           </button>
-        ) : located === 'fallback' ? (
-          <div className="notice">{L('לא קיבלנו את המיקום שלך, אז מוצגת רמת גן. אפשר להזיז את המפה ולחפש באזור אחר.', "We didn't get your location, so Ramat Gan is shown. You can move the map and search another area.")}</div>
+        ) : located === 'fallback' && !selected ? (
+          <div className="notice">{L('מוצגת רמת גן. אפשר להזיז את המפה.', 'Showing Ramat Gan. Move the map to look elsewhere.')}</div>
         ) : null}
 
         {addSearch && (
@@ -964,14 +1002,15 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
       <header className="map-top">{brandBar}</header>
       <aside className="panel" aria-label={L('מקומות', 'Places')} id="main" data-read-root
-        onTouchStart={(e) => { if ((e.target as HTMLElement).closest('.sheet-handle, .panel-head')) return; swipe.current = { y: e.touches[0].clientY, t: Date.now(), scrolled: (bodyRef.current?.scrollTop ?? 0) > 0 }; }}
+        onTouchStart={(e) => { if ((e.target as HTMLElement).closest('.sheet-handle, .panel-head')) return; swipe.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now(), scrolled: (bodyRef.current?.scrollTop ?? 0) > 0 }; }}
         onTouchEnd={(e) => {
           const s0 = swipe.current;
           swipe.current = null;
           if (!s0 || Date.now() - s0.t > 700) return;
           const dy = e.changedTouches[0].clientY - s0.y;
-          // swipe up: bigger; swipe down (when the list is at its top): smaller
-          if (dy < -40) setSheet((v) => (v === 'peek' ? 'half' : 'full'));
+          if (Math.abs(e.changedTouches[0].clientX - s0.x) > Math.abs(dy)) return; // sideways, like a row of filters
+          // Scrolling the list must not resize the sheet. Only the smallest size grows from here.
+          if (dy < -40) setSheet((v) => (v === 'peek' ? 'half' : v));
           else if (dy > 40 && !s0.scrolled) setSheet((v) => (v === 'full' ? 'half' : 'peek'));
         }}>
         <button type="button" className="sheet-handle" {...sheetDrag} onClick={cycleSheet} aria-label={L('הגדלה או הקטנה של הרשימה', 'Make the list bigger or smaller')}>

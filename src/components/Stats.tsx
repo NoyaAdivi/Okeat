@@ -55,6 +55,15 @@ export default function Stats() {
   );
 }
 
+/** Just the total, for the home page. */
+export function PlacesCount() {
+  const L = useL();
+  const sb = useMemo(() => createClient(), []);
+  const [places, setPlaces] = useState<number | null>(null);
+  useEffect(() => { fetchAllStats(sb).then((c) => setPlaces(c.places)).catch(() => undefined); }, [sb]);
+  return <p className="places-count">{places ? L(`${places.toLocaleString('he-IL')} מקומות במפה`, `${places.toLocaleString('en-US')} places on the map`) : '\u00a0'}</p>;
+}
+
 function CountUp({ value }: { value: number | null }) {
   const [shown, setShown] = useState(0);
   const raf = useRef(0);

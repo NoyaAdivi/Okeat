@@ -147,7 +147,7 @@ export default function AdminView() {
               <div key={p.id} className="admin-row">
                 <div>
                   <Link href={`/map?place=${p.id}`}><b>{p.name}</b></Link> <small>{p.address}</small>
-                  <div className="muted small">{L(`${p.reports} דיווחים`, `${p.reports} reports`)}{p.reasons?.length ? ': ' + p.reasons.join(' · ') : ''}</div>
+                  <div className="muted small">{p.reports === 0 ? L('מי שהוסיף/ה את המקום ערך/ה אותו', 'Edited by the person who added it') : L(`${p.reports} דיווחים`, `${p.reports} reports`)}{p.reasons?.length ? ': ' + p.reasons.join(' · ') : ''}</div>
                 </div>
                 <div className="acts">
                   <Link className="btn small" href={`/map?place=${p.id}`}>{L('תיקון כתובת', 'Fix address')}</Link>

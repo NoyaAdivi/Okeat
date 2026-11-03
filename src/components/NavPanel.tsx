@@ -61,11 +61,10 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
   if (!hasLocation) {
     return (
       <div className="nav">
-        <p className="nav-note">{L('כדי לנווט מכאן צריך לדעת איפה אתם: לאשר לאתר לראות את המיקום, או לבחור אותו בעצמכם.', 'To navigate from here we need to know where you are: allow the site to see your location, or choose it yourself.')}</p>
+        <p className="nav-note">{L('כדי לנווט צריך לדעת איפה אתם.', 'To navigate from here we need to know where you are: allow the site to see your location, or choose it yourself.')}</p>
         {onSetLocation && (
           <button type="button" className="btn primary nav-setloc" onClick={onSetLocation}>📍 {L('בחירת המיקום שלי', 'Choose my location')}</button>
         )}
-        <p className="nav-note">{L('או לפתוח באפליקציית ניווט:', 'Or open in a navigation app:')}</p>
         {external}
       </div>
     );

@@ -12,7 +12,6 @@ import { NEED_EMOJI, placeEmoji } from '@/lib/emoji';
 import { cuisineEmoji, cuisineLabel, placeFoods } from '@/lib/cuisine';
 import HoursTable from './HoursTable';
 import GoogleInfo from './GoogleInfo';
-import { readableText, readAloud, speechSupported } from '@/lib/speech';
 import { useEffect, useRef, useState } from 'react';
 import { addressAt } from '@/lib/geocode';
 
@@ -68,8 +67,6 @@ export default function PlaceDetail({
   const lang = L.lang;
   const foods = placeFoods(place);
   // known only in the browser, so the page the server sends matches the first render
-  const [canSpeak, setCanSpeak] = useState(false);
-  useEffect(() => setCanSpeak(speechSupported()), []);
   const back = backLabel ?? L('חזרה לרשימה', 'Back to the list');
   const st = openStatus(place.hours, lang);
   const verified = NEED_ORDER.map((n) => verifiedClaim(place, n)).filter((c): c is Claim => c !== null);
@@ -92,11 +89,6 @@ export default function PlaceDetail({
       <div className="detail-top">
         <button type="button" className="back-pill" onClick={onBack}><span aria-hidden="true">{lang === 'en' ? '←' : '→'}</span> {back}</button>
         <span className="detail-tools">
-          {canSpeak && (
-            <button type="button" className="link" onClick={() => root.current && readAloud(readableText(root.current))}>
-              <span aria-hidden="true">🔊</span> {L('הקראה', 'Read aloud')}
-            </button>
-          )}
           <button type="button" className="link" onClick={onShare}><span aria-hidden="true">🔗</span> {L('העתקת קישור', 'Copy link')}</button>
         </span>
       </div>
@@ -111,11 +103,8 @@ export default function PlaceDetail({
           {foods.length === 0 && <span className="tag">{placeTypeLabel(place.place_type, lang)}</span>}
           {place.address && <span>{place.address}</span>}
           {nearby && <span>{L(`בערך: ${nearby}`, `About: ${nearby}`)}</span>}
-          <span className={st.open ? 'st-open' : undefined}>{st.text}</span>
+          {st.text && <span className={st.open ? 'st-open' : undefined}>{st.text}</span>}
         </div>
-        {foods.length > 0 && place.cuisine_source !== 'community' && (
-          <p className="foods-note">{place.cuisine_source === 'osm' ? L('סוג האוכל ממאגר פתוח.', 'Food type from an open database.') : place.cuisine_source === 'overture' ? L('סוג האוכל ממאגר פתוח. לא מאושר.', 'Food type from an open database. Not confirmed.') : L('סוג האוכל משוער לפי שם המקום. לא מאושר.', "Food type guessed from the place's name. Not confirmed.")}</p>
-        )}
       </div>
 
       {goPanel}

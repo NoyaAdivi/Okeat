@@ -55,7 +55,6 @@ export function SiteFooter() {
       <div className="foot-brand">
         <Logo size={32} />
         <span>okeat</span>
-        <span className="foot-tag">{L('OK to eat: איפה באמת אפשר לאכול', 'OK to eat: where you can really eat')}</span>
       </div>
       <nav aria-label={L('קישורים', 'Links')}>
         <Link href="/map">{L('המפה', 'Map')}</Link>
