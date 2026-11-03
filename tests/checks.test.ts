@@ -32,6 +32,14 @@ test('a smart search is split into its parts', () => {
   assert.equal(s.rest, 'פיצה');
 });
 
+test('a whole sentence keeps only what matters', () => {
+  const s = parseSearch('בא לי מסעדה שפתוחה עכשיו');
+  assert.equal(s.openNow, true);
+  assert.equal(s.rest, '');
+  assert.equal(parseSearch('אני מחפש פיצה טובה').rest, 'פיצה');
+  assert.equal(parseSearch('מקום טוב').rest, 'מקום טוב');
+});
+
 test('a regular word is left alone', () => {
   const s = parseSearch('בורגר');
   assert.deepEqual(s.needs, []);

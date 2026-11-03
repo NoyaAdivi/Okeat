@@ -32,9 +32,9 @@ function extraParam(filter: NeedFilter): { p_extra?: Record<string, number> } {
 
 export async function fetchNearby(
   sb: SupabaseClient,
-  opts: { lat: number; lng: number; radiusM?: number; filter: NeedFilter; query?: string; limit?: number; cuisine?: string[] },
+  opts: { lat: number; lng: number; radiusM?: number; filter: NeedFilter; query?: string; limit?: number; cuisine?: string[]; signal?: AbortSignal },
 ): Promise<Place[]> {
-  const { data, error } = await sb.rpc('nearby_places', {
+  const request = sb.rpc('nearby_places', {
     p_lat: opts.lat,
     p_lng: opts.lng,
     p_radius_m: opts.radiusM ?? 1500,
@@ -45,6 +45,7 @@ export async function fetchNearby(
     p_limit: opts.limit ?? 500,
     ...extraParam(opts.filter),
   });
+  const { data, error } = await (opts.signal ? request.abortSignal(opts.signal) : request);
   if (error) throw error;
   const rows = (data ?? []) as Place[];
   // Categories are filtered here (stored category, type or name), so it works with any database version.
@@ -90,6 +91,7 @@ function cacheSet(key: string, data: unknown) {
   try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), data })); } catch { /* full or blocked */ }
 }
 export function clearPointsCache() {
+  recent.clear();
   try {
     for (const k of Object.keys(sessionStorage)) if (k.startsWith('okeat:pts:')) sessionStorage.removeItem(k);
   } catch { /* blocked */ }
@@ -97,17 +99,28 @@ export function clearPointsCache() {
 
 /** Cached map points for these filters, if any (to draw before the network answers). */
 export function cachedMapPoints(filter: NeedFilter, query?: string, cuisine?: string[]): MapPoint[] | null {
-  return cacheGet<MapPoint[]>(pointsKey(filter, query, cuisine));
+  const key = pointsKey(filter, query, cuisine);
+  const held = recent.get(key);
+  if (held && Date.now() - held.at < POINTS_TTL) return held.data;
+  return cacheGet<MapPoint[]>(key);
+}
+
+// The last few results stay in memory, so going back and forth between filters asks the server nothing.
+const recent = new Map<string, { at: number; data: MapPoint[] }>();
+function remember(key: string, data: MapPoint[]) {
+  recent.delete(key);
+  recent.set(key, { at: Date.now(), data });
+  if (recent.size > 8) recent.delete(recent.keys().next().value as string);
 }
 const pointsKey = (filter: NeedFilter, query?: string, cuisine?: string[]) =>
   `okeat:pts:${JSON.stringify([filter, query?.trim() || '', cuisine ?? []])}`;
 
 /** Every matching place in the country. Pages are fetched 4 at a time. */
-export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, query?: string, cuisine?: string[]): Promise<MapPoint[]> {
+export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, query?: string, cuisine?: string[], signal?: AbortSignal): Promise<MapPoint[]> {
   const PAGE = 1000;
   const PARALLEL = 4;
   const page = async (from: number) => {
-    const { data, error } = await sb
+    const request = sb
       .rpc('map_points', {
         p_min_kosher: filter.kosher,
         p_min_vegan: filter.vegan,
@@ -116,6 +129,7 @@ export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, que
         ...extraParam(filter),
       })
       .range(from, from + PAGE - 1);
+    const { data, error } = await (signal ? request.abortSignal(signal) : request);
     if (error) throw error;
     return (data ?? []) as MapPoint[];
   };
@@ -124,9 +138,12 @@ export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, que
     const batch = await Promise.all(Array.from({ length: PARALLEL }, (_, i) => page(from + i * PAGE)));
     for (const rows of batch) out.push(...rows);
     if (batch.some((rows) => rows.length < PAGE)) break;
+    if (signal?.aborted) throw new Error('Cancelled');
   }
   const result = cuisine?.length ? out.filter((p) => matchesAnyCuisine(p, cuisine)) : out;
-  cacheSet(pointsKey(filter, query, cuisine), result);
+  remember(pointsKey(filter, query, cuisine), result);
+  // The whole map is big: only the plain version survives a reload.
+  if (!query?.trim() && !cuisine?.length && Object.values(filter).every((v) => v === null || v === undefined)) cacheSet(pointsKey(filter, query, cuisine), result);
   return result;
 }
 

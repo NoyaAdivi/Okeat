@@ -1642,3 +1642,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .a11y-panel { animation-name: a11y-fade; }
 @keyframes a11y-fade { from { opacity: 0; } }
 .head-foods .foods-guess { background: none; color: var(--muted); box-shadow: none; font-size: 0.75rem; }
+
+/* ---------- phone: choosing a location opens in full view, never under the top bar ---------- */
+@media (max-width: 760px) {
+  .loc-pop { position: fixed; inset-inline: 12px; top: calc(var(--top-h, 60px) + 8px); bottom: auto; left: 12px; right: 12px; width: auto; max-height: calc(100svh - var(--top-h, 60px) - 24px); overflow-y: auto; z-index: 8; }
+}

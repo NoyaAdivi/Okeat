@@ -35,6 +35,8 @@ const NEED_WORDS: [RegExp, string][] = [
   [/(^|\s)(צמחונית|צמחוני|צמחוניים|vegetarian)(?=\s|$)/i, 'vegetarian'],
 ];
 
+const FILLER_WORDS = /(^|\s)(בא לי|בא לנו|באלי|רוצה|רוצים|מחפש|מחפשת|מחפשים|אני|אנחנו|איפה|יש|מקום|מקומות|מסעדה|מסעדות|לאכול|אוכל|משהו|טוב|טובה|טעים|טעימה|קרוב|קרובה|ליד|i want|looking for|restaurants?|places?|somewhere|to eat|food|near me|nearby)(?=\s|$)/gi;
+
 /** "פיצה כשרה פתוחה עכשיו ברמת גן" becomes a kosher filter, open now, Ramat Gan and "פיצה". */
 export function parseSearch(text: string): SmartSearch {
   let rest = ` ${text.trim()} `;
@@ -45,9 +47,11 @@ export function parseSearch(text: string): SmartSearch {
       rest = rest.replace(pattern, ' ');
     }
   }
-  const open = /(^|\s)(פתוחה עכשיו|פתוח עכשיו|פתוחים עכשיו|open now)(?=\s|$)/i;
+  const open = /(^|\s)(ש?פתוחה עכשיו|ש?פתוח עכשיו|ש?פתוחים עכשיו|שפתוחה|שפתוח|שפתוחים|open now)(?=\s|$)/i;
   const openNow = open.test(rest);
   rest = rest.replace(open, ' ');
+  // In a whole sentence, words like "בא לי" say nothing about the place. A short search stays as it is: it may be a name.
+  if (text.trim().split(/\s+/).length >= 3) rest = rest.replace(FILLER_WORDS, ' ').replace(FILLER_WORDS, ' ');
   // The city comes last, after "ב" or "in". The caller checks that it's a real city.
   const place = rest.match(/\s(?:ב|in\s+)([א-תa-z][א-תa-z"'׳״ -]{1,30})\s*$/i);
   const before = place ? rest.slice(0, place.index).trim() : rest.trim();

@@ -231,17 +231,34 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     return () => clearTimeout(t);
   }, [query]);
 
+  // What the search means: a sentence narrows the results right away, without pressing anything.
+  const heard = useMemo(() => parseSearch(debouncedQuery), [debouncedQuery]);
+  const openFilter = openNow || heard.openNow;
+  const wanted = useMemo(() => ({
+    filter: heard.needs.length ? { ...filter, ...Object.fromEntries(heard.needs.map((n) => [n, filter[n as Need] ?? (n === 'kosher' ? 0 : 1)])) } as NeedFilter : filter,
+    query: heard.city && !heard.needs.length && !heard.openNow ? debouncedQuery : heard.rest,
+    cuisine,
+  }), [filter, cuisine, heard, debouncedQuery]);
+
+  // Fast taps must not each load the whole country: wait for a short pause, and only the last choice counts.
+  const [settled, setSettled] = useState(wanted);
+  useEffect(() => {
+    const t = setTimeout(() => setSettled(wanted), 220);
+    return () => clearTimeout(t);
+  }, [wanted]);
+
   // 3. Places around the search center.
   useEffect(() => {
     if (located === 'pending') return;
     let cancelled = false;
+    const ctrl = new AbortController();
     setLoading(true);
     setError(null);
     // No fixed radius: start close by, and widen step by step until there is enough to show.
     (async () => {
       let rows: Place[] = [];
       for (const radiusM of RADII_M) {
-        rows = await fetchNearby(sb, { ...searchCenter, radiusM, filter, query: debouncedQuery, cuisine, limit: radiusM > 50_000 ? 1000 : 500 });
+        rows = await fetchNearby(sb, { ...searchCenter, radiusM, ...settled, limit: radiusM > 50_000 ? 1000 : 500, signal: ctrl.signal });
         if (cancelled || rows.length >= 25) break;
       }
       return rows;
@@ -251,32 +268,37 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
+      ctrl.abort();
     };
-  }, [sb, located, searchCenter, filter, debouncedQuery, cuisine, refreshKey]);
+  }, [sb, located, searchCenter, settled, refreshKey]);
 
   // 3b. Every matching place in the country, for the clustered map.
   // null = not available (e.g. migration 0004 not run yet): fall back to the nearby list
   const [points, setPoints] = useState<MapPoint[] | null>(null);
   useEffect(() => {
     let cancelled = false;
-    const cached = refreshKey === 0 ? cachedMapPoints(filter, debouncedQuery, cuisine) : null;
-    if (cached) setPoints(cached);
-    fetchMapPoints(sb, filter, debouncedQuery, cuisine)
+    const ctrl = new AbortController();
+    const { filter: f, query: q, cuisine: c } = settled;
+    const cached = refreshKey === 0 ? cachedMapPoints(f, q, c) : null;
+    if (cached) { setPoints(cached); return; }
+    fetchMapPoints(sb, f, q, c, ctrl.signal)
       .then((rows) => !cancelled && setPoints(rows))
       // older database: still show the whole country, not just the area around you
-      .catch(() =>
-        fetchAllPlacesFallback(sb, filter, debouncedQuery)
+      .catch(() => {
+        if (cancelled) return;
+        fetchAllPlacesFallback(sb, f, q)
           .then((rows) => {
             if (cancelled) return;
             const pts = rows.map(placeToPoint);
-            setPoints(cuisine.length ? pts.filter((p) => matchesAnyCuisine(p, cuisine)) : pts);
+            setPoints(c.length ? pts.filter((p) => matchesAnyCuisine(p, c)) : pts);
           })
-          .catch(() => !cancelled && setPoints(null)),
-      );
+          .catch(() => !cancelled && setPoints(null));
+      });
     return () => {
       cancelled = true;
+      ctrl.abort();
     };
-  }, [sb, filter, debouncedQuery, cuisine, refreshKey]);
+  }, [sb, settled, refreshKey]);
 
   // The list follows the map: after the person pans, show what's near the new center.
   useEffect(() => {
@@ -304,9 +326,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
   const signedIn = !!user && !user.is_anonymous;
   const visible = useMemo(() => {
-    const open = openNow ? places.filter((p) => isOpen(p.hours)) : places;
+    const open = openFilter ? places.filter((p) => isOpen(p.hours)) : places;
     return signedIn ? open : open.map(withoutPending);
-  }, [places, openNow, signedIn]);
+  }, [places, openFilter, signedIn]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
@@ -317,9 +339,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const mapPlaces = useMemo(() => {
     if (navigating && selected) return [placeToPoint(selected)];
     // when "open now" is on, the map shows only what's open in the list
-    const base = openNow || !points ? visible.map(placeToPoint) : points;
+    const base = openFilter || !points ? visible.map(placeToPoint) : points;
     return selected && !base.some((p) => p.id === selected.id) ? [...base, placeToPoint(selected)] : base;
-  }, [points, visible, selected, navigating, openNow]);
+  }, [points, visible, selected, navigating, openFilter]);
 
   // 5. My earlier votes on what's on screen, so buttons show "אישרת".
   useEffect(() => {
@@ -636,6 +658,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     const text = debouncedQuery.trim();
     setCityHit(null);
     if (text.length < 2) return;
+    if (heard.rest !== text && !heard.city) return; // a sentence, not the name of a city
     const ctrl = new AbortController();
     findCity(text, lang, ctrl.signal).then((hit) => {
       if (!hit) return;
@@ -1054,12 +1077,12 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
 
         <div className="panel-body" ref={bodyRef}>
-          {smart && !selected && (
+          {smart?.city && !selected && (
             <button type="button" className="city-jump" onClick={applySmart}>
               <span aria-hidden="true">✨</span> {L('הבנו! לחצו כדי לסנן לפי החיפוש', 'Got it! Tap to filter by your search')}
             </button>
           )}
-          {cityHit && !smart && !selected && (
+          {cityHit && !smart?.city && !selected && (
             <button type="button" className="city-jump" onClick={() => {
               setFocus({ key: Date.now(), points: [cityHit.point], zoom: 13 });
               setMapCenter(cityHit.point);
