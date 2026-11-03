@@ -788,7 +788,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const currentStep = navigating && directions ? directions.steps[Math.min(stepIndex, directions.steps.length - 1)] : null;
 
   return (
-    <div className="app" data-sheet={sheet} data-panel={panelClosed ? 'closed' : 'open'} ref={appRef}>
+    <div className="app" data-sheet={sheet} data-panel={panelClosed ? 'closed' : 'open'} data-place={selected ? 'open' : undefined} ref={appRef}>
       <button type="button" className="panel-toggle" aria-expanded={!panelClosed} aria-label={panelClosed ? L('פתיחת התפריט', 'Open the menu') : L('קיפול התפריט', 'Fold the menu')} onClick={() => setPanelClosed((v) => !v)}>
         <span aria-hidden="true">{panelClosed ? '☰' : '✕'}</span>
       </button>

@@ -1137,3 +1137,17 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .place-part .sec:nth-of-type(even) > h3 { background: var(--vegan-soft); }
 /* every need stays in view, even on a narrow phone */
 .main-chips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 0; }
+
+/* the way back from a place is always in reach */
+.detail-top { position: sticky; top: -6px; z-index: 3; align-items: center; margin: -6px -4px 0; padding: 6px 4px; background: var(--surface); }
+.back-pill { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; padding: 9px 16px; background: var(--ink); color: var(--bg); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform .15s; }
+.back-pill:hover { transform: translateX(2px); }
+.place-tabs { top: 46px; }
+@media (max-width: 760px) {
+  /* inside a place the search and its tabs step aside, so the place and the way back fit */
+  .app[data-place="open"] .panel-head .search,
+  .app[data-place="open"] .panel-head .tabs { display: none; }
+  .app[data-place="open"] .panel-head { padding-bottom: 12px; }
+  .app[data-place="open"] .panel-body { padding-top: 12px; }
+  .detail-tools .link { font-size: 13px; }
+}

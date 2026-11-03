@@ -82,18 +82,18 @@ export default function PlaceDetail({
 
   return (
     <div className="detail" ref={root}>
+      <div className="detail-top">
+        <button type="button" className="back-pill" onClick={onBack}><span aria-hidden="true">{lang === 'en' ? '←' : '→'}</span> {back}</button>
+        <span className="detail-tools">
+          {speechSupported() && (
+            <button type="button" className="link" onClick={() => root.current && readAloud(readableText(root.current))}>
+              <span aria-hidden="true">🔊</span> {L('הקראה', 'Read aloud')}
+            </button>
+          )}
+          <button type="button" className="link" onClick={onShare}><span aria-hidden="true">🔗</span> {L('העתקת קישור', 'Copy link')}</button>
+        </span>
+      </div>
       <div className="detail-head">
-        <div className="detail-top">
-          <button type="button" className="link" onClick={onBack}>{back}</button>
-          <span className="detail-tools">
-            {speechSupported() && (
-              <button type="button" className="link" onClick={() => root.current && readAloud(readableText(root.current))}>
-                <span aria-hidden="true">🔊</span> {L('הקראה', 'Read aloud')}
-              </button>
-            )}
-            <button type="button" className="link" onClick={onShare}><span aria-hidden="true">🔗</span> {L('העתקת קישור', 'Copy link')}</button>
-          </span>
-        </div>
         <h2><span className="h-emoji" aria-hidden="true">{placeEmoji(place.place_type)}</span>{place.name}</h2>
         <div className="meta">
           <span className="tag">{placeTypeLabel(place.place_type, lang)}</span>
