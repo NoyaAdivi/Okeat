@@ -1431,3 +1431,14 @@ html, body { overscroll-behavior-x: none; }
 .dash-details small { color: var(--muted); }
 .dash-details time { flex: none; color: var(--muted); font-size: 0.8125rem; }
 @media (prefers-reduced-motion: reduce) { .dash-details { animation: none; } .dash-stats li:has(button) { transition: none; } .dash-stats li:has(button):hover { transform: none; } }
+
+/* ---------- Google's button: no white box around it in dark mode ---------- */
+.gis-box iframe { color-scheme: light; }
+
+.mail-resent { margin: 0; color: var(--ink); font-size: 0.875rem; font-weight: 600; }
+
+/* ---------- phone: the page moves only up and down ---------- */
+@media (max-width: 760px) {
+  html, body { touch-action: pan-y pinch-zoom; }
+  html:has(.app), body:has(.app) { position: fixed; inset: 0; width: 100%; overflow: hidden; }
+}

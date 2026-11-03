@@ -29,6 +29,8 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
   const [needEmail, setNeedEmail] = useState(false);
   // True only after a real send: the code step can also open with no new email.
   const [justSent, setJustSent] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
   const [checking, setChecking] = useState(false);
@@ -85,6 +87,26 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
     }
   };
 
+  // Stays on this step: the address is already known, so asking for it again would only slow people down.
+  const resend = async () => {
+    setError('');
+    setResent(false);
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setNeedEmail(true);
+      setError(L('כתובת המייל לא נראית תקינה.', "That email address doesn't look right."));
+      return;
+    }
+    setResending(true);
+    const { error } = await sb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: callbackUrl() } });
+    setResending(false);
+    if (error) { setError(authMessage(error)); return; }
+    sb.rpc('log_mail_sent').then(() => undefined, () => undefined);
+    try { localStorage.setItem(LAST_EMAIL, email.trim()); } catch { /* private window */ }
+    setCode('');
+    setJustSent(true);
+    setResent(true);
+  };
+
   if (state === 'sent') {
     return (
       <Modal title={justSent ? L('שלחנו לך מייל', 'We sent you an email') : L('כתיבת הקוד מהמייל', 'Enter the code from the email')} onClose={onClose}>
@@ -115,8 +137,9 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
           </form>
           <p className="mail-help">
             {justSent ? L('לא הגיע? בדקו בספאם, או', 'Not there? Check spam, or') : L('אין לך קוד?', 'No code?')}{' '}
-            <button type="button" className="link" onClick={() => { setError(''); setState('idle'); }}>{justSent ? L('שלחו שוב', 'send again') : L('שליחת מייל חדש', 'Send a new email')}</button>
+            <button type="button" className="link" disabled={resending} onClick={resend}>{resending ? L('שולח…', 'Sending…') : justSent ? L('שלחו שוב', 'send again') : L('שליחת מייל חדש', 'Send a new email')}</button>
           </p>
+          {resent && <p className="mail-resent" role="status">{L('שלחנו מייל חדש. בדקו בתיבה.', 'We sent a new email. Check your inbox.')}</p>}
         </div>
       </Modal>
     );

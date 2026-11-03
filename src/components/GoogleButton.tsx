@@ -1,5 +1,6 @@
 'use client';
 
+import { isDarkNow } from '@/lib/prefs';
 import { useEffect, useRef } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useL } from './LangProvider';
@@ -73,7 +74,8 @@ export default function GoogleButton({ sb, onDone, onError, onUnavailable }: Pro
         },
       });
       google.accounts.id.renderButton(box.current, {
-        theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with',
+        theme: isDarkNow() ? 'filled_black' : 'outline',
+        size: 'large', shape: 'pill', text: 'continue_with',
         locale: L.lang, width: Math.min(box.current.clientWidth || 320, 400),
       });
     })().catch(() => { if (!cancelled) onUnavailable(); });
