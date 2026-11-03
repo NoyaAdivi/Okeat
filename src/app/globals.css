@@ -1329,3 +1329,9 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .filters-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .clear-filters { min-height: 36px; padding: 6px 12px; border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .clear-filters:hover { background: var(--surface-2); }
+
+/* the page never moves sideways: rows that scroll do it inside themselves */
+html, body { overflow-x: hidden; overscroll-behavior-x: none; }
+.app { overflow: hidden; }
+.shared, .panel-body { overflow-x: hidden; }
+.detail-top, .detail-tools { flex-wrap: wrap; }

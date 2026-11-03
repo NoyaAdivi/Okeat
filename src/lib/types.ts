@@ -33,7 +33,7 @@ const twoLevels = (some: [string, string], all: [string, string], allNote?: [str
 // Mirrors level_rank() in SQL. Higher rank = stricter / safer.
 export const LEVELS: Record<Need, LevelInfo[]> = {
   kosher: [
-    { value: 'marked', label: 'מסומן ככשר', en: 'Marked kosher', rank: 0, note: 'מסומן ככשר ב-OpenStreetMap. עוד אין צילום של תעודה.', noteEn: 'Marked as kosher on OpenStreetMap. No photo of a certificate yet.' },
+    { value: 'marked', label: 'מסומן ככשר', en: 'Marked kosher', rank: 0, note: 'מופיע ככשר במאגר פתוח. עוד אין צילום של תעודה.', noteEn: 'Listed as kosher in an open database. No certificate photo yet.' },
     { value: 'unknown', label: 'כשר, הגוף המשגיח לא ידוע', en: 'Kosher, supervising body unknown', rank: 0, note: 'מישהו ראה שהמקום כשר, אבל לא יודע מי נותן את ההשגחה.', noteEn: "Someone saw the place is kosher, but doesn't know who supervises it." },
     { value: 'pikuach', label: 'מפוקח (השגחה פרטית)', en: 'Supervised (private)', rank: 0, note: 'השגחה פרטית, לא של הרבנות. לפי החוק המקום לא מוצג ככשר.', noteEn: 'Private supervision, not the Rabbinate. By law the place is not presented as kosher.' },
     { value: 'tzohar', label: 'השגחת צהר', en: 'Tzohar supervision', rank: 0, note: 'השגחה פרטית של ארגון צהר. לפי החוק המקום לא מוצג ככשר.', noteEn: 'Private supervision by Tzohar. By law the place is not presented as kosher.' },

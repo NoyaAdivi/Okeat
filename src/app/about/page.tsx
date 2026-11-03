@@ -40,8 +40,8 @@ const faqOf = (L: T) => [
   {
     group: 'kosher',
     q: L('מה זה "מסומן ככשר"?', 'What does "marked kosher" mean?'),
-    a: L('מקום שסומן ככשר ב-OpenStreetMap, אבל עוד אין באתר צילום של התעודה שלו. אם אתם שם, צלמו את התעודה ועזרו לכולם.',
-      "A place marked as kosher on OpenStreetMap, but with no photo of its certificate on the site yet. If you're there, photograph the certificate and help everyone."),
+    a: L('מקום שמופיע ככשר במאגר פתוח, אבל עוד אין באתר צילום של התעודה שלו. אם אתם שם, צלמו את התעודה ועזרו לכולם.',
+      "A place listed as kosher in an open database, but with no photo of its certificate on the site yet. If you're there, photograph the certificate and help everyone."),
   },
   {
     group: 'data',

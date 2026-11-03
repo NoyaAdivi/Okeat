@@ -100,7 +100,7 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
             <Avatar name="OSM" url={null} size={34} />
             <span>
               <small>{L('מקור', 'Source')}</small>
-              <b>{L('מפה פתוחה (OpenStreetMap)', 'Open map data (OpenStreetMap)')}</b>
+              <b>{L('מאגר פתוח', 'An open database')}</b>
             </span>
           </span>
         )}

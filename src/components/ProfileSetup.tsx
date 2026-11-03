@@ -70,9 +70,9 @@ export default function ProfileSetup() {
       <form onSubmit={save} className="field" noValidate>
         <label htmlFor="setup-name">{L('שם משתמש', 'Username')}</label>
         <input id="setup-name" maxLength={40} autoComplete="nickname" value={name} onChange={(e) => setName(e.target.value)} />
+        {error && <div className="err" role="alert">{error}</div>}
         <label htmlFor="setup-food">{L('מה האוכל האהוב עליך? (לא חובה)', "What's your favorite food? (optional)")}</label>
         <input id="setup-food" maxLength={60} value={food} onChange={(e) => setFood(e.target.value)} placeholder={L('למשל: פיצה, סושי, שקשוקה', 'For example: pizza, sushi, shakshuka')} />
-        {error && <div className="err" role="alert">{error}</div>}
         <div className="modal-acts">
           <button type="button" className="btn" onClick={later}>{L('אחר כך', 'Later')}</button>
           <button type="submit" className="btn primary" disabled={busy}>{busy ? L('שומר…', 'Saving…') : L('שמירה', 'Save')}</button>

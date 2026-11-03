@@ -114,7 +114,7 @@ export default function PlaceDetail({
           <span className={st.open ? 'st-open' : undefined}>{st.text}</span>
         </div>
         {foods.length > 0 && place.cuisine_source !== 'community' && (
-          <p className="foods-note">{place.cuisine_source === 'osm' ? L('סוג האוכל לפי OpenStreetMap.', 'Food type from OpenStreetMap.') : place.cuisine_source === 'overture' ? L('סוג האוכל לפי Overture Maps. לא מאושר.', 'Food type from Overture Maps. Not confirmed.') : L('סוג האוכל משוער לפי שם המקום. לא מאושר.', "Food type guessed from the place's name. Not confirmed.")}</p>
+          <p className="foods-note">{place.cuisine_source === 'osm' ? L('סוג האוכל ממאגר פתוח.', 'Food type from an open database.') : place.cuisine_source === 'overture' ? L('סוג האוכל ממאגר פתוח. לא מאושר.', 'Food type from an open database. Not confirmed.') : L('סוג האוכל משוער לפי שם המקום. לא מאושר.', "Food type guessed from the place's name. Not confirmed.")}</p>
         )}
       </div>
 
@@ -167,7 +167,7 @@ export default function PlaceDetail({
                   <div className="trust">
                     {imported ? (
                       <span className="src">
-                        {c.source === 'auto' ? L('סיווג אוטומטי לפי שם המקום. לא מאושר.', "Guessed from the place's name. Not confirmed.") : L('מתוך OpenStreetMap, עוד לא אושר על ידי הקהילה', 'From OpenStreetMap, not confirmed by the community yet')}
+                        {c.source === 'auto' ? L('סיווג אוטומטי לפי שם המקום. לא מאושר.', "Guessed from the place's name. Not confirmed.") : L('עוד לא אושר על ידי הקהילה', 'Not confirmed by the community yet')}
                       </span>
                     ) : (
                       <>
