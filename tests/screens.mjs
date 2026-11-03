@@ -18,7 +18,8 @@ for (const [name, viewport] of [['computer', { width: 1280, height: 800 }], ['ph
   await page.waitForSelector('.mapboxgl-canvas', { timeout: 20000 }).catch(() => fail(`${name}: the map did not appear`));
   await page.waitForSelector('.panel-body li button.item', { timeout: 20000 }).catch(() => fail(`${name}: the list is empty`));
 
-  await page.click('.account-in').catch(() => fail(`${name}: no sign-in button`));
+  // The map has this button twice, one for each layout, and shows only one.
+  await page.locator('.account-in:visible').first().click().catch(() => fail(`${name}: no sign-in button`));
   await page.waitForSelector('#auth-email', { timeout: 5000 }).catch(() => fail(`${name}: the sign-in window did not open`));
 
   await page.goto(`${site}/cities`);
