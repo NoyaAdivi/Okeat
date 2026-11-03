@@ -488,7 +488,9 @@ export default function MapView({
   // Switch the map labels when the page language changes.
   useEffect(() => {
     const map = mapRef.current;
-    if (map && map.isStyleLoaded()) styleMap(map, isDarkNow(), lang);
+    if (!map) return;
+    if (map.isStyleLoaded()) styleMap(map, isDarkNow(), lang);
+    else map.once('idle', () => styleMap(map, isDarkNow(), lang));
   }, [lang]);
 
   // "You are here".
