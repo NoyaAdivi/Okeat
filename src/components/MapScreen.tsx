@@ -18,6 +18,7 @@ import { speak, speechSupported, stopSpeaking } from '@/lib/speech';
 import { formatMeters } from '@/lib/geo';
 import Logo from './Logo';
 import FilterBar from './FilterBar';
+import LocationHelp from './LocationHelp';
 import PlaceList from './PlaceList';
 import PlaceDetail from './PlaceDetail';
 import NavPanel, { NavBanner } from './NavPanel';
@@ -163,6 +164,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [addAt, setAddAt] = useState<LatLng | null>(null);
   const [addAddress, setAddAddress] = useState('');
   const [addSearch, setAddSearch] = useState(false);
+  const [locHelp, setLocHelp] = useState(false);
   const [certFor, setCertFor] = useState<Place | null>(null);
   const [infoFor, setInfoFor] = useState<{ place: Place; need: Need } | null>(null);
 
@@ -327,8 +329,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const signedIn = !!user && !user.is_anonymous;
   const visible = useMemo(() => {
     const open = openFilter ? places.filter((p) => isOpen(p.hours)) : places;
-    return signedIn ? open : open.map(withoutPending);
-  }, [places, openFilter, signedIn]);
+    const shown = signedIn ? open : open.map(withoutPending);
+    // Minutes are from where you are, not from wherever the map happens to be. Unknown location: no minutes.
+    if (!me) return shown.map((p) => ({ ...p, distance_m: null }));
+    return shown.map((p) => ({ ...p, distance_m: Math.round(haversine(me, p)) })).sort((a, b) => a.distance_m - b.distance_m);
+  }, [places, openFilter, signedIn, me]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
@@ -464,7 +469,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         if (pos.coords.accuracy > 1500) showToast(L('המיקום לא מדויק (כנראה לפי האינטרנט). בטלפון הוא יהיה מדויק יותר.', 'The location is not accurate (probably from your internet connection). It will be more accurate on a phone.'));
         else setToast('');
       },
-      () => showToast(L('לא קיבלנו את המיקום. בדקו שהרשיתם לאתר לראות מיקום.', "We didn't get your location. Check that the site is allowed to see it.")),
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) setLocHelp(true);
+        else showToast(L('לא קיבלנו את המיקום. בדקו שהרשיתם לאתר לראות מיקום.', "We didn't get your location. Check that the site is allowed to see it."));
+      },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
     );
   };
@@ -1183,6 +1191,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         </div>
       </aside>
 
+      {locHelp && <LocationHelp onClose={() => setLocHelp(false)} onRetry={() => { setLocHelp(false); locateMe(); }} />}
       {auth && <AuthDialog sb={sb} reason={auth.reason} startWithCode={auth.startWithCode} onClose={() => setAuth(null)} />}
 
       {addAt && (

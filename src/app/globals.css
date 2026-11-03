@@ -1698,3 +1698,5 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .signed-in-note { left: 0; right: 0; width: fit-content; max-width: min(480px, calc(100% - 24px)); margin-inline: auto; transform: none; border-radius: 20px; box-sizing: border-box; text-align: center; }
 @keyframes signed-in-drop { from { opacity: 0; transform: translateY(-12px); } }
 .signed-in-note { animation-name: signed-in-drop; }
+
+.loc-steps { display: grid; gap: 8px; margin: 0; padding-inline-start: 22px; }
