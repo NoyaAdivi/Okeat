@@ -10,7 +10,7 @@ import { formatDate } from '@/lib/geo';
 import { useL } from './LangProvider';
 
 /** On your own profile: what's new, and your lists. */
-export default function ProfileExtras({ sb, userId }: { sb: SupabaseClient; userId: string }) {
+export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient; userId: string; show: 'notes' | 'lists' }) {
   const L = useL();
   const [notes, setNotes] = useState<MyNotification[]>([]);
   const [lists, setLists] = useState<MyList[]>([]);
@@ -35,8 +35,8 @@ export default function ProfileExtras({ sb, userId }: { sb: SupabaseClient; user
 
   return (
     <>
-      <section className="sec">
-        <h2>{L('התראות', 'Notifications')}</h2>
+      {show === 'notes' && <section className="sec">
+        <h2 className="vh">{L('התראות', 'Notifications')}</h2>
         {notes.length === 0 && <p className="muted">{L('אין כרגע. כשמידע שהוספת יאושר, או תעודה שהעלית תתקרב לסיום, נספר לך כאן.', "Nothing right now. When your information is confirmed, or a certificate you added is about to end, you'll see it here.")}</p>}
         <ul className="profile-places">
           {notes.map((n) => (
@@ -50,10 +50,10 @@ export default function ProfileExtras({ sb, userId }: { sb: SupabaseClient; user
             </li>
           ))}
         </ul>
-      </section>
+      </section>}
 
-      <section className="sec">
-        <h2>{L('הרשימות שלי', 'My lists')}</h2>
+      {show === 'lists' && <section className="sec">
+        <h2 className="vh">{L('הרשימות שלי', 'My lists')}</h2>
         <form className="mini-form" onSubmit={add}>
           <input maxLength={60} value={title} onChange={(e) => setTitle(e.target.value)} placeholder={L('למשל: הטבעוני שאני אוהבת בתל אביב', 'For example: my favorite vegan spots in Tel Aviv')} aria-label={L('שם הרשימה', 'List name')} />
           <button type="submit" className="btn small" disabled={title.trim().length < 2}>{L('יצירת רשימה', 'Create a list')}</button>
@@ -67,7 +67,7 @@ export default function ProfileExtras({ sb, userId }: { sb: SupabaseClient; user
             </li>
           ))}
         </ul>
-      </section>
+      </section>}
     </>
   );
 }

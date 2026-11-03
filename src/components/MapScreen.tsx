@@ -653,6 +653,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       showToast(myFilter ? L('הסינון הקבוע בוטל', 'Your saved filter was removed') : L('שמרנו. הסינון יופעל כאן בכל כניסה', "Saved. This filter will be on every time you come back"));
     } catch { /* blocked storage */ }
   };
+  // The community queue is for people who are signed in.
+  useEffect(() => { if ((!user || user.is_anonymous) && tab === 'queue') setTab('near'); }, [user, tab]);
   const fixAddress = useRef<string | null>(null);
   useEffect(() => {
     if (!user || user.is_anonymous) { setIsAdmin(false); return; }
@@ -969,9 +971,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             <button type="button" role="tab" className="tab" aria-selected={tab === 'near'} onClick={() => { setTab('near'); if (sheet === 'peek') setSheet('half'); }}>
               {L('בסביבה', 'Nearby')}
             </button>
-            <button type="button" role="tab" className="tab" aria-selected={tab === 'queue'} onClick={() => { setTab('queue'); deselect(); if (sheet === 'peek') setSheet('half'); }}>
-              {L('לאישור הקהילה', 'For the community to confirm')} {queue.length > 0 && <span className="count">{queue.length}</span>}
-            </button>
+            {user && !user.is_anonymous && (
+              <button type="button" role="tab" className="tab" aria-selected={tab === 'queue'} onClick={() => { setTab('queue'); deselect(); if (sheet === 'peek') setSheet('half'); }}>
+                {L('לאישור הקהילה', 'For the community to confirm')} {queue.length > 0 && <span className="count">{queue.length}</span>}
+              </button>
+            )}
           </div>
         </div>
 

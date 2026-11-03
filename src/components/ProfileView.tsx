@@ -11,6 +11,24 @@ import { formatDate } from '@/lib/geo';
 import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 import { openProfileForm } from './ProfileSetup';
+
+/** A number that runs up once when the profile opens. */
+function CountUp({ to }: { to: number }) {
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || to === 0) { setShown(to); return; }
+    const start = performance.now();
+    let frame = 0;
+    const step = (t: number) => {
+      const k = Math.min(1, (t - start) / 700);
+      setShown(Math.round(to * (1 - (1 - k) ** 3)));
+      if (k < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [to]);
+  return <>{shown}</>;
+}
 import ProfileExtras from './ProfileExtras';
 import { earnedBadges } from '@/lib/checks';
 import Avatar from './Avatar';
@@ -40,6 +58,7 @@ export default function ProfileView({ id }: { id: string }) {
   // Site admins see role buttons on other people's profiles.
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
+  const [section, setSection] = useState<'notes' | 'lists' | 'saved' | 'added'>('notes');
   const [saved, setSaved] = useState<{ id: string; name: string; place_type: string }[]>([]);
   useEffect(() => { if (mine) fetchMyFavorites(sb).then(setSaved); }, [sb, mine]);
   useEffect(() => {
@@ -72,9 +91,9 @@ export default function ProfileView({ id }: { id: string }) {
         {profile && (
           <>
             <section className="profile-card">
-              <Avatar name={profile.display_name} url={profile.avatar_url} size={88} />
-              <div>
-                <h1>{profile.display_name}{mine && <small className="me-tag">{L(' (זה את/ה)', ' (you)')}</small>}</h1>
+              <span className="seal k profile-seal"><Avatar name={profile.display_name} url={profile.avatar_url} size={88} /></span>
+              <div className="profile-who">
+                <h1>{profile.display_name}</h1>
                 {role && <span className="role-tag">🏅 {role}</span>}
                 {earnedBadges(profile).length > 0 && (
                   <p className="earned-badges">
@@ -91,10 +110,11 @@ export default function ProfileView({ id }: { id: string }) {
                 <p className="muted">{L('הצטרף/ה ל-Okeat ב-', 'Joined Okeat on ')}{formatDate(profile.joined_at.slice(0, 10))}</p>
               </div>
             </section>
-            <ul className="profile-stats">
-              <li><b>{profile.places_added}</b><span>{L('מקומות שהוסיף/ה', 'places added')}</span></li>
-              <li><b>{profile.info_added}</b><span>{L('פרטי מידע שהוסיף/ה', 'pieces of info added')}</span></li>
-              <li><b>{profile.confirmations}</b><span>{L('אישורים בקהילה', 'confirmations')}</span></li>
+            <ul className="profile-numbers">
+              <li className="k"><b><CountUp to={profile.places_added} /></b><span>{L('מקומות שהוסיף/ה', 'places added')}</span></li>
+              <li className="v"><b><CountUp to={profile.info_added} /></b><span>{L('פרטי מידע', 'pieces of info')}</span></li>
+              <li className="h"><b><CountUp to={profile.confirmations} /></b><span>{L('אישורים', 'confirmations')}</span></li>
+              <li className="g"><b><CountUp to={profile.reviews} /></b><span>{L('ביקורות', 'reviews')}</span></li>
             </ul>
             {viewerAdmin && !mine && (
               <section className="role-admin" aria-label={L('הרשאות המשתמש', 'User permissions')}>
@@ -111,8 +131,17 @@ export default function ProfileView({ id }: { id: string }) {
             {mine && profile.role !== 'user' && (
               <p className="center"><Link className="btn" href="/admin">{L('לדיווחים ולבקשות', 'Reports and requests')}</Link></p>
             )}
-            {mine && user && <ProfileExtras sb={sb} userId={user.id} />}
-            {mine && (
+            {mine && user && (
+              <div className="profile-tabs" role="tablist" aria-label={L('החלקים בפרופיל', 'Profile sections')}>
+                {([['notes', '🔔', L('התראות', 'Notifications')], ['lists', '📋', L('רשימות', 'Lists')], ['saved', '❤️', L('שמורים', 'Saved')], ['added', '📍', L('הוספתי', 'Added')]] as const).map(([value, emoji, label]) => (
+                  <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}><span aria-hidden="true">{emoji}</span> {label}</button>
+                ))}
+              </div>
+            )}
+            <div key={section} className="profile-section">
+            {mine && user && section === 'notes' && <ProfileExtras sb={sb} userId={user.id} show="notes" />}
+            {mine && user && section === 'lists' && <ProfileExtras sb={sb} userId={user.id} show="lists" />}
+            {section === 'saved' && mine && (
               <section className="sec">
                 <h2>{L('מקומות ששמרתי', 'Saved places')}</h2>
                 {saved.length === 0 ? <p className="muted">{L('עוד אין. לחצו על הלב במקום שאהבתם.', 'None yet. Press the heart on a place you like.')}</p> : (
@@ -124,6 +153,7 @@ export default function ProfileView({ id }: { id: string }) {
                 )}
               </section>
             )}
+            {(section === 'added' || !mine) && (
             <section className="sec">
               <h2>{L('מקומות שהוסיף/ה', 'Places added')}</h2>
               {places.length === 0 ? <p className="muted">{L('עוד אין.', 'None yet.')}</p> : (
@@ -139,6 +169,8 @@ export default function ProfileView({ id }: { id: string }) {
                 </ul>
               )}
             </section>
+            )}
+            </div>
           </>
         )}
       </main>

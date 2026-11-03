@@ -77,20 +77,30 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
 
   if (state === 'sent') {
     return (
-      <Modal title={L('בדקו את המייל', 'Check your email')} onClose={onClose}>
-        <p style={{ margin: 0 }}>
-          {L('שלחנו מייל התחברות ל-', 'We sent a sign-in email to ')}<b dir="ltr">{email.trim()}</b>{L('. לחצו על הכפתור שבמייל, או כתבו כאן את הקוד.', '. Press the button in the email, or enter the code here.')}
-        </p>
-        <p className="muted small" style={{ margin: '8px 0 0' }}>{L('לא מוצאים את המייל? בדקו בספאם ובקידומי מכירות. לפעמים הוא מגיע אחרי דקה או שתיים.', "Can't find the email? Check your spam and promotions folders. It can take a minute or two.")}</p>
-        <form onSubmit={checkCode} className="field" noValidate>
-          <label htmlFor="auth-code">{L('אם קיבלתם קוד במייל, כתבו אותו כאן', 'If the email has a code, enter it here')}</label>
-          <input id="auth-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
-          {error && <div className="err" role="alert">{error}</div>}
-          <div className="modal-acts">
-            <button type="button" className="btn" onClick={() => { setError(''); setState('idle'); }}>{L('שליחה מחדש', 'Send again')}</button>
-            <button type="submit" className="btn primary" disabled={checking || code.length < 6}>{checking ? L('בודק…', 'Checking…') : L('כניסה', 'Sign in')}</button>
+      <Modal title={L('שלחנו לך מייל', 'We sent you an email')} onClose={onClose}>
+        <div className="mail-sent">
+          <span className="mail-sent-icon" aria-hidden="true">💌</span>
+          <p>{L('המייל בדרך אל', 'It is on its way to')} <b dir="ltr">{email.trim()}</b></p>
+        </div>
+        <p className="mail-ways-title">{L('אפשר להיכנס באחת משתי הדרכים:', 'You can sign in either way:')}</p>
+        <div className="mail-ways">
+          <div className="mail-way">
+            <span className="mail-way-emoji" aria-hidden="true">👆</span>
+            <b>{L('לוחצים על הכפתור במייל', 'Press the button in the email')}</b>
+            <p>{L('הוא יחזיר אתכם לאתר, מחוברים.', 'It brings you back here, signed in.')}</p>
           </div>
-        </form>
+          <form onSubmit={checkCode} className="mail-way" noValidate>
+            <span className="mail-way-emoji" aria-hidden="true">🔢</span>
+            <label htmlFor="auth-code"><b>{L('או כותבים כאן את הקוד מהמייל', 'Or enter the code from the email')}</b></label>
+            <input id="auth-code" className="mail-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
+            {error && <div className="err" role="alert">{error}</div>}
+            <button type="submit" className="btn primary" disabled={checking || code.length < 6}>{checking ? L('בודק…', 'Checking…') : L('כניסה עם הקוד', 'Sign in with the code')}</button>
+          </form>
+        </div>
+        <p className="mail-spam">{L('לא מוצאים את המייל? בדקו בספאם ובקידומי מכירות, ותנו לו דקה או שתיים.', "Can't find it? Check spam and promotions, and give it a minute or two.")}</p>
+        <div className="modal-acts">
+          <button type="button" className="btn" onClick={() => { setError(''); setState('idle'); }}>{L('שליחה מחדש', 'Send again')}</button>
+        </div>
       </Modal>
     );
   }
