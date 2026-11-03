@@ -2,6 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useUser } from '@/lib/useUser';
+import AccountButton from './AccountButton';
+import AuthDialog from './AuthDialog';
 import Logo from './Logo';
 import DisplayToggles from './DisplayToggles';
 import { useL } from './LangProvider';
@@ -11,12 +16,16 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/in/noya-adivi';
 export function SiteHeader() {
   const path = usePathname();
   const L = useL();
+  const sb = useMemo(() => createClient(), []);
+  const { user, ready } = useUser(sb);
+  const [signingIn, setSigningIn] = useState(false);
   const links = [
     { href: '/', label: L('בית', 'Home'), emoji: '🏠' },
     { href: '/map', label: L('המפה', 'Map'), emoji: '🗺️' },
     { href: '/about', label: L('איך זה עובד', 'How it works'), emoji: '💡' },
   ];
   return (
+    <>
     <header className="site-head">
       <Link href="/" className="brand-link" aria-label={L('Okeat, דף הבית', 'Okeat, home page')}>
         <Logo size={40} />
@@ -29,8 +38,13 @@ export function SiteHeader() {
           </Link>
         ))}
       </nav>
-      <DisplayToggles />
+      <div className="site-tools">
+        <DisplayToggles />
+        <AccountButton sb={sb} user={user} ready={ready} onSignIn={() => setSigningIn(true)} onSignedOut={() => undefined} />
+      </div>
     </header>
+    {signingIn && <AuthDialog sb={sb} onClose={() => setSigningIn(false)} />}
+    </>
   );
 }
 

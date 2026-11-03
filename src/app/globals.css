@@ -1267,3 +1267,15 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .reply-check p { margin: 0; }
 .reply-check div { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (prefers-reduced-motion: reduce) { .reply-check { animation: none; } }
+
+/* ---------- sign-in in the site header ---------- */
+.site-tools { display: flex; align-items: center; gap: 8px; flex: none; }
+@media (max-width: 767px) {
+  .site-head { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .site-head .site-tools { margin-inline-start: auto; }
+  .site-head .display-toggles { margin-inline-start: 0; }
+  .site-head nav { order: 3; flex: 1 0 100%; }
+}
+@media (max-width: 350px) {
+  .site-head .brand-link span { display: none; }
+}
