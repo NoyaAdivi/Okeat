@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cachedMapPoints, certificateUrl, clearPointsCache, fetchAllPlacesFallback, fetchMapPoints, fetchProfile, fixPlaceLocation, fetchMyVotes, fetchNearby, fetchPlace, fetchQueue, vote } from '@/lib/places';
-import { NEED_ORDER, placeToPoint } from '@/lib/claims';
-import { matchesCuisine } from '@/lib/cuisine';
+import { NEED_ORDER, placeToPoint, withoutPending } from '@/lib/claims';
+import { matchesAnyCuisine } from '@/lib/cuisine';
 import type { MapPoint, Need, NeedFilter, PendingClaim, Place } from '@/lib/types';
 import { isOpen } from '@/lib/hours';
 import { RAMAT_GAN, distanceToLine, haversine, type LatLng } from '@/lib/geo';
@@ -100,7 +100,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [openNow, setOpenNow] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [cuisine, setCuisine] = useState<string | null>(null);
+  const [cuisine, setCuisine] = useState<string[]>([]);
   const [viewCenter, setViewCenter] = useState<LatLng | null>(null);
   const centerGetter = useRef<(() => LatLng) | null>(null);
 
@@ -255,7 +255,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           .then((rows) => {
             if (cancelled) return;
             const pts = rows.map(placeToPoint);
-            setPoints(cuisine ? pts.filter((p) => matchesCuisine(p, cuisine)) : pts);
+            setPoints(cuisine.length ? pts.filter((p) => matchesAnyCuisine(p, cuisine)) : pts);
           })
           .catch(() => !cancelled && setPoints(null)),
       );
@@ -287,7 +287,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sb, located, user, searchCenter, refreshKey]);
 
-  const visible = useMemo(() => (openNow ? places.filter((p) => isOpen(p.hours)) : places), [places, openNow]);
+  const signedIn = !!user && !user.is_anonymous;
+  const visible = useMemo(() => {
+    const open = openNow ? places.filter((p) => isOpen(p.hours)) : places;
+    return signedIn ? open : open.map(withoutPending);
+  }, [places, openNow, signedIn]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
@@ -616,7 +620,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     if (smart.openNow) setOpenNow(true);
     const hit = smart.city ? await findCity(smart.city, lang, new AbortController().signal).catch(() => null) : null;
     const isCity = !!hit && isCityName(smart.city!, hit.name);
-    setQuery(isCity || !smart.city ? smart.rest : `${smart.rest} ב${smart.city}`.trim());
+    setQuery(isCity || !smart.city ? smart.rest : L(`${smart.rest} ב${smart.city}`, `${smart.rest} in ${smart.city}`).trim());
     if (isCity) {
       setFocus({ key: Date.now(), points: [hit.point], zoom: 13 });
       setMapCenter(hit.point);
@@ -719,7 +723,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const resetFilters = () => {
     setFilter(NO_FILTER);
     setOpenNow(false);
-    setCuisine(null);
+    setCuisine([]);
     setQuery('');
   };
 
@@ -939,6 +943,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                 <span className="tag">{L('איפה באמת אפשר לאכול', 'Where you can really eat')}</span>
               </span>
             </Link>
+            <Link href="/" className="dt-btn map-home" aria-label={L('לדף הבית', 'To the home page')} title={L('לדף הבית', 'To the home page')}>
+              <span aria-hidden="true">🏠</span>
+            </Link>
             <DisplayToggles compact />
             <AccountButton
               sb={sb}
@@ -1008,6 +1015,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           ) : selected ? (
             <PlaceDetail
               place={selected}
+              signedIn={signedIn}
+              onSignIn={() => setAuth({ reason: L('כדי להוסיף, לאשר או לתקן מידע צריך להתחבר. כך המידע באתר נשאר אמין.', 'To add, confirm or fix information, please sign in. It keeps the site reliable.') })}
               onFixLocation={isAdmin ? () => setFixOpen(true) : undefined}
               goPanel={
                 <NavPanel

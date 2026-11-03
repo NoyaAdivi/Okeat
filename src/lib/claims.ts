@@ -21,6 +21,8 @@ export function verifiedClaim(place: Place, need: Need): Claim | null {
 }
 
 export const pendingClaims = (place: Place) => place.claims.filter((c) => c.status === 'pending');
+/** What waits for confirmation is shown only to signed-in people. */
+export const withoutPending = (place: Place): Place => ({ ...place, claims: place.claims.filter((c) => c.status !== 'pending') });
 
 export const hasAnyVerified = (place: Place) => place.claims.some((c) => c.status === 'verified');
 

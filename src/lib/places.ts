@@ -1,4 +1,4 @@
-import { matchesCuisine } from './cuisine';
+import { matchesAnyCuisine } from './cuisine';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { TWO_LEVEL_NEEDS } from './claims';
 import type { ExtractedCertificate, KosherLevel, Level, MapPoint, Need, NeedFilter, PendingClaim, Place } from './types';
@@ -32,7 +32,7 @@ function extraParam(filter: NeedFilter): { p_extra?: Record<string, number> } {
 
 export async function fetchNearby(
   sb: SupabaseClient,
-  opts: { lat: number; lng: number; radiusM?: number; filter: NeedFilter; query?: string; limit?: number; cuisine?: string | null },
+  opts: { lat: number; lng: number; radiusM?: number; filter: NeedFilter; query?: string; limit?: number; cuisine?: string[] },
 ): Promise<Place[]> {
   const { data, error } = await sb.rpc('nearby_places', {
     p_lat: opts.lat,
@@ -48,7 +48,7 @@ export async function fetchNearby(
   if (error) throw error;
   const rows = (data ?? []) as Place[];
   // Categories are filtered here (stored category, type or name), so it works with any database version.
-  return opts.cuisine ? rows.filter((p) => matchesCuisine(p, opts.cuisine!)) : rows;
+  return opts.cuisine?.length ? rows.filter((p) => matchesAnyCuisine(p, opts.cuisine!)) : rows;
 }
 
 /**
@@ -96,14 +96,14 @@ export function clearPointsCache() {
 }
 
 /** Cached map points for these filters, if any (to draw before the network answers). */
-export function cachedMapPoints(filter: NeedFilter, query?: string, cuisine?: string | null): MapPoint[] | null {
+export function cachedMapPoints(filter: NeedFilter, query?: string, cuisine?: string[]): MapPoint[] | null {
   return cacheGet<MapPoint[]>(pointsKey(filter, query, cuisine));
 }
-const pointsKey = (filter: NeedFilter, query?: string, cuisine?: string | null) =>
-  `okeat:pts:${JSON.stringify([filter, query?.trim() || '', cuisine ?? ''])}`;
+const pointsKey = (filter: NeedFilter, query?: string, cuisine?: string[]) =>
+  `okeat:pts:${JSON.stringify([filter, query?.trim() || '', cuisine ?? []])}`;
 
 /** Every matching place in the country. Pages are fetched 4 at a time. */
-export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, query?: string, cuisine?: string | null): Promise<MapPoint[]> {
+export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, query?: string, cuisine?: string[]): Promise<MapPoint[]> {
   const PAGE = 1000;
   const PARALLEL = 4;
   const page = async (from: number) => {
@@ -125,7 +125,7 @@ export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, que
     for (const rows of batch) out.push(...rows);
     if (batch.some((rows) => rows.length < PAGE)) break;
   }
-  const result = cuisine ? out.filter((p) => matchesCuisine(p, cuisine)) : out;
+  const result = cuisine?.length ? out.filter((p) => matchesAnyCuisine(p, cuisine)) : out;
   cacheSet(pointsKey(filter, query, cuisine), result);
   return result;
 }

@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const type = placeTypeLabel(place.place_type, lang);
   const description = verified.length
     ? `${type}. ${verified.join(', ')}.`
-    : `${type}. ${lang === 'en' ? 'Waiting for community confirmation.' : 'ממתין לאישור הקהילה.'}`;
+    : `${type}. ${lang === 'en' ? 'No confirmed information yet.' : 'עוד אין מידע מאושר.'}`;
   return {
     title: `${place.name} | Okeat`,
     description,

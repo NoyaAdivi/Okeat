@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { formatDate, haversine } from '../src/lib/geo.ts';
+import { estimateTrip, formatDate, haversine } from '../src/lib/geo.ts';
 
 test('distance from a point to itself is zero', () => {
   const p = { lat: 32.08, lng: 34.78 };
@@ -14,4 +14,10 @@ test('Tel Aviv to Haifa is about 80 km', () => {
 
 test('dates are written day first', () => {
   assert.match(formatDate('2026-11-02'), /^0?2[./]/);
+});
+
+test('a long walk becomes a drive', () => {
+  assert.deepEqual(estimateTrip(800), { mode: 'walk', minutes: 13 });
+  assert.equal(estimateTrip(3000).mode, 'drive');
+  assert.equal(estimateTrip(3000).minutes, 8);
 });

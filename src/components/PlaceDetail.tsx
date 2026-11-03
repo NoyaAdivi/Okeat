@@ -18,6 +18,9 @@ import { addressAt } from '@/lib/geocode';
 
 interface Props {
   place: Place;
+  /** Signed in with a real account. Without one, a place can be read but not changed. */
+  signedIn: boolean;
+  onSignIn: () => void;
   /** Navigation block (mode, time, start button). */
   goPanel: ReactNode;
   voted: ReadonlyMap<string, 1 | -1>;
@@ -50,7 +53,7 @@ function Seal({ cls, letter }: { cls: string; letter: string }) {
 }
 
 export default function PlaceDetail({
-  place, goPanel, voted, certificateUrl, onBack, backLabel, onVote, onAddCertificate, onAddInfo, onShare, onFixLocation, extra,
+  place, signedIn, onSignIn, goPanel, voted, certificateUrl, onBack, backLabel, onVote, onAddCertificate, onAddInfo, onShare, onFixLocation, extra,
 }: Props) {
   const L = useL();
   // Saved without a street: show the nearest one, marked as approximate.
@@ -66,7 +69,7 @@ export default function PlaceDetail({
   const back = backLabel ?? L('חזרה לרשימה', 'Back to the list');
   const st = openStatus(place.hours, lang);
   const verified = NEED_ORDER.map((n) => verifiedClaim(place, n)).filter((c): c is Claim => c !== null);
-  const pending = pendingClaims(place);
+  const pending = signedIn ? pendingClaims(place) : [];
   const kosher = verifiedClaim(place, 'kosher');
   const kosherPending = pending.some((c) => c.need === 'kosher');
   // a photo strengthens kosher that is known but has no (valid) certificate
@@ -182,7 +185,7 @@ export default function PlaceDetail({
                     )}
                   </div>
                 </div>
-                <div className="acts">
+                {signedIn && <div className="acts">
                   <button type="button" className={`btn small${myVote === 1 ? ' done' : ''}`} disabled={!!myVote} onClick={() => onVote(c.id, 1)}>
                     {myVote === 1 ? L('אישרת, תודה', 'Confirmed, thanks') : imported ? L('נכון, הייתי שם', "True, I've been there") : L('עדיין נכון', 'Still true')}
                   </button>
@@ -194,7 +197,7 @@ export default function PlaceDetail({
                       <span aria-hidden="true">✏️</span> {L('תיקון', 'Fix it')}
                     </button>
                   )}
-                </div>
+                </div>}
               </div>
               {c.certificate && (
                 <CertificateCard businessName={place.name} claim={c} imageUrl={certificateUrl(c.certificate.imagePath)} />
@@ -233,7 +236,14 @@ export default function PlaceDetail({
         </section>
       )}
 
-      {onAddInfo && (canAdd.length > 0 || needsCertificate) && (
+      {!signedIn && (
+        <section className="sec signin-cta">
+          <p>{L('הייתם כאן? התחברו כדי לאשר, לתקן או להוסיף מידע ותעודת כשרות.', 'Been here? Sign in to confirm, fix or add information and a kosher certificate.')}</p>
+          <button type="button" className="btn primary" onClick={onSignIn}>{L('התחברות', 'Sign in')}</button>
+        </section>
+      )}
+
+      {signedIn && onAddInfo && (canAdd.length > 0 || needsCertificate) && (
         <section className="sec add-info" aria-labelledby="addinfo-h">
           <h3 id="addinfo-h">{L('יודעים משהו על המקום?', 'Know something about this place?')}</h3>
           <div className="add-info-row">
@@ -263,7 +273,7 @@ export default function PlaceDetail({
         </section>
       )}
 
-      {!onAddInfo && needsCertificate && (
+      {signedIn && !onAddInfo && needsCertificate && (
         <section className="sec cert-cta">
           <h3>{kosher ? L('יש לכם תמונה של התעודה?', 'Do you have a photo of the certificate?') : L('יש כאן תעודת כשרות?', 'Is there a kosher certificate here?')}</h3>
           <p className="intro">{L('צלמו אותה, והפרטים ייקראו אוטומטית מהתמונה.', 'Take a photo and the details are read from it automatically.')}</p>

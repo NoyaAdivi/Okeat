@@ -5,7 +5,7 @@ import PlaceTile from '@/components/PlaceTile';
 import { notFound, redirect } from 'next/navigation';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { TOPICS } from '@/lib/cities';
-import { NEED_CLASS, NEED_ORDER } from '@/lib/claims';
+import { NEED_CLASS, NEED_ORDER, withoutPending } from '@/lib/claims';
 import { placeEmoji } from '@/lib/emoji';
 import { FILTER_OPTIONS } from '@/lib/filters';
 import { getLang, serverL } from '@/lib/lang-server';
@@ -60,7 +60,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
         {places.length === 0 && <p className="muted">{L('עוד אין כאן מקומות מאושרים. מכירים מקום? אפשר להוסיף אותו במפה.', 'No confirmed places here yet. Know one? You can add it on the map.')}</p>}
         <ul className="tiles" key={chosen.min}>
           {places.map((p, i) => (
-            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={p} />} />
+            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
           ))}
         </ul>
         <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>

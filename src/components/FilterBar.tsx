@@ -15,8 +15,8 @@ interface Props {
   openNow: boolean;
   onFilter: (f: NeedFilter) => void;
   onOpenNow: (v: boolean) => void;
-  cuisine: string | null;
-  onCuisine: (c: string | null) => void;
+  cuisine: string[];
+  onCuisine: (c: string[]) => void;
 }
 
 export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisine, onCuisine }: Props) {
@@ -26,7 +26,7 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
     onFilter({ ...filter, [n]: (filter[n] ?? null) === null ? FILTER_OPTIONS[n][0].min : null });
   const extraOn = EXTRA_NEEDS.filter((n) => (filter[n] ?? null) !== null).length;
   const [more, setMore] = useState(extraOn > 0);
-  const hidden = extraOn + (openNow ? 1 : 0) + (cuisine ? 1 : 0);
+  const hidden = extraOn + (openNow ? 1 : 0) + (cuisine.length > 0 ? 1 : 0);
   const [open, setOpen] = useState(hidden > 0);
 
   return (
@@ -45,13 +45,13 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
       </button>
       {open && (
         <div className="filters-more">
-      <div className="cuisines" role="radiogroup" aria-label={L('סוג אוכל', 'Type of food')}>
-        <button type="button" role="radio" aria-checked={cuisine === null} className="cuisine" onClick={() => onCuisine(null)}>
+      <div className="cuisines" role="group" aria-label={L('סוג אוכל, אפשר לבחור כמה', 'Type of food, choose as many as you like')}>
+        <button type="button" aria-pressed={cuisine.length === 0} className="cuisine" onClick={() => onCuisine([])}>
           <span className="ce" aria-hidden="true">🍽️</span>
           <span>{L('הכול', 'All')}</span>
         </button>
         {CUISINE_FILTERS.map((c) => (
-          <button key={c} type="button" role="radio" aria-checked={cuisine === c} className="cuisine" onClick={() => onCuisine(cuisine === c ? null : c)}>
+          <button key={c} type="button" aria-pressed={cuisine.includes(c)} className="cuisine" onClick={() => onCuisine(cuisine.includes(c) ? cuisine.filter((x) => x !== c) : [...cuisine, c])}>
             <span className="ce" aria-hidden="true">{CUISINES[c].emoji}</span>
             <span>{lang === 'en' ? CUISINES[c].en : CUISINES[c].label}</span>
           </button>

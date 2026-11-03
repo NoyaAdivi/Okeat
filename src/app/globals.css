@@ -570,7 +570,7 @@ span.account { background: var(--surface); }
 .cuisine { flex: none; scroll-snap-align: start; border: 0; background: var(--surface-2); border-radius: 18px; padding: 8px 10px; display: grid; justify-items: center; gap: 2px; min-width: 64px; font-size: 12.5px; font-weight: 500; color: var(--ink); transition: transform .15s, background .15s; }
 .cuisine .ce { font-size: 24px; line-height: 1.1; transition: transform .25s cubic-bezier(.3, 1.6, .5, 1); }
 .cuisine:hover .ce { transform: scale(1.18) rotate(-8deg); }
-.cuisine[aria-checked="true"] { background: var(--peach); color: #2B2140; font-weight: 700; box-shadow: 0 6px 14px color-mix(in srgb, var(--peach-deep) 30%, transparent); }
+.cuisine[aria-pressed="true"] { background: var(--peach); color: #2B2140; font-weight: 700; box-shadow: 0 6px 14px color-mix(in srgb, var(--peach-deep) 30%, transparent); }
 .food-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .food-chip { background: var(--peach-soft); border-radius: 999px; padding: 5px 12px; font-weight: 500; font-size: 14px; }
 .src-note { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
@@ -1251,3 +1251,19 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 .tile > a:focus-visible { outline: 3px solid var(--peach-deep); outline-offset: -3px; }
 .prose > h1:first-child { animation: admin-panel-in .4s ease backwards; }
 @media (prefers-reduced-motion: reduce) { .prose > h1:first-child { animation: none; } }
+
+/* ---------- a way home from the map ---------- */
+.map-home { flex: none; display: inline-grid; place-items: center; width: 36px; height: 36px; padding: 0; text-decoration: none; }
+@media (max-width: 370px) {
+  .brand-home .brand-text { display: none; }
+}
+
+/* ---------- places: an invitation to sign in ---------- */
+.signin-cta { display: grid; gap: 10px; justify-items: start; padding: 16px 18px; border-radius: 20px; background: var(--peach-soft); }
+.signin-cta p { margin: 0; }
+
+/* ---------- contact: leaving without a way back ---------- */
+.reply-check { display: grid; gap: 10px; padding: 14px 16px; border-radius: 18px; background: var(--peach-soft); animation: admin-panel-in .25s ease backwards; }
+.reply-check p { margin: 0; }
+.reply-check div { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (prefers-reduced-motion: reduce) { .reply-check { animation: none; } }

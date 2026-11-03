@@ -21,11 +21,14 @@ export default function ContactForm({ initialTopic = 'general' }: { initialTopic
   const [replyTo, setReplyTo] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState('');
+  const [noReply, setNoReply] = useState(false);
 
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const send = async (e?: React.FormEvent, anyway = false) => {
+    e?.preventDefault();
     setError('');
     if (message.trim().length < 5) return setError(L('כתבו כמה מילים, כדי שנבין במה מדובר.', 'Write a few words so we understand what this is about.'));
+    if (!anyway && !replyTo.trim()) { setNoReply(true); return; }
+    setNoReply(false);
     setState('sending');
     const { data } = await sb.auth.getUser();
     const { error } = await sb.from('feedback').insert({
@@ -72,13 +75,23 @@ export default function ContactForm({ initialTopic = 'general' }: { initialTopic
       </div>
       <div className="field">
         <label htmlFor="cf-reply">{L('איך לחזור אליכם (לא חובה)', 'How to reply to you (optional)')}</label>
-        <input id="cf-reply" type="text" dir="auto" autoComplete="email" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} placeholder={L('מייל או טלפון', 'Email or phone')} />
+        <input id="cf-reply" type="text" dir="auto" autoComplete="email" value={replyTo} onChange={(e) => { setReplyTo(e.target.value); setNoReply(false); }} placeholder={L('מייל או טלפון', 'Email or phone')} />
         <span className="hint">{L('משמש רק כדי לענות לכם.', 'Only used to reply to you.')}</span>
       </div>
       {error && <div className="err" role="alert">{error}</div>}
-      <button type="submit" className="btn primary" disabled={state === 'sending'}>
-        {state === 'sending' ? L('שולח…', 'Sending…') : L('שליחה', 'Send')}
-      </button>
+      {noReply ? (
+        <div className="reply-check" role="alert">
+          <p>{L('רגע, לא השארתם דרך לחזור אליכם. אפשר לשלוח גם ככה, רק שימו לב שלא נוכל לענות לכם.', "Just a moment: you didn't leave a way to reach you. You can still send it, but we won't be able to reply.")}</p>
+          <div>
+            <button type="button" className="btn primary" onClick={() => send(undefined, true)}>{L('שליחה בלי פרטים', 'Send without details')}</button>
+            <button type="button" className="btn" onClick={() => { setNoReply(false); document.getElementById('cf-reply')?.focus(); }}>{L('הוספת פרטים', 'Add details')}</button>
+          </div>
+        </div>
+      ) : (
+        <button type="submit" className="btn primary" disabled={state === 'sending'}>
+          {state === 'sending' ? L('שולח…', 'Sending…') : L('שליחה', 'Send')}
+        </button>
+      )}
     </form>
   );
 }

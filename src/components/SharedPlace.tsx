@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { certificateUrl, fetchMyVotes, fetchPlace, vote } from '@/lib/places';
+import { certificateUrl, fetchMyVotes, fetchPlace, fetchProfile, vote } from '@/lib/places';
 import type { Place } from '@/lib/types';
 import { friendly } from '@/lib/errors';
 import { useUser } from '@/lib/useUser';
 import { googleMapsUrl, wazeUrl } from '@/lib/geo';
 import PlaceDetail from './PlaceDetail';
+import PlaceExtras from './PlaceExtras';
+import PlaceCommunity from './PlaceCommunity';
 import Logo from './Logo';
 import AccountButton from './AccountButton';
 import DisplayToggles from './DisplayToggles';
@@ -24,6 +26,9 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
   const router = useRouter();
   const { user, ready } = useUser(sb);
   const [place, setPlace] = useState(initial);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const signedIn = !!user && !user.is_anonymous;
+  const askSignIn = (reason?: string) => setAuth({ reason: reason ?? L('כדי להוסיף, לאשר או לתקן מידע צריך להתחבר. כך המידע באתר נשאר אמין.', 'To add, confirm or fix information, please sign in. It keeps the site reliable.') });
   const [voted, setVoted] = useState<Map<string, 1 | -1>>(new Map());
   const [auth, setAuth] = useState<{ reason?: string } | null>(null);
   const [certOpen, setCertOpen] = useState(false);
@@ -37,6 +42,11 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
   }, []);
 
   useEffect(() => {
+    if (!signedIn || !user) { setIsAdmin(false); return; }
+    fetchProfile(sb, user.id).then((p) => setIsAdmin(p?.role === 'admin')).catch(() => setIsAdmin(false));
+  }, [sb, user, signedIn]);
+
+  useEffect(() => {
     if (!user) return;
     fetchMyVotes(sb, place.claims.map((c) => c.id)).then(setVoted).catch(() => {});
   }, [sb, user, place]);
@@ -47,7 +57,8 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
   };
 
   const onVote = async (claimId: string, value: 1 | -1) => {
-        try {
+    if (!signedIn) { askSignIn(); return; }
+    try {
       await vote(sb, claimId, value);
       setVoted((m) => new Map(m).set(claimId, value));
       showToast(value === 1 ? L('תודה, האישור נרשם', 'Thanks, your confirmation was saved') : L('תודה. הדיווח נשלח לבדיקה של הקהילה', 'Thanks. Your report was sent for the community to check'));
@@ -66,6 +77,8 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
         </div>
         <PlaceDetail
           place={place}
+          signedIn={signedIn}
+          onSignIn={() => askSignIn()}
           goPanel={
             <div className="nav">
               <a className="btn primary" href={`/map?place=${place.id}`}>{L('ניווט מהמפה', 'Navigate from the map')}</a>
@@ -80,7 +93,13 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
           onBack={() => router.push(`/map?place=${place.id}`)}
           backLabel={L('פתיחה במפה', 'Open on the map')}
           onVote={onVote}
-          onAddCertificate={() => setCertOpen(true)}
+          onAddCertificate={() => { if (signedIn) setCertOpen(true); else askSignIn(); }}
+          extra={
+            <>
+              <PlaceExtras key={`extras-${place.id}`} sb={sb} place={place} userId={signedIn && user ? user.id : null} isAdmin={isAdmin} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
+              <PlaceCommunity key={place.id} sb={sb} place={place} signedIn={signedIn} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
+            </>
+          }
           onShare={async () => {
             try {
               await navigator.clipboard.writeText(window.location.href);

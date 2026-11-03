@@ -5,11 +5,10 @@ import PlaceTile from '@/components/PlaceTile';
 import { notFound } from 'next/navigation';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { CITIES } from '@/lib/cities';
-import { NEED_ORDER } from '@/lib/claims';
+import { NEED_ORDER, hasAnyVerified, withoutPending } from '@/lib/claims';
 import { placeEmoji } from '@/lib/emoji';
 import { getLang, serverL } from '@/lib/lang-server';
 import { fetchNearby } from '@/lib/places';
-import { hasAnyVerified } from '@/lib/claims';
 import { createClient } from '@/lib/supabase/server';
 import { placeTypeLabel, type NeedFilter } from '@/lib/types';
 
@@ -52,7 +51,7 @@ export default async function CityPage({ params }: Props) {
         </header>
         <ul className="tiles">
           {places.map((p, i) => (
-            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={p} />} />
+            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
           ))}
         </ul>
         <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>

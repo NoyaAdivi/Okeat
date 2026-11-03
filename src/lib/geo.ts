@@ -24,6 +24,13 @@ export function estimateWalk(meters: number) {
   return { meters: Math.round(walked / 10) * 10, minutes: Math.max(1, Math.round(walked / 80)) };
 }
 
+/** Short trips are a walk; past half an hour on foot the list shows the drive instead. */
+export function estimateTrip(meters: number): { mode: 'walk' | 'drive'; minutes: number } {
+  const walk = estimateWalk(meters).minutes;
+  if (walk <= 30) return { mode: 'walk', minutes: walk };
+  return { mode: 'drive', minutes: Math.max(1, Math.round((meters * 1.3) / 500)) };
+}
+
 export function formatMeters(m: number, lang: Lang = 'he'): string {
   if (lang === 'en') return m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
   return m < 1000 ? `${Math.round(m / 10) * 10} מ׳` : `${(m / 1000).toFixed(1)} ק״מ`;

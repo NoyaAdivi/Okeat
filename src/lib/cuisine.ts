@@ -88,6 +88,10 @@ const TYPE_HINTS: Record<string, string[]> = {
 };
 
 /** Does this place belong to the category? Stored categories first, then type, then the name. */
+/** Several kinds of food together: a place fits if it is any of them. */
+export const matchesAnyCuisine = (p: { name: string; place_type?: string | null; cuisine?: string[] | null }, list: string[]) =>
+  list.some((c) => matchesCuisine(p, c));
+
 export function matchesCuisine(p: { name: string; place_type?: string | null; cuisine?: string[] | null }, c: string): boolean {
   if (p.cuisine?.includes(c)) return true;
   if (c === 'middle_eastern' && p.cuisine?.some((x) => ['hummus', 'falafel', 'shawarma'].includes(x))) return true;
