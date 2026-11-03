@@ -1279,3 +1279,10 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 @media (max-width: 350px) {
   .site-head .brand-link span { display: none; }
 }
+
+/* ---------- clearing the search ---------- */
+.search input { padding-left: 44px; }
+[dir="ltr"] .search input { padding-right: 44px; }
+.search input::-webkit-search-cancel-button { display: none; }
+.search-clear { position: absolute; inset-inline-end: 8px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); font-size: 13px; }
+.search-clear:hover { background: var(--peach-soft); }

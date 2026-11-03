@@ -974,6 +974,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               enterKeyHint="search"
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); applySmart(); } }}
             />
+            {query && (
+              <button type="button" className="search-clear" aria-label={L('ניקוי החיפוש', 'Clear the search')} onClick={() => { setQuery(''); if (selectedId) deselect(); }}>
+                <span aria-hidden="true">✕</span>
+              </button>
+            )}
           </div>
           {user && !user.is_anonymous && <div className="tabs" role="tablist">
             <button type="button" role="tab" className="tab" aria-selected={tab === 'near'} onClick={() => { setTab('near'); if (sheet === 'peek') setSheet('half'); }}>
@@ -1036,7 +1041,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               }
               voted={voted}
               certificateUrl={(path) => certificateUrl(sb, path)}
-              onBack={deselect}
+              onBack={() => {
+                deselect();
+                // one result means they looked up that place, so the list opens again; several stay to compare
+                if (visible.length <= 1) setQuery('');
+              }}
               onVote={onVote}
               onAddCertificate={() => { if (!needAccount()) setCertFor(selected); }}
               onAddInfo={(need) => { if (!needAccount()) setInfoFor({ place: selected, need }); }}
