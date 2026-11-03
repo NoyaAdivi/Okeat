@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { origin } = new URL(request.url);
   const tokenHash = request.cookies.get(COOKIE)?.value;
-  let target = `${origin}/map?auth_error=1`;
+  let target = `${origin}/map?auth_error=1&why=no_cookie`;
 
   if (tokenHash) {
     const sb = await createClient();
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     for (const type of ['email', 'magiclink', 'signup'] as const) {
       const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type });
       if (!error) { target = `${origin}/map?signed_in=1`; break; }
+      target = `${origin}/map?auth_error=1&why=${encodeURIComponent(error.code ?? error.message.slice(0, 60))}`;
     }
   }
   const res = NextResponse.redirect(target, 303);

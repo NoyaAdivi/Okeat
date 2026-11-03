@@ -85,35 +85,31 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
   if (state === 'sent') {
     return (
       <Modal title={L('שלחנו לך מייל', 'We sent you an email')} onClose={onClose}>
-        <div className="mail-sent">
-          <span className="mail-sent-icon" aria-hidden="true">💌</span>
+        <div className="mail-step">
+          <span className="mail-seal" aria-hidden="true">💌</span>
           {email.trim() && !needEmail ? (
-            <p>{L('המייל בדרך אל', 'It is on its way to')} <b dir="ltr">{email.trim()}</b> <button type="button" className="link" onClick={() => setNeedEmail(true)}>{L('שינוי', 'Change')}</button></p>
+            <p className="mail-to">
+              <span dir="ltr">{email.trim()}</span>
+              <button type="button" className="link" onClick={() => setNeedEmail(true)}>{L('שינוי', 'Change')}</button>
+            </p>
           ) : (
-            <div className="field">
+            <div className="field mail-to-field">
               <label htmlFor="auth-email-code">{L('המייל שאליו נשלח הקוד', 'The email the code was sent to')}</label>
               <input id="auth-email-code" type="email" dir="ltr" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           )}
-        </div>
-        <p className="mail-ways-title">{L('אפשר להיכנס באחת משתי הדרכים:', 'You can sign in either way:')}</p>
-        <div className="mail-ways">
-          <div className="mail-way">
-            <span className="mail-way-emoji" aria-hidden="true">👆</span>
-            <b>{L('לוחצים על הכפתור במייל', 'Press the button in the email')}</b>
-            <p>{L('הוא יחזיר אתכם לאתר, מחוברים.', 'It brings you back here, signed in.')}</p>
-          </div>
-          <form onSubmit={checkCode} className="mail-way" noValidate>
-            <span className="mail-way-emoji" aria-hidden="true">🔢</span>
-            <label htmlFor="auth-code"><b>{L('או כותבים כאן את הקוד מהמייל', 'Or enter the code from the email')}</b></label>
+          <p className="mail-tap"><span aria-hidden="true">👆</span> {L('לוחצים על הכפתור במייל ונכנסים', 'Press the button in the email to sign in')}</p>
+          <div className="or"><span>{L('או', 'or')}</span></div>
+          <form onSubmit={checkCode} className="mail-code-form" noValidate>
+            <label htmlFor="auth-code">{L('כותבים את הקוד מהמייל', 'Enter the code from the email')}</label>
             <input id="auth-code" className="mail-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
             {error && <div className="err" role="alert">{error}</div>}
             <button type="submit" className="btn primary" disabled={checking || code.length < 6 || !email.trim()}>{checking ? L('בודק…', 'Checking…') : L('כניסה עם הקוד', 'Sign in with the code')}</button>
           </form>
-        </div>
-        <p className="mail-spam">{L('לא מוצאים את המייל? בדקו בספאם ובקידומי מכירות, ותנו לו דקה או שתיים.', "Can't find it? Check spam and promotions, and give it a minute or two.")}</p>
-        <div className="modal-acts">
-          <button type="button" className="btn" onClick={() => { setError(''); setState('idle'); }}>{L('שליחה מחדש', 'Send again')}</button>
+          <p className="mail-help">
+            {L('לא הגיע? בדקו בספאם, או', 'Not there? Check spam, or')}{' '}
+            <button type="button" className="link" onClick={() => { setError(''); setState('idle'); }}>{L('שלחו שוב', 'send again')}</button>
+          </p>
         </div>
       </Modal>
     );

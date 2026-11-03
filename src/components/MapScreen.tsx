@@ -24,6 +24,7 @@ import NavPanel, { NavBanner } from './NavPanel';
 import CommunityQueue from './CommunityQueue';
 import AccountButton from './AccountButton';
 import AuthDialog from './AuthDialog';
+import { logClientError } from '@/lib/errorLog';
 import AddPlaceDialog from './AddPlaceDialog';
 import CertificateDialog from './CertificateDialog';
 import AddInfoDialog from './AddInfoDialog';
@@ -176,6 +177,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     if (authError) {
       showToast(L('הקישור במייל כבר לא תקף. אפשר לכתוב את הקוד מהמייל, או לבקש חדש.', 'The link in the email no longer works. Enter the code from the email, or ask for a new one.'));
       setAuth({ startWithCode: true });
+      const why = new URLSearchParams(window.location.search).get('why');
+      if (why) logClientError(`sign-in link failed: ${why}`);
     }
   }, [authError, showToast]);
 

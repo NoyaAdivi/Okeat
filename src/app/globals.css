@@ -1372,3 +1372,19 @@ html, body { overscroll-behavior-x: none; }
 .mail-code { border: 1px solid var(--line); }
 .mail-ways-title { margin-block: 10px 8px; }
 .mail-way:first-child { background: none; }
+
+/* email step: one calm column that fits a phone */
+.mail-step { display: grid; justify-items: center; gap: 12px; text-align: center; }
+.mail-seal { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; background: var(--peach-soft); box-shadow: 0 0 0 6px color-mix(in srgb, var(--peach-soft) 45%, transparent); font-size: 2.125rem; line-height: 1; animation: mail-busy-float 2.4s ease-in-out infinite; }
+.mail-to { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin: 2px 0 0; max-width: 100%; font-weight: 700; overflow-wrap: anywhere; }
+.mail-to-field { width: 100%; text-align: start; }
+.mail-tap { margin: 0; padding: 9px 16px; border-radius: 999px; background: var(--vegan-soft); font-weight: 600; font-size: 0.9375rem; }
+.mail-step .or { width: 100%; margin: 0; }
+.mail-code-form { display: grid; gap: 10px; width: 100%; }
+.mail-code-form label { font-weight: 600; }
+.mail-code-form .btn { width: 100%; min-height: 48px; }
+.mail-code-form .mail-code { width: 100%; min-height: 54px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); text-align: center; font-size: 1.5rem; font-weight: 700; letter-spacing: .3em; }
+.mail-code-form .mail-code:focus { outline: none; border-color: var(--peach-deep); box-shadow: 0 0 0 3px var(--peach-soft); }
+.mail-help { margin: 0; color: var(--muted); font-size: 0.875rem; }
+@media (prefers-reduced-motion: reduce) { .mail-seal { animation: none; } }
+.mail-step .link { min-height: 32px; padding: 2px 4px; color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
