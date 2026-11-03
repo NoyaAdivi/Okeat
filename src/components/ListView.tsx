@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import PlaceTile from './PlaceTile';
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
@@ -44,20 +45,14 @@ export default function ListView({ id }: { id: string }) {
             <p className="muted">{L('רשימה של ', 'A list by ')}<Link href={`/u/${list.ownerId}`}>{list.ownerName}</Link></p>
             <button type="button" className="btn small" onClick={share}>🔗 {copied ? L('הקישור הועתק', 'Link copied') : L('העתקת קישור לשיתוף', 'Copy link to share')}</button>
             {list.places.length === 0 && <p className="muted">{L('עוד אין כאן מקומות.', 'No places here yet.')}</p>}
-            <ul className="profile-places list-places">
+            <ul className="tiles">
               {list.places.map((p) => (
-                <li key={p.id}>
-                  <Link href={`/map?place=${p.id}`}>
-                    <span aria-hidden="true">{placeEmoji(p.placeType)}</span> <b>{p.name}</b>
-                    {p.address && <small> · {p.address}</small>}
-                  </Link>
-                  {mine && (
+                <PlaceTile key={p.id} href={`/map?place=${p.id}`} emoji={placeEmoji(p.placeType)} name={p.name} sub={p.address ?? undefined} action={mine ? (
                     <button type="button" className="link" onClick={async () => {
                       await removeFromList(sb, list.id, p.id);
                       setList({ ...list, places: list.places.filter((x) => x.id !== p.id) });
                     }}>{L('הסרה', 'Remove')}</button>
-                  )}
-                </li>
+                  ) : undefined} />
               ))}
             </ul>
           </>

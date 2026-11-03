@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import PlaceTile from './PlaceTile';
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
@@ -145,9 +146,9 @@ export default function ProfileView({ id }: { id: string }) {
               <section className="sec">
                 <h2>{L('מקומות ששמרתי', 'Saved places')}</h2>
                 {saved.length === 0 ? <p className="muted">{L('עוד אין. לחצו על הלב במקום שאהבתם.', 'None yet. Press the heart on a place you like.')}</p> : (
-                  <ul className="profile-places">
-                    {saved.map((p) => (
-                      <li key={p.id}><Link href={`/map?place=${p.id}`}><span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b></Link></li>
+                  <ul className="tiles">
+                    {saved.map((p, i) => (
+                      <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} />
                     ))}
                   </ul>
                 )}
@@ -157,14 +158,9 @@ export default function ProfileView({ id }: { id: string }) {
             <section className="sec">
               <h2>{L('מקומות שהוסיף/ה', 'Places added')}</h2>
               {places.length === 0 ? <p className="muted">{L('עוד אין.', 'None yet.')}</p> : (
-                <ul className="profile-places">
-                  {places.map((p) => (
-                    <li key={p.id}>
-                      <Link href={`/map?place=${p.id}`}>
-                        <span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b>
-                        <small> · {placeTypeLabel(p.place_type, lang)} · {formatDate(p.created_at.slice(0, 10))}</small>
-                      </Link>
-                    </li>
+                <ul className="tiles">
+                  {places.map((p, i) => (
+                    <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={`${placeTypeLabel(p.place_type, lang)}, ${formatDate(p.created_at.slice(0, 10))}`} />
                   ))}
                 </ul>
               )}

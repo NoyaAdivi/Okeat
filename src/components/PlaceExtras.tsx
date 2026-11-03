@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import PlaceTile from './PlaceTile';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -199,14 +200,9 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
       {similar.length > 0 && (
         <section className="sec">
           <h3>{L('אולי יעניין אותך גם…', 'You might also like…')}</h3>
-          <ul className="profile-places">
-            {similar.map((s) => (
-              <li key={s.id}>
-                <Link href={`/map?place=${s.id}`}>
-                  <span aria-hidden="true">{placeEmoji(s.place_type)}</span> <b>{s.name}</b>
-                  <small> · {s.meters < 1000 ? L(`${s.meters} מ׳`, `${s.meters} m`) : L(`${(s.meters / 1000).toFixed(1)} ק״מ`, `${(s.meters / 1000).toFixed(1)} km`)}</small>
-                </Link>
-              </li>
+          <ul className="tiles tiles-row">
+            {similar.map((s, i) => (
+              <PlaceTile key={s.id} index={i} href={`/map?place=${s.id}`} emoji={placeEmoji(s.place_type)} name={s.name} sub={s.meters < 1000 ? L(`${s.meters} מ׳`, `${s.meters} m`) : L(`${(s.meters / 1000).toFixed(1)} ק״מ`, `${(s.meters / 1000).toFixed(1)} km`)} />
             ))}
           </ul>
         </section>

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Badges from '@/components/Badges';
+import PlaceTile from '@/components/PlaceTile';
 import { notFound } from 'next/navigation';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { TOPICS } from '@/lib/cities';
@@ -42,14 +44,9 @@ export default async function TopicPage({ params }: Props) {
           </div>
         </header>
         {places.length === 0 && <p className="muted">{L('עוד אין כאן מקומות מאושרים. מכירים מקום? אפשר להוסיף אותו במפה.', 'No confirmed places here yet. Know one? You can add it on the map.')}</p>}
-        <ul className="profile-places city-places">
+        <ul className="tiles">
           {places.map((p, i) => (
-            <li key={p.id} style={{ '--i': Math.min(i, 14) } as React.CSSProperties}>
-              <Link href={`/place/${p.id}`}>
-                <span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b>
-                <small> {placeTypeLabel(p.place_type, lang)}</small>
-              </Link>
-            </li>
+            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={p} />} />
           ))}
         </ul>
         <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>

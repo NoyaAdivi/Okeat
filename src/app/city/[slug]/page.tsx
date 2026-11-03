@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Badges from '@/components/Badges';
+import PlaceTile from '@/components/PlaceTile';
 import { notFound } from 'next/navigation';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { CITIES } from '@/lib/cities';
@@ -7,6 +9,7 @@ import { NEED_ORDER } from '@/lib/claims';
 import { placeEmoji } from '@/lib/emoji';
 import { getLang, serverL } from '@/lib/lang-server';
 import { fetchNearby } from '@/lib/places';
+import { hasAnyVerified } from '@/lib/claims';
 import { createClient } from '@/lib/supabase/server';
 import { placeTypeLabel, type NeedFilter } from '@/lib/types';
 
@@ -33,6 +36,8 @@ export default async function CityPage({ params }: Props) {
   const lang = (await getLang()) === 'en' ? 'en' : 'he';
   const sb = await createClient();
   const places = await fetchNearby(sb, { lat: found.lat, lng: found.lng, radiusM: 4000, filter: NO_FILTER, limit: 40 }).catch(() => []);
+  // places with information come first, so the page opens with something useful
+  places.sort((a, b) => Number(hasAnyVerified(b)) - Number(hasAnyVerified(a)));
   const name = lang === 'en' ? found.en : found.he;
   return (
     <div className="page">
@@ -45,14 +50,9 @@ export default async function CityPage({ params }: Props) {
             <p>{L('מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן', 'Kosher, vegan, vegetarian and gluten-free places')}</p>
           </div>
         </header>
-        <ul className="profile-places city-places">
+        <ul className="tiles">
           {places.map((p, i) => (
-            <li key={p.id} style={{ '--i': Math.min(i, 14) } as React.CSSProperties}>
-              <Link href={`/place/${p.id}`}>
-                <span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b>
-                <small> {placeTypeLabel(p.place_type, lang)}</small>
-              </Link>
-            </li>
+            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={p} />} />
           ))}
         </ul>
         <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>

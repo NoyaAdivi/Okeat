@@ -1204,3 +1204,35 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 @media (max-width: 640px) {
   .floater { font-size: 24px; opacity: .45; }
 }
+
+/* ---------- places as scalloped cards, in place of plain rows ---------- */
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 156px), 1fr)); gap: 14px; }
+.tile { --t: var(--peach-soft); position: relative; display: flex; flex-direction: column; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow-sm); overflow: hidden; transition: transform .18s, box-shadow .18s; animation: admin-panel-in .3s ease backwards; animation-delay: calc(var(--i, 0) * 30ms); }
+.tile:nth-child(5n+2) { --t: var(--vegan-soft); }
+.tile:nth-child(5n+3) { --t: var(--kosher-soft); }
+.tile:nth-child(5n+4) { --t: var(--gf-soft); }
+.tile:nth-child(5n) { --t: var(--veg-soft); }
+.tile:hover { transform: translateY(-3px) rotate(-.6deg); }
+.tile > a { flex: 1; display: flex; flex-direction: column; color: var(--ink); text-decoration: none; border-radius: inherit; }
+.tile-top { position: relative; display: grid; place-items: center; height: 62px; background: var(--t); }
+.tile-top::after { content: ""; position: absolute; inset-inline: 0; bottom: -7px; height: 8px; background: radial-gradient(circle at 8px 0, var(--t) 7px, transparent 7.5px) 0 0 / 16px 8px repeat-x; }
+.tile-top span { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); font-size: 23px; transition: transform .25s cubic-bezier(.3, 1.5, .5, 1); }
+.tile:hover .tile-top span { transform: scale(1.12) rotate(-8deg); }
+.tile-body { display: grid; gap: 4px; align-content: start; padding: 16px 14px 14px; min-width: 0; }
+.tile-body b { font-family: var(--font-display); font-size: 16px; line-height: 1.25; overflow-wrap: anywhere; }
+.tile-body small { color: var(--muted); font-size: 13px; }
+.tile-body .badges { margin-top: 4px; }
+.tile-action { padding: 0 14px 12px; }
+.tiles-row { display: flex; gap: 12px; overflow-x: auto; padding-block: 4px 10px; scroll-snap-type: x proximity; }
+.tiles-row .tile { flex: 0 0 150px; scroll-snap-align: start; }
+.note-cards a { padding: 12px 14px; border-radius: 18px; border: 0; }
+.note-cards li:nth-child(3n+1) a { background: var(--peach-soft); }
+.note-cards li:nth-child(3n+2) a { background: var(--vegan-soft); }
+.note-cards li:nth-child(3n) a { background: var(--kosher-soft); }
+.my-lists li { padding: 6px 14px 6px 6px; background: var(--peach-soft); border-radius: 18px; }
+.my-lists li > a { background: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tile { animation: none; transition: none; }
+  .tile:hover { transform: none; }
+  .tile-top span { transition: none; }
+}

@@ -38,7 +38,7 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
       {show === 'notes' && <section className="sec">
         <h2 className="vh">{L('התראות', 'Notifications')}</h2>
         {notes.length === 0 && <p className="muted">{L('אין כרגע. כשמידע שהוספת יאושר, או תעודה שהעלית תתקרב לסיום, נספר לך כאן.', "Nothing right now. When your information is confirmed, or a certificate you added is about to end, you'll see it here.")}</p>}
-        <ul className="profile-places">
+        <ul className="profile-places note-cards">
           {notes.map((n) => (
             <li key={`${n.kind}-${n.place_id}-${n.need}`} className={n.is_new ? 'note-new' : undefined}>
               <Link href={`/map?place=${n.place_id}`}>
@@ -61,10 +61,10 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
           <button type="submit" className="btn small" disabled={title.trim().length < 2}>{L('יצירת רשימה', 'Create a list')}</button>
         </form>
         {error && <div className="err" role="alert">{error}</div>}
-        <ul className="profile-places list-places">
+        <ul className="profile-places list-places my-lists">
           {lists.map((l) => (
             <li key={l.id}>
-              <Link href={`/list/${l.id}`}><b>{l.title}</b> <small>{L(`${l.list_places[0]?.count ?? 0} מקומות`, `${l.list_places[0]?.count ?? 0} places`)}</small></Link>
+              <Link href={`/list/${l.id}`}><span aria-hidden="true">📝</span> <b>{l.title}</b> <small>{L(`${l.list_places[0]?.count ?? 0} מקומות`, `${l.list_places[0]?.count ?? 0} places`)}</small></Link>
               <button type="button" className="link" onClick={async () => { await deleteList(sb, l.id); setLists(lists.filter((x) => x.id !== l.id)); }}>{L('מחיקה', 'Delete')}</button>
             </li>
           ))}
