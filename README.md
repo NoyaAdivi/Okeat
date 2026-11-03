@@ -25,12 +25,12 @@
 - **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
 - **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
 - **Reviews, saved places and photos** – 1–5 star reviews with a short comment, a private saved list on your profile, and place photos that appear after moderator approval
-- **Tests** – automated tests run on GitHub on every push, and browser errors are collected privately for the admin
+- **Tests** – automated tests and real-browser screen checks run on GitHub on every push, and browser errors are collected privately for the admin
 - **Smart search** – "kosher pizza open now in Ramat Gan" becomes filters and a city; a filter can be kept on the device
 - **Lists and notifications** – shareable lists, similar places, badges, and on-site notifications when information is confirmed or a certificate is ending
 - **Business owners** – verified owners update hours, phone, website and a menu link
 - **Admin tools** – dashboard, limits, activity log, users and roles, contact messages, photo approval and merging duplicates
-- **City pages and installable app** – a page for each main city, and an app icon for the phone home screen
+- **City pages and installable app** – a page for each main city and each need, and an app icon for the phone home screen
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
 - **Public profiles** – join date, places added and confirmations, never an e-mail address
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
@@ -72,7 +72,7 @@
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/                 data access, types, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0028 (schema, RLS, functions)
+│   ├── migrations/          0001 … 0029 (schema, RLS, functions)
 │   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
 │   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
 │   ├── RUN-ME-3-IN-SUPABASE.sql same as 0009
