@@ -6,6 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import Modal from './Modal';
 import { friendly } from '@/lib/errors';
 import GoogleButton, { GOOGLE_CLIENT_ID } from './GoogleButton';
+import { announceSignedIn } from './SignedInNote';
 
 interface Props {
   sb: SupabaseClient;
@@ -42,7 +43,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
     const { error } = await sb.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' });
     setChecking(false);
     if (error) setError(L('הקוד לא נכון או שפג תוקפו. אפשר לבקש קוד חדש.', 'That code is wrong or has expired. You can ask for a new one.'));
-    else onClose();
+    else { announceSignedIn(); onClose(); }
   };
 
   const google = async () => {
@@ -96,7 +97,7 @@ export default function AuthDialog({ sb, reason, onClose }: Props) {
   return (
     <Modal title={L('התחברות', 'Sign in')} subtitle={reason ?? L('ההתחברות לא חובה. היא שומרת את מה שהוספת ואישרת, גם כשנכנסים ממכשיר אחר.', "Signing in is optional. It keeps what you added and confirmed, even on another device.")} onClose={onClose}>
       {GOOGLE_CLIENT_ID && !googleOld ? (
-        <GoogleButton sb={sb} onDone={onClose} onError={(e) => setError(friendly(e, L.lang))} onUnavailable={() => setGoogleOld(true)} />
+        <GoogleButton sb={sb} onDone={() => { announceSignedIn(); onClose(); }} onError={(e) => setError(friendly(e, L.lang))} onUnavailable={() => setGoogleOld(true)} />
       ) : (
         <button type="button" className="btn google" onClick={google}>
           <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">

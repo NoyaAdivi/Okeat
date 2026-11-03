@@ -9,12 +9,12 @@ export async function GET(request: Request) {
   // only same-site paths, never "//evil.com"
   const next = nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/';
 
+  const sep = next.includes('?') ? '&' : '?';
   if (code) {
     const sb = await createClient();
     const { error } = await sb.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    if (!error) return NextResponse.redirect(`${origin}${next}${sep}signed_in=1`);
   }
 
-  const sep = next.includes('?') ? '&' : '?';
   return NextResponse.redirect(`${origin}${next}${sep}auth_error=1`);
 }

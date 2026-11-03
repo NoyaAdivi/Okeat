@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if (tokenHash) {
     const sb = await createClient();
     const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type: 'email' });
-    if (!error) return NextResponse.redirect(`${origin}/map`);
+    if (!error) return NextResponse.redirect(`${origin}/map?signed_in=1`);
   }
 
   return NextResponse.redirect(`${origin}/map?auth_error=1`);
