@@ -141,7 +141,7 @@ export default async function About() {
           <div className="hero-inner">
             <span className="hero-emoji" aria-hidden="true">💡</span>
             <h1>{L('איך זה עובד', 'How it works')}</h1>
-            <p className="lead">{L('Okeat (מבטאים "אוקיי-איט") בא מ-OK to eat: בטוח לי לאכול כאן? כל מידע באתר עובר בדיקה של אנשים שהיו במקום.', 'Okeat (say "okay-eat") comes from OK to eat: is it safe for me to eat here? Every piece of information is checked by people who were there.')}</p>
+            <p className="lead">{L('Okeat (מבטאים "אוקיי-איט") בא מ-OK to eat: בטוח לי לאכול כאן? חותמת מלאה אומרת שאנשים שהיו במקום אישרו את המידע, וחותמת בהירה אומרת שעוד לא.', 'Okeat (say "okay-eat") comes from OK to eat: is it safe for me to eat here? A full seal means people who were there confirmed it. A pale seal means not yet.')}</p>
           </div>
         </section>
 

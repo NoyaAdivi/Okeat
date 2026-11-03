@@ -968,16 +968,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); applySmart(); } }}
             />
           </div>
-          <div className="tabs" role="tablist">
+          {user && !user.is_anonymous && <div className="tabs" role="tablist">
             <button type="button" role="tab" className="tab" aria-selected={tab === 'near'} onClick={() => { setTab('near'); if (sheet === 'peek') setSheet('half'); }}>
               {L('בסביבה', 'Nearby')}
             </button>
-            {user && !user.is_anonymous && (
-              <button type="button" role="tab" className="tab" aria-selected={tab === 'queue'} onClick={() => { setTab('queue'); deselect(); if (sheet === 'peek') setSheet('half'); }}>
-                {L('לאישור הקהילה', 'For the community to confirm')} {queue.length > 0 && <span className="count">{queue.length}</span>}
-              </button>
-            )}
-          </div>
+            <button type="button" role="tab" className="tab" aria-selected={tab === 'queue'} onClick={() => { setTab('queue'); deselect(); if (sheet === 'peek') setSheet('half'); }}>
+              {L('לאישור הקהילה', 'For the community to confirm')} {queue.length > 0 && <span className="count">{queue.length}</span>}
+            </button>
+          </div>}
         </div>
 
         <div className="panel-body" ref={bodyRef}>

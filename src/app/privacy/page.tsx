@@ -63,7 +63,7 @@ function PrivacyHe() {
           <p>אתם רשאים לבקש לעיין במידע שנשמר עליכם, לתקן אותו או למחוק אותו. כתבו לנו ב<Link href="/contact?topic=privacy">טופס יצירת הקשר</Link> ונטפל בבקשה תוך 30 יום.</p>
   
           <h2>אבטחה</h2>
-          <p>אנחנו נוקטים אמצעים סבירים להגנה על המידע: החיבור לאתר מוצפן (HTTPS), סיסמאות נשמרות אצל ספק ההתחברות בצורה מוצפנת, וכל משתמש מקבל גישה רק למה שמותר לו. שום מערכת אינה מוגנת לגמרי.</p>
+          <p>אנחנו נוקטים אמצעים סבירים להגנה על המידע: החיבור לאתר מוצפן (HTTPS), באתר אין סיסמאות כי ההתחברות היא עם Google או קוד במייל, וכל משתמש מקבל גישה רק למה שמותר לו. שום מערכת אינה מוגנת לגמרי.</p>
   
           <h2>קטינים</h2>
           <p>האתר מיועד לקהל הרחב. אם אתם מתחת לגיל 18, היעזרו בהורה כשאתם יוצרים חשבון.</p>
@@ -115,7 +115,7 @@ function PrivacyEn() {
           <p>You may ask to see, correct or delete the information stored about you. Write to us using the <Link href="/contact?topic=privacy">contact form</Link> and we will handle it within 30 days.</p>
 
           <h2>Security</h2>
-          <p>We take reasonable measures to protect the information: the connection to the site is encrypted (HTTPS), passwords are stored encrypted by the sign-in provider, and each user can reach only what they are allowed to. No system is completely secure.</p>
+          <p>We take reasonable measures to protect the information: the connection to the site is encrypted (HTTPS), the site has no passwords because you sign in with Google or an email code, and each user can reach only what they are allowed to. No system is completely secure.</p>
 
           <h2>Minors</h2>
           <p>The site is meant for the general public. If you are under 18, ask a parent to help when you create an account.</p>

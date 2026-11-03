@@ -64,7 +64,7 @@ export default async function Home() {
           <div className="hero-inner">
             <div className="hero-logo"><Logo size={132} /></div>
             <h1>{L('מוצאים איפה לאכול, ', 'Find where to eat, ')}<span className="nowrap">{L('בלי לנחש', 'without guessing')}</span></h1>
-            <p className="lead">{L('מפה של מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן, שאנשים כמוכם בדקו ואישרו.', 'A map of kosher, vegan, vegetarian and gluten-free places, checked and confirmed by people like you.')}</p>
+            <p className="lead">{L('מפה של מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן, עם חותמת שמראה מה אנשים כמוכם כבר אישרו.', 'A map of kosher, vegan, vegetarian and gluten-free places, with a seal that shows what people like you have already confirmed.')}</p>
             <div className="cta-row">
               <Link href="/map" className="cta primary"><span aria-hidden="true">🗺️</span> {L('לפתוח את המפה', 'Open the map')}</Link>
               <Link href="/about" className="cta">{L('איך זה עובד', 'How it works')}</Link>

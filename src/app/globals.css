@@ -1184,3 +1184,23 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 
 .topics-title { margin: 34px 0 14px; font-family: var(--font-display); font-size: 24px; }
 .topic-grid b { font-size: 16px; text-align: center; }
+
+/* ---------- reading pages: same scalloped top as the rest of the site ---------- */
+.prose > h1:first-child { position: relative; margin: 0 0 30px; padding: 24px 26px; border-radius: 28px 28px 8px 8px; background: var(--peach-soft); line-height: 1.15; font-size: clamp(28px, 6vw, 40px); }
+.prose > h1:first-child::after { content: ""; position: absolute; inset-inline: 0; bottom: -9px; height: 10px; background: radial-gradient(circle at 10px 0, var(--peach-soft) 9px, transparent 9.5px) 0 0 / 20px 10px repeat-x; }
+.prose h2 { display: flex; align-items: center; gap: 10px; }
+.prose h2::before { content: ""; flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--peach); box-shadow: 0 0 0 4px var(--peach-soft); }
+.prose li::marker { color: var(--peach-deep); }
+
+/* ---------- lost and error pages ---------- */
+.empty.lost { padding-block: 12vh; gap: 12px; }
+.empty.lost h1 { margin: 0; font-family: var(--font-display); font-size: clamp(26px, 6vw, 34px); color: var(--ink); line-height: 1.15; }
+.lost-pin { font-size: 64px; line-height: 1; animation: lost-sway 3.4s ease-in-out infinite; }
+@keyframes lost-sway { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+@media (prefers-reduced-motion: reduce) { .lost-pin { animation: none; } }
+
+/* ---------- home: food floats behind the words ---------- */
+.hero-inner { z-index: 1; }
+@media (max-width: 640px) {
+  .floater { font-size: 24px; opacity: .45; }
+}

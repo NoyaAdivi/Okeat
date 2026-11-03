@@ -145,8 +145,8 @@ function addRouteLayers(map: mapboxgl.Map) {
 }
 
 const CLUSTER_COLORS = {
-  light: { fill: '#FFB4A2', stroke: '#FFFFFF', text: '#2B2140' },
-  dark: { fill: '#FF9C86', stroke: '#271F36', text: '#1D1729' },
+  light: { text: '#2B2140' },
+  dark: { text: '#F4ECFA' },
 };
 
 /** Places as a clustered GeoJSON source. The selected place is drawn as its own marker instead. */
@@ -163,27 +163,49 @@ function placesGeoJSON(places: MapPoint[], selectedId: string | null) {
   };
 }
 
+/** Soft round counts, drawn as images so that city names move out of their way. */
+function addClusterImages(map: mapboxgl.Map, dark: boolean) {
+  const tiers: [string, number, string][] = dark
+    ? [['cluster-1', 34, '#5A3F4A'], ['cluster-2', 42, '#463C73'], ['cluster-3', 50, '#1E3C30'], ['cluster-4', 58, '#6B4A56']]
+    : [['cluster-1', 34, '#FFE0D6'], ['cluster-2', 42, '#E8E4FF'], ['cluster-3', 50, '#D4F4E3'], ['cluster-4', 58, '#FFD3C7']];
+  const scale = 2;
+  for (const [name, size, fill] of tiers) {
+    if (map.hasImage(name)) map.removeImage(name);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size * scale;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) continue;
+    ctx.scale(scale, scale);
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = dark ? '#271F36' : '#FFFFFF';
+    ctx.stroke();
+    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    map.addImage(name, { data: new Uint8Array(data), width, height }, { pixelRatio: scale });
+  }
+}
+
 function addPlaceLayers(map: mapboxgl.Map, dark: boolean) {
   const c = dark ? CLUSTER_COLORS.dark : CLUSTER_COLORS.light;
   if (!map.getSource('places')) {
-    map.addSource('places', { type: 'geojson', data: EMPTY, cluster: true, clusterRadius: 46, clusterMaxZoom: 16 });
+    map.addSource('places', { type: 'geojson', data: EMPTY, cluster: true, clusterRadius: 62, clusterMaxZoom: 16 });
   }
+  addClusterImages(map, dark);
   if (!map.getLayer('clusters')) {
     map.addLayer({
-      id: 'clusters', type: 'circle', source: 'places', filter: ['has', 'point_count'],
-      paint: {
-        'circle-color': c.fill,
-        'circle-radius': ['step', ['get', 'point_count'], 18, 10, 23, 50, 29, 200, 36],
-        'circle-stroke-width': 4,
-        'circle-stroke-color': c.stroke,
-        'circle-stroke-opacity': 0.9,
+      id: 'clusters', type: 'symbol', source: 'places', filter: ['has', 'point_count'],
+      layout: {
+        'icon-image': ['step', ['get', 'point_count'], 'cluster-1', 10, 'cluster-2', 50, 'cluster-3', 200, 'cluster-4'],
+        // always shown, and they claim their space, so a city name never sits on top of one
+        'icon-allow-overlap': true,
+        'text-allow-overlap': true,
+        'text-field': ['get', 'point_count_abbreviated'],
+        'text-size': 13,
+        'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
       },
-    });
-  }
-  if (!map.getLayer('cluster-count')) {
-    map.addLayer({
-      id: 'cluster-count', type: 'symbol', source: 'places', filter: ['has', 'point_count'],
-      layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 14, 'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'], 'text-allow-overlap': true },
       paint: { 'text-color': c.text },
     });
   }
@@ -418,10 +440,6 @@ export default function MapView({
     if (!map) return;
     const setup = () => {
       addPlaceLayers(map, isDarkNow());
-      // city names stay readable above the round place counts
-      for (const layer of map.getStyle()?.layers ?? []) {
-        if (/settlement-(major|minor)-label/.test(layer.id)) safe(() => map.moveLayer(layer.id));
-      }
       (map.getSource('places') as mapboxgl.GeoJSONSource).setData(placesGeoJSON(placesRef.current, selectedRef.current));
       queueSync();
     };
