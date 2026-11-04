@@ -33,7 +33,7 @@ export default function LocationAsk({ onYes, onNo }: { onYes: () => void; onNo: 
   }, []);
   if (!clear) return null;
   return (
-    <Modal title={L('לשתף את המיקום שלך? 📍', 'Share your location? 📍')} subtitle={L('כך נראה מה קרוב אלייך וכמה זמן לוקח להגיע. המיקום לא נשמר אצלנו.', "So we can show what's near you and how long it takes to get there. We don't store it.")} onClose={onNo}>
+    <Modal title={L('לשתף את המיקום שלך? 📍', 'Share your location? 📍')} subtitle={L('כך נראה מה קרוב אליכם וכמה זמן לוקח להגיע. המיקום לא נשמר אצלנו.', "So we can show what's near you and how long it takes to get there. We don't store it.")} onClose={onNo}>
       <div className="modal-acts">
         <button type="button" className="btn" onClick={onNo}>{L('לא עכשיו', 'Not now')}</button>
         <button type="button" className="btn primary" onClick={onYes}>{L('שיתוף מיקום', 'Share location')}</button>
