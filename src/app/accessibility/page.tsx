@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
+import LegalNav from '@/components/LegalNav';
 import { getLang } from '@/lib/lang-server';
 
 import { SITE } from '@/lib/site';
@@ -18,6 +19,7 @@ export default async function AccessibilityStatement() {
     <div className="page">
       <SiteHeader />
       <main id="main" data-read-root className="prose">
+        <LegalNav />
         {lang === 'en' ? <StatementEn /> : <StatementHe />}
       </main>
       <SiteFooter />

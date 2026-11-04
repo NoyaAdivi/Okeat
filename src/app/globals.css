@@ -1473,7 +1473,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (max-width: 760px) {
   .need-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .need-card { padding: 14px; }
-  .need-card:first-child:nth-last-child(odd) { grid-column: 1 / -1; }
+  .need-cards .need-card:last-child:nth-child(even) { grid-column: 1 / -1; }
 }
 
 /* ---------- phones: fewer things moving, fewer things on screen ---------- */
@@ -1731,3 +1731,130 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* the cookie notice sat over the buttons of any open window on a phone; it waits until the window closes */
 body:has(.modal-back) .notice-bar { display: none; }
+
+/* ---------- phone map: even top bar, tools just above the menu, a way back to the map ---------- */
+.to-map { display: none; }
+.loc-more summary { cursor: pointer; color: var(--muted); font-size: 0.875rem; font-weight: 600; }
+.loc-more .loc-steps { margin-top: 8px; }
+@media (max-width: 760px) {
+  .map-top .brand { gap: 8px; }
+  .map-top .display-toggles { gap: 8px; }
+  .map-top .brand-home { margin-inline-end: 4px; }
+  .app:not([data-sheet="peek"]) .map-tools { bottom: calc(14px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); }
+  .app:not([data-sheet="peek"]):not([data-sheet="full"]):not([data-place="open"]) .fab { display: grid; place-items: center; left: 72px; bottom: calc(14px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; padding: 0; border-radius: 50%; }
+  .app:not([data-sheet="peek"]) .fab .tool-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .app[data-sheet="full"] .to-map { position: absolute; z-index: 5; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 18px; border: 0; border-radius: 999px; background: var(--ink); color: var(--surface); font: inherit; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; }
+}
+@media (max-width: 760px) {
+  [dir="ltr"] .app:not([data-sheet="peek"]):not([data-sheet="full"]):not([data-place="open"]) .fab { left: auto; right: 72px; }
+}
+
+/* ---------- sideways rows say that there is more ---------- */
+.scroll-row { position: relative; min-width: 0; }
+.scroll-row.has-more::after { content: ""; position: absolute; inset-block: 0 8px; inset-inline-end: 0; width: 34px; pointer-events: none; background: linear-gradient(to left, var(--bg), transparent); }
+[dir="rtl"] .scroll-row.has-more::after { background: linear-gradient(to right, var(--bg), transparent); }
+.scroll-line { display: block; height: 3px; margin-top: 4px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.scroll-line i { display: block; height: 100%; border-radius: 3px; background: var(--peach-deep); }
+.scroll-row .profile-tabs { margin-bottom: 0; }
+.scroll-row:has(.profile-tabs) { margin-bottom: 18px; }
+.scroll-row .admin-tabs, .scroll-row .feed-filters { scrollbar-width: none; }
+
+/* ---------- the account flower says hello now and then ---------- */
+@keyframes seal-hello { 0%, 93%, 100% { transform: rotate(0) scale(1); } 95% { transform: rotate(-16deg) scale(1.08); } 97% { transform: rotate(14deg) scale(1.08); } }
+.account .account-seal { animation: seal-hello 16s ease-in-out infinite; }
+.account:active .account-seal { transform: scale(.9); animation: none; }
+@media (prefers-reduced-motion: reduce) { .account .account-seal { animation: none; } }
+
+/* ---------- my activity: more on the screen, nothing lost ---------- */
+.feed-line { gap: 2px; }
+.feed-line::before { inset-inline-start: 15px; }
+.feed-line h3 { margin: 10px 0 4px; }
+.feed-row { align-items: center; gap: 8px; min-height: 40px; }
+.feed-row .feed-icon { width: 30px; height: 30px; font-size: 0.875rem; box-shadow: 0 0 0 3px var(--bg); }
+.feed-body { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; padding: 5px 10px; border-radius: 12px; background: none; box-shadow: none; }
+.feed-body:hover { background: var(--surface); }
+.feed-body > a { font-size: 0.9375rem; }
+.feed-body small { font-size: 0.8125rem; }
+.feed-meta { margin-inline-start: auto; gap: 8px; font-size: 0.8125rem; }
+.feed-row .feed-thumb { width: 38px; height: 38px; border-radius: 10px; }
+
+/* ---------- the admin's view of the site ---------- */
+.dash-block { margin-block-end: 22px; }
+.dash-block h3 { margin: 0 0 8px; }
+.dash-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-block-end: 8px; }
+.dash-head h3 { margin: 0; }
+.dash-todo { display: flex; flex-wrap: wrap; gap: 8px; }
+.dash-todo button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 14px; border: 0; border-radius: 999px; background: var(--peach-soft); color: var(--ink); font: inherit; cursor: pointer; transition: transform .15s; }
+.dash-todo button:hover { transform: translateY(-2px); }
+.dash-range { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); }
+.dash-range button { min-height: 32px; padding: 3px 12px; border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; font-size: 0.8125rem; cursor: pointer; }
+.dash-range button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow-sm); font-weight: 700; }
+.dash-numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.dash-numbers li { display: grid; gap: 1px; padding: 12px; border-radius: 16px; background: var(--surface-2); text-align: center; }
+.dash-numbers b { font-family: var(--font-display); font-size: 1.5rem; color: var(--peach-deep); }
+.dash-numbers span { color: var(--muted); font-size: 0.8125rem; }
+.dash-bars { display: flex; align-items: flex-end; gap: 3px; height: 72px; margin-top: 10px; }
+.dash-bars span { flex: 1; min-width: 3px; border-radius: 4px 4px 0 0; background: var(--peach); transition: block-size .3s; }
+.dash-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; margin-block-end: 12px; }
+.dash-kinds button { display: grid; justify-items: center; gap: 1px; padding: 10px 6px; border: 2px solid transparent; border-radius: 16px; background: var(--cs, var(--surface-2)); color: var(--ink); font: inherit; cursor: pointer; transition: transform .15s; }
+.dash-kinds button:hover { transform: translateY(-2px); }
+.dash-kinds button[aria-pressed="true"] { border-color: var(--c, var(--ink)); }
+.dash-kinds b { font-family: var(--font-display); font-size: 1.375rem; }
+.dash-kinds span:not(.feed-icon) { font-size: 0.8125rem; }
+.dash-kinds em { font-style: normal; font-size: 0.75rem; font-weight: 700; color: var(--c, var(--ink)); }
+.dash-kinds .feed-icon { width: 28px; height: 28px; background: var(--surface); box-shadow: none; font-size: 0.875rem; }
+.dash-terms li a { color: inherit; text-decoration: none; }
+a.dash-city { color: inherit; text-decoration: none; }
+.admin-feed { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.admin-feed li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--surface); }
+.admin-feed .feed-icon { width: 32px; height: 32px; box-shadow: none; font-size: 0.875rem; flex: none; }
+.admin-feed li > div { flex: 1; min-width: 0; }
+.admin-feed p { margin: 0; overflow-wrap: anywhere; }
+.admin-feed a { color: var(--ink); }
+.admin-feed small { color: var(--muted); overflow-wrap: anywhere; }
+.admin-feed time { flex: none; color: var(--muted); font-size: 0.75rem; }
+.admin-feed .feed-thumb { width: 40px; height: 40px; border-radius: 10px; }
+
+/* ---------- the seals answer a tap ---------- */
+.tap-seal { flex: none; border: 0; padding: 0; background: none; font: inherit; cursor: pointer; }
+.tap-seal.spun { animation: spin .7s ease-in-out; }
+.tap-seal:hover { transform: scale(1.08); }
+
+/* ---------- long pages: jump links, marked lists, and each part arrives as you reach it ---------- */
+.legal-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 18px; }
+.legal-nav a { padding: 5px 12px; border-radius: 999px; background: var(--surface-2); color: var(--ink); font-size: 0.8125rem; text-decoration: none; transition: transform .15s; }
+.legal-nav a:hover { transform: translateY(-1px); background: var(--peach-soft); }
+.prose h2 { scroll-margin-top: 110px; }
+.prose li::marker { color: var(--peach-deep); }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html:not([data-still]) .prose > h2, html:not([data-still]) .prose > ul { animation: scroll-in linear both; animation-timeline: view(); animation-range: entry 0% entry 30%; }
+  }
+}
+
+/* ---------- home: the map's whole size, up front ---------- */
+.need-hero { grid-column: 1 / -1; position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; padding: 24px 28px; overflow: hidden; border-radius: 28px; background: linear-gradient(115deg, var(--peach-soft), var(--kosher-soft) 55%, var(--vegan-soft)); color: var(--ink); text-decoration: none; transition: transform .25s; }
+.need-hero:hover { transform: translateY(-3px); }
+.need-hero-text { position: relative; display: grid; gap: 2px; }
+.need-hero .stat-num { font-size: clamp(2.75rem, 9vw, 4rem); line-height: 1; color: var(--peach-deep); }
+.need-hero .nc-title { font-size: 1.125rem; }
+.need-hero-go { position: relative; flex: none; padding: 10px 18px; border-radius: 999px; background: var(--ink); color: var(--surface); font-weight: 700; }
+.need-hero-pins { position: absolute; inset: 0; pointer-events: none; }
+.need-hero-pins i { position: absolute; font-style: normal; font-size: 1.5rem; opacity: .55; animation: float 7s ease-in-out infinite; }
+.need-hero-pins i:nth-child(1) { top: 14%; inset-inline-end: 34%; }
+.need-hero-pins i:nth-child(2) { bottom: 12%; inset-inline-end: 22%; animation-delay: 1.2s; }
+.need-hero-pins i:nth-child(3) { top: 20%; inset-inline-end: 8%; animation-delay: 2.1s; }
+.need-hero-pins i:nth-child(4) { bottom: 10%; inset-inline-end: 44%; animation-delay: .6s; }
+.need-cards .need-card:nth-child(2):nth-last-child(odd) { grid-column: auto; }
+@media (max-width: 760px) {
+  .need-hero { padding: 18px; }
+  .need-hero-go { width: 100%; text-align: center; box-sizing: border-box; }
+  .need-hero-pins i:nth-child(n + 3) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .need-hero-pins i { animation: none; } }
+
+/* A tap anywhere on a person's row opens their profile. */
+.user-row { position: relative; transition: background .15s; }
+.user-row:hover { background: var(--surface-2); }
+.user-row > div:first-child a::after { content: ""; position: absolute; inset: 0; }
+.user-row .acts { position: relative; z-index: 1; }

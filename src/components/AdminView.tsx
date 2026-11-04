@@ -16,6 +16,7 @@ import { friendly } from '@/lib/errors';
 import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 import DuplicatesPanel from './DuplicatesPanel';
+import ScrollRow from './ScrollRow';
 import UsersPanel from './UsersPanel';
 import MessagesPanel from './MessagesPanel';
 import DashboardPanel from './DashboardPanel';
@@ -94,7 +95,7 @@ export default function AdminView() {
 
         {q && (
           <div className="admin-layout">
-            <div className="admin-tabs" role="tablist" aria-label={L('אזורי הניהול', 'Admin areas')}>
+            <ScrollRow className="admin-tabs" role="tablist" aria-label={L('אזורי הניהול', 'Admin areas')}>
               {tabs.map((t) => (
                 <button key={t.id} type="button" role="tab" id={`tab-${t.id}`} aria-selected={tab === t.id} aria-controls="admin-panel" className={`admin-tab ${t.cls}`} onClick={() => setTab(t.id)}>
                   <span className="seal soft admin-tab-seal" aria-hidden="true"><span>{t.emoji}</span></span>
@@ -102,9 +103,9 @@ export default function AdminView() {
                   {t.count > 0 && <span className="admin-count">{t.count}</span>}
                 </button>
               ))}
-            </div>
+            </ScrollRow>
             <div id="admin-panel" key={tab} className="admin-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0}>
-            {tab === 'home' && admin && <DashboardPanel sb={sb} />}
+            {tab === 'home' && admin && <DashboardPanel sb={sb} onOpen={setTab} />}
             {tab === 'messages' && admin && <MessagesPanel sb={sb} onChange={setOpenMessages} />}
             {tab === 'places' && admin && <PlacesPanel sb={sb} />}
             {tab === 'users' && admin && user && <UsersPanel sb={sb} meId={user.id} />}

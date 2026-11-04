@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
+import LegalNav from '@/components/LegalNav';
 import { getLang } from '@/lib/lang-server';
 import { SITE } from '@/lib/site';
 
@@ -15,6 +16,7 @@ export default async function Privacy() {
     <div className="page">
       <SiteHeader />
       <main id="main" data-read-root className="prose">
+        <LegalNav />
         {lang === 'en' ? <PrivacyEn /> : <PrivacyHe />}
       </main>
       <SiteFooter />
@@ -39,7 +41,8 @@ function PrivacyHe() {
             <li><b>סינון קבוע.</b> אם בחרתם לזכור סינון, הוא נשמר רק בדפדפן שלכם, ולא אצלנו.</li>
             <li><b>מילות חיפוש.</b> אנחנו שומרים אילו מילים וערים מחפשים ובאיזו תדירות, כדי לשפר את האתר, בלי קשר למי שחיפש.</li>
             <li><b>הודעות יצירת קשר.</b> ההודעה ומה שהשארתם לחזרה אליכם נשמרים, ורק מנהלת האתר קוראת אותם.</li>
-            <li><b>תקלות באתר.</b> אם משהו נשבר, נשמרים הודעת השגיאה והעמוד שבו קרתה, בלי פרטים עליכם.</li>
+            <li><b>מדידת ביקורים.</b> אנחנו סופרים כניסות, כמה דפים נפתחו וכמה זמן נשארו, תחת מספר אקראי שנמחק כשסוגרים את הלשונית. אין בזה שום פרט שמזהה אתכם, והנתונים נמחקים אחרי חצי שנה.</li>
+          <li><b>תקלות באתר.</b> אם משהו נשבר, נשמרים הודעת השגיאה והעמוד שבו קרתה, בלי פרטים עליכם.</li>
             <li><b>מיקום.</b> אם אישרתם בדפדפן, המיקום משמש כדי להראות מקומות קרובים ולנווט. הוא לא נשמר אצלנו. מיקום שבחרתם בעצמכם נשמר רק בדפדפן שלכם.</li>
             <li><b>הגדרות באתר.</b> העדפות נגישות, תצוגה ושפה נשמרות בדפדפן שלכם.</li>
           </ul>
@@ -92,7 +95,8 @@ function PrivacyEn() {
             <li><b>Saved filter.</b> If you choose to remember a filter, it stays only in your browser and not with us.</li>
             <li><b>Search words.</b> We keep which words and cities people search for and how often, to improve the site, with no link to who searched.</li>
             <li><b>Contact messages.</b> Your message and what you left for us to reply are kept, and only the site admin reads them.</li>
-            <li><b>Site errors.</b> If something breaks, we keep the error message and the page it happened on, with no details about you.</li>
+            <li><b>Visit counts.</b> We count visits, how many pages were opened and how long people stayed, under a random number that is gone when you close the tab. Nothing in it identifies you, and it is deleted after six months.</li>
+          <li><b>Site errors.</b> If something breaks, we keep the error message and the page it happened on, with no details about you.</li>
             <li><b>Location.</b> If you allow it in your browser, your location is used to show nearby places and to navigate. We don&apos;t store it. A location you choose yourself stays only in your browser.</li>
             <li><b>Site settings.</b> Accessibility, display and language preferences are kept in your browser.</li>
           </ul>

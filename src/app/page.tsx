@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import Stats from '@/components/Stats';
-import { HomeLocationAsk } from '@/components/LocationAsk';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { serverL } from '@/lib/lang-server';
 
@@ -52,7 +51,6 @@ export default async function Home() {
         </section>
       </main>
       <SiteFooter />
-      <HomeLocationAsk />
     </div>
   );
 }

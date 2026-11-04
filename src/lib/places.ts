@@ -800,6 +800,57 @@ export async function decideSuggestion(sb: SupabaseClient, id: string, approve: 
   if (error) throw error;
 }
 
+export type AdminKind = 'user' | 'place' | 'claim' | 'vote' | 'review' | 'photo' | 'report' | 'suggestion' | 'list' | 'message';
+
+export interface AdminEvent {
+  kind: AdminKind; id: string; at: string; user_id: string | null; user_name: string | null;
+  place_id: string | null; title: string | null; need: Need | null; level: string | null;
+  rating: number | null; detail: string | null; path: string | null; status: string | null;
+}
+
+export async function fetchAdminFeed(sb: SupabaseClient, kind: AdminKind | null): Promise<AdminEvent[]> {
+  const { data, error } = await sb.rpc('admin_feed', { p_kind: kind, p_limit: 100 });
+  if (error) throw error;
+  return (data ?? []) as AdminEvent[];
+}
+
+export interface AdminOverview {
+  kinds: Partial<Record<AdminKind, { all: number; week: number; today: number }>>;
+  attention: { reports: number; photos: number; suggestions: number; waiting: number; disputed: number; expiring: number };
+  topUsers: { id: string; name: string | null; actions: number }[];
+  topPlaces: { id: string; name: string; reviews: number; rating: number }[];
+}
+
+export async function fetchAdminOverview(sb: SupabaseClient): Promise<AdminOverview> {
+  const { data, error } = await sb.rpc('admin_overview');
+  if (error) throw error;
+  return data as AdminOverview;
+}
+
+export interface Visits {
+  visits: number; avgSeconds: number; totalSeconds: number; avgPages: number; signedIn: number; signups: number;
+  days: { day: string; visits: number; avgSeconds: number }[];
+}
+
+export async function fetchVisits(sb: SupabaseClient, days: number): Promise<Visits | null> {
+  const { data, error } = await sb.rpc('admin_visits', { p_days: days });
+  return error ? null : (data as Visits);
+}
+
+export const logVisit = (sb: SupabaseClient, sid: string, seconds: number, pages: number, signed: boolean) =>
+  sb.rpc('log_visit', { p_sid: sid, p_seconds: seconds, p_pages: pages, p_signed: signed }).then(() => undefined, () => undefined);
+
+export async function adminNewCount(sb: SupabaseClient, since: string): Promise<number> {
+  const { data, error } = await sb.rpc('admin_new_count', { p_since: since });
+  return error ? 0 : (data as number);
+}
+
+export async function fetchPublicActivity(sb: SupabaseClient, id: string): Promise<MyActivity> {
+  const { data, error } = await sb.rpc('public_activity', { p_id: id });
+  if (error) throw error;
+  return data as MyActivity;
+}
+
 export async function withdrawVote(sb: SupabaseClient, claimId: string) {
   const { error } = await sb.rpc('withdraw_vote', { p_claim: claimId });
   if (error) throw error;

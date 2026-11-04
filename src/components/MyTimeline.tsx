@@ -7,6 +7,7 @@ import { deleteMyPhoto, fetchMyFeed, placePhotoUrl, type FeedKind, type FeedRow 
 import { friendly } from '@/lib/errors';
 import { levelInfo, levelText, needLabel, placeTypeLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
+import ScrollRow from './ScrollRow';
 
 type Filter = FeedKind | 'all';
 
@@ -115,14 +116,14 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
   let lastDay = '';
   return (
     <section className="feed">
-      <div className="feed-filters" role="group" aria-label={L('סינון הפעילות', 'Filter your activity')}>
+      <ScrollRow className="feed-filters" role="group" aria-label={L('סינון הפעילות', 'Filter your activity')}>
         {(['all', ...present] as Filter[]).map((k) => (
           <button key={k} type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
             {k !== 'all' && <span aria-hidden="true">{LOOK[k].emoji}</span>} {names[k]}
             <b>{k === 'all' ? rows.length : rows.filter((r) => r.kind === k).length}</b>
           </button>
         ))}
-      </div>
+      </ScrollRow>
       {error && <p className="warnbox" role="alert">{error}</p>}
 
       {filter === 'photo' ? (

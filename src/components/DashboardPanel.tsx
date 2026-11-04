@@ -1,122 +1,170 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import Link from 'next/link';
-import { fetchDashboard, fetchStatDetails, type Dashboard, type StatKind, type StatRow } from '@/lib/places';
-import { levelInfo, levelText, needLabel, type Level } from '@/lib/types';
+import { fetchAdminOverview, fetchDashboard, fetchVisits, type AdminKind, type AdminOverview, type Dashboard, type Visits } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { useL } from './LangProvider';
+import AdminFeed, { KIND_LOOK } from './AdminFeed';
 
-/** For the admin: how the site is doing, what people look for, and where places are missing. */
-export default function DashboardPanel({ sb }: { sb: SupabaseClient }) {
+const duration = (s: number, L: ReturnType<typeof useL>) => {
+  if (s < 60) return L(`${s} שנ׳`, `${s} sec`);
+  const m = Math.round(s / 60);
+  return m < 60 ? L(`${m} דק׳`, `${m} min`) : L(`${(m / 60).toFixed(1)} שע׳`, `${(m / 60).toFixed(1)} hr`);
+};
+
+/** For the admin: what needs attention, who visits, what people add, and what they look for. */
+export default function DashboardPanel({ sb, onOpen }: { sb: SupabaseClient; onOpen: (tab: 'reports' | 'photos') => void }) {
   const L = useL();
   const [data, setData] = useState<Dashboard | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [over, setOver] = useState<AdminOverview | null>(null);
+  const [visits, setVisits] = useState<Visits | null>(null);
+  const [range, setRange] = useState(7);
+  const [kind, setKind] = useState<AdminKind | null>(null);
   const [error, setError] = useState('');
-  const [open, setOpen] = useState<StatKind | null>(null);
-  const [rows, setRows] = useState<StatRow[] | null>(null);
-  const [rowsError, setRowsError] = useState('');
 
-  const toggle = async (kind: StatKind) => {
-    setRowsError('');
-    setRows(null);
-    if (open === kind) { setOpen(null); return; }
-    setOpen(kind);
-    try {
-      const found = await fetchStatDetails(sb, kind);
-      setRows(found);
-    } catch (e) { setRowsError(friendly(e, L.lang)); }
+  useEffect(() => {
+    fetchDashboard(sb).then(setData).catch((e) => setError(friendly(e, L.lang)));
+    fetchAdminOverview(sb).then(setOver).catch(() => undefined);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchVisits(sb, range).then(setVisits); }, [sb, range]);
+
+  const names: Record<AdminKind, string> = {
+    user: L('נרשמו', 'Signed up'),
+    place: L('מקומות חדשים', 'New places'),
+    claim: L('מידע', 'Information'),
+    vote: L('אישורים', 'Confirmations'),
+    review: L('ביקורות', 'Reviews'),
+    photo: L('תמונות', 'Photos'),
+    report: L('דיווחים', 'Reports'),
+    suggestion: L('הצעות סיווג', 'Type suggestions'),
+    list: L('רשימות', 'Lists'),
+    message: L('הודעות', 'Messages'),
   };
-
-  const load = async () => {
-    setBusy(true);
-    setError('');
-    try { setData(await fetchDashboard(sb)); } catch (e) { setError(friendly(e, L.lang)); }
-    setBusy(false);
-  };
-
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const tiles = data ? [
-    ['users', L('נרשמו', 'Signed up'), data.users], ['newUsers', L('חדשים השבוע', 'New this week'), data.newUsers],
-    [null, L('מקומות', 'Places'), data.places], ['verified', L('פרטים מאושרים', 'Confirmed details'), data.verified],
-    ['reviews', L('ביקורות', 'Reviews'), data.reviews], ['lists', L('רשימות', 'Lists'), data.lists],
-  ] as const : [];
-  const openTile = tiles.find(([kind]) => kind === open);
-  const when = (at: string | null) => (at ? new Date(at).toLocaleDateString(L.lang === 'he' ? 'he-IL' : 'en-GB') : '');
-  const rowLine = (r: StatRow) => {
-    const parts: string[] = [];
-    if (r.need) {
-      const info = levelInfo(r.need, r.level as Level);
-      parts.push(info ? levelText(info, L.lang) : needLabel(r.need, L.lang));
-    }
-    if (r.rating) parts.push('★'.repeat(r.rating));
-    if (open === 'verified' && r.count) parts.push(L(`${r.count} אישורים`, `${r.count} confirmations`));
-    if (open === 'lists') parts.push(L(`${r.count ?? 0} מקומות`, `${r.count ?? 0} places`));
-    if (r.by) parts.push(r.by);
-    if (r.sub) parts.push(r.sub);
-    return parts.join(', ');
-  };
-  const few = [...(data?.cities ?? [])].sort((a, b) => a.places - b.places);
+  const a = over?.attention;
+  const todo = a ? [
+    { n: a.reports, emoji: '🚩', text: L('מקומות שדווחו', 'Reported places'), go: () => onOpen('reports') },
+    { n: a.disputed, emoji: '⚖️', text: L('מידע במחלוקת', 'Disputed details'), go: () => onOpen('reports') },
+    { n: a.suggestions, emoji: '🏷️', text: L('הצעות סיווג', 'Type suggestions'), go: () => onOpen('reports') },
+    { n: a.photos, emoji: '📷', text: L('תמונות לאישור', 'Photos to approve'), go: () => onOpen('photos') },
+    { n: a.waiting, emoji: '⏳', text: L('מידע שמחכה לקהילה', 'Waiting for the community'), go: () => setKind('claim') },
+    { n: a.expiring, emoji: '📜', text: L('תעודות שמסתיימות בחודש הקרוב', 'Certificates ending this month'), go: () => setKind('claim') },
+  ].filter((t) => t.n > 0) : [];
+  const peak = Math.max(1, ...(visits?.days ?? []).map((d) => d.visits));
+  const few = [...(data?.cities ?? [])].sort((x, y) => x.places - y.places);
 
   return (
     <>
       <h2>{L('לוח נתונים', 'Dashboard')}</h2>
       {error && <p className="warnbox">{error}</p>}
-      {!data && !error && <p className="muted">{busy ? L('טוען…', 'Loading…') : ''}</p>}
+
+      {todo.length > 0 && (
+        <section className="dash-block">
+          <h3>{L('מה מחכה לך', 'Waiting for you')}</h3>
+          <div className="dash-todo">
+            {todo.map((t) => (
+              <button key={t.text} type="button" onClick={t.go}>
+                <span aria-hidden="true">{t.emoji}</span> <b>{t.n.toLocaleString()}</b> {t.text}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="dash-block">
+        <div className="dash-head">
+          <h3>{L('כניסות לאתר', 'Visits')}</h3>
+          <div className="dash-range" role="group" aria-label={L('טווח זמן', 'Time range')}>
+            {[[1, L('היום', 'Today')], [7, L('שבוע', 'Week')], [30, L('חודש', 'Month')]].map(([d, label]) => (
+              <button key={d} type="button" aria-pressed={range === d} onClick={() => setRange(d as number)}>{label}</button>
+            ))}
+          </div>
+        </div>
+        {!visits ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
+          <>
+            <ul className="dash-numbers">
+              <li><b>{visits.visits.toLocaleString()}</b><span>{L('כניסות', 'Visits')}</span></li>
+              <li><b>{duration(visits.avgSeconds, L)}</b><span>{L('זמן ממוצע', 'Average time')}</span></li>
+              <li><b>{duration(visits.totalSeconds, L)}</b><span>{L('זמן כולל באתר', 'Total time')}</span></li>
+              <li><b>{visits.avgPages}</b><span>{L('דפים לכניסה', 'Pages per visit')}</span></li>
+              <li><b>{visits.signedIn.toLocaleString()}</b><span>{L('כניסות של מחוברים', 'Signed-in visits')}</span></li>
+              <li><b>{visits.signups.toLocaleString()}</b><span>{L('נרשמו בטווח', 'Signed up')}</span></li>
+            </ul>
+            {visits.days.length > 1 && (
+              <div className="dash-bars" role="img" aria-label={L('כניסות לפי יום', 'Visits by day')}>
+                {visits.days.map((d) => (
+                  <span key={d.day} title={`${d.day}: ${d.visits}`} style={{ blockSize: `${Math.max(4, (d.visits / peak) * 100)}%` }} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="dash-block">
+        <h3>{L('מה קורה באתר', 'What people are doing')}</h3>
+        <div className="dash-kinds">
+          <button type="button" aria-pressed={kind === null} onClick={() => setKind(null)}>
+            <span className="feed-icon" aria-hidden="true">✨</span><b>{L('הכול', 'All')}</b>
+          </button>
+          {(Object.keys(names) as AdminKind[]).filter((k) => k !== 'message').map((k) => {
+            const c = over?.kinds[k];
+            return (
+              <button key={k} type="button" className={KIND_LOOK[k].cls} aria-pressed={kind === k} onClick={() => setKind(k)}>
+                <span className="feed-icon" aria-hidden="true">{KIND_LOOK[k].emoji}</span>
+                <b>{(c?.all ?? 0).toLocaleString()}</b>
+                <span>{names[k]}</span>
+                {!!c?.today && <em>{L(`+${c.today} היום`, `+${c.today} today`)}</em>}
+              </button>
+            );
+          })}
+        </div>
+        <AdminFeed sb={sb} kind={kind} />
+      </section>
+
+      {over && over.topUsers.length > 0 && (
+        <section className="dash-block">
+          <h3>{L('הכי פעילים החודש', 'Most active this month')}</h3>
+          <ul className="dash-terms">
+            {over.topUsers.map((u) => <li key={u.id}><Link href={`/u/${u.id}`}>{u.name ?? L('משתמש/ת', 'A user')} <b>{u.actions}</b></Link></li>)}
+          </ul>
+        </section>
+      )}
+      {over && over.topPlaces.length > 0 && (
+        <section className="dash-block">
+          <h3>{L('המקומות עם הכי הרבה ביקורות', 'Places with the most reviews')}</h3>
+          <ul className="dash-terms">
+            {over.topPlaces.map((p) => <li key={p.id}><Link href={`/map?place=${p.id}`}>{p.name} <b>★ {p.rating}</b></Link></li>)}
+          </ul>
+        </section>
+      )}
+
       {data && (
         <>
-          <ul className="profile-stats dash-stats">
-            {tiles.map(([kind, label, value]) => (
-              <li key={label}>
-                {kind ? (
-                  <button type="button" aria-expanded={open === kind} aria-controls="dash-details" onClick={() => toggle(kind)}>
-                    <b>{value.toLocaleString()}</b><span>{label}</span>
-                  </button>
-                ) : <><b>{value.toLocaleString()}</b><span>{label}</span></>}
-              </li>
-            ))}
-          </ul>
-          <div id="dash-details" aria-live="polite">
-            {open && (
-              <section className="dash-details">
-                <h3>{openTile?.[1]}</h3>
-                {rowsError && <p className="warnbox">{rowsError}</p>}
-                {!rows && !rowsError && <p className="muted">{L('טוען…', 'Loading…')}</p>}
-                {rows?.length === 0 && <p className="muted">{L('עוד אין כאן כלום.', 'Nothing here yet.')}</p>}
-                {rows && rows.length > 0 && (
-                  <ul>
-                    {rows.map((r) => {
-                      const body = <><b>{r.title}</b><small>{rowLine(r)}</small></>;
-                      return (
-                        <li key={r.id}>
-                          {r.placeId ? <Link href={`/map?place=${r.placeId}`}>{body}</Link> : <div>{body}</div>}
-                          <time>{when(r.at)}</time>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                {rows?.length === 200 && <p className="muted">{L('מוצגים 200 האחרונים.', 'Showing the latest 200.')}</p>}
-              </section>
+          <section className="dash-block">
+            <h3>{L('מה מחפשים', 'What people search for')}</h3>
+            {data.searches.length === 0 ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
+              <ul className="dash-terms">
+                {data.searches.map((s) => <li key={s.term}><Link href={`/map?q=${encodeURIComponent(s.term)}`}>{s.term} <b>{s.times}</b></Link></li>)}
+              </ul>
             )}
-          </div>
-          <h3>{L('מה מחפשים', 'What people search for')}</h3>
-          {data.searches.length === 0 ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
-            <ul className="dash-terms">
-              {data.searches.map((s) => <li key={s.term}>{s.term} <b>{s.times}</b></li>)}
-            </ul>
-          )}
-          <h3>{L('ערים שמחפשים, מהכי מעט מקומות', 'Cities people look for, fewest places first')}</h3>
-          {few.length === 0 ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
-            <ul className="profile-places">
-              {few.map((c) => <li key={c.name} className="dash-city">
-                <span><b>{c.name}</b> <small>{L(`${c.places} מקומות, ${c.times} חיפושים`, `${c.places} places, ${c.times} searches`)}</small></span>
-                <i aria-hidden="true" style={{ inlineSize: `${Math.max(4, (c.places / Math.max(1, ...few.map((x) => x.places))) * 100)}%` }} />
-              </li>)}
-            </ul>
-          )}
+          </section>
+          <section className="dash-block">
+            <h3>{L('ערים שמחפשים, מהכי מעט מקומות', 'Cities people look for, fewest places first')}</h3>
+            {few.length === 0 ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
+              <ul className="profile-places">
+                {few.map((c) => (
+                  <li key={c.name}>
+                    <Link href={`/map?q=${encodeURIComponent(c.name)}`} className="dash-city">
+                      <span><b>{c.name}</b> <small>{L(`${c.places} מקומות, ${c.times} חיפושים`, `${c.places} places, ${c.times} searches`)}</small></span>
+                      <i aria-hidden="true" style={{ inlineSize: `${Math.max(4, (c.places / Math.max(1, ...few.map((x) => x.places))) * 100)}%` }} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       )}
     </>

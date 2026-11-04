@@ -14,6 +14,8 @@ import { fetchRatings } from '@/lib/places';
 interface Props {
   /** Where the minutes are counted from, when it is not the live location. */
   fromLabel?: string | null;
+  /** The closest result is far from where the list is looking. */
+  nothingClose?: boolean;
   places: Place[];
   loading: boolean;
   error: string | null;
@@ -24,7 +26,7 @@ interface Props {
 
 const PAGE = 40;
 
-export default function PlaceList({ fromLabel, places, loading, error, activeNeeds, onSelect, onReset }: Props) {
+export default function PlaceList({ fromLabel, nothingClose, places, loading, error, activeNeeds, onSelect, onReset }: Props) {
   const L = useL();
   const lang = L.lang;
   const [shown, setShown] = useState(PAGE);
@@ -97,7 +99,7 @@ export default function PlaceList({ fromLabel, places, loading, error, activeNee
           </select>
         </label>
       </div>
-      {(sorted[0]?.distance_m ?? 0) > 5000 && (
+      {nothingClose && (
         <p className="far-note">{L('אין עדיין מקומות ממש קרובים לכאן. אלה הקרובים ביותר.', 'No places very close by yet. These are the nearest.')}</p>
       )}
       <ul className="list">

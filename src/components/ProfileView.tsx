@@ -34,6 +34,9 @@ function CountUp({ to }: { to: number }) {
 import ProfileExtras from './ProfileExtras';
 import MyActivity from './MyActivity';
 import MyTimeline from './MyTimeline';
+import AdminFeed from './AdminFeed';
+import ScrollRow from './ScrollRow';
+import { markAdminSeen } from '@/lib/adminSeen';
 import EditMyPlace from './EditMyPlace';
 import { earnedBadges } from '@/lib/checks';
 import Avatar from './Avatar';
@@ -64,7 +67,9 @@ export default function ProfileView({ id }: { id: string }) {
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [editPlace, setEditPlace] = useState<string | null>(null);
-  const [section, setSection] = useState<'feed' | 'notes' | 'lists' | 'saved' | 'added' | 'info' | 'votes' | 'reviews'>('feed');
+  const [section, setSection] = useState<'feed' | 'site' | 'notes' | 'lists' | 'saved' | 'added' | 'info' | 'votes' | 'reviews'>('feed');
+  // On someone else's profile the first thing shown is the places they added.
+  const view = !mine && section === 'feed' ? 'added' : section;
   const [saved, setSaved] = useState<{ id: string; name: string; place_type: string }[]>([]);
   useEffect(() => { if (mine) fetchMyFavorites(sb).then(setSaved); }, [sb, mine]);
   useEffect(() => {
@@ -124,13 +129,9 @@ export default function ProfileView({ id }: { id: string }) {
                 ['reviews', 'g', profile.reviews, L('ביקורות', 'reviews')],
               ] as const).map(([value, cls, count, label]) => (
                 <li key={value} className={cls}>
-                  {mine ? (
-                    <button type="button" aria-pressed={section === value} onClick={() => setSection(value)}>
-                      <b><CountUp to={count} /></b><span>{label}</span>
-                    </button>
-                  ) : (
-                    <><b><CountUp to={count} /></b><span>{label}</span></>
-                  )}
+                  <button type="button" aria-pressed={view === value} onClick={() => setSection(value)}>
+                    <b><CountUp to={count} /></b><span>{label}</span>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -150,14 +151,15 @@ export default function ProfileView({ id }: { id: string }) {
               <p className="center"><Link className="btn" href="/admin">{L('לדיווחים ולבקשות', 'Reports and requests')}</Link></p>
             )}
             {mine && user && (
-              <div className="profile-tabs" role="tablist" aria-label={L('החלקים בפרופיל', 'Profile sections')}>
-                {([['feed', '✨', L('הפעילות שלי', 'My activity')], ['notes', '🔔', L('התראות', 'Notifications')], ['lists', '📋', L('רשימות', 'Lists')], ['saved', '❤️', L('שמורים', 'Saved')], ['added', '📍', L('הוספתי', 'Added')]] as const).map(([value, emoji, label]) => (
-                  <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}><span aria-hidden="true">{emoji}</span> {label}</button>
+              <ScrollRow className="profile-tabs" role="tablist" aria-label={L('החלקים בפרופיל', 'Profile sections')}>
+                {([['feed', '✨', L('הפעילות שלי', 'My activity')], ...(profile.role !== 'user' ? [['site', '🛡️', L('מה חדש באתר', 'New on the site')] as const] : []), ['notes', '🔔', L('התראות', 'Notifications')], ['lists', '📋', L('רשימות', 'Lists')], ['saved', '❤️', L('שמורים', 'Saved')], ['added', '📍', L('הוספתי', 'Added')]] as const).map(([value, emoji, label]) => (
+                  <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => { setSection(value); if (value === 'site') markAdminSeen(); }}><span aria-hidden="true">{emoji}</span> {label}</button>
                 ))}
-              </div>
+              </ScrollRow>
             )}
             <div key={section} className="profile-section">
             {mine && section === 'feed' && <MyTimeline sb={sb} onManage={setSection} />}
+            {mine && section === 'site' && <AdminFeed sb={sb} />}
             {mine && user && section === 'notes' && <ProfileExtras sb={sb} userId={user.id} show="notes" />}
             {mine && user && section === 'lists' && (
               <>
@@ -169,8 +171,8 @@ export default function ProfileView({ id }: { id: string }) {
                 <ProfileExtras sb={sb} userId={user.id} show="lists" />
               </>
             )}
-            {mine && (section === 'info' || section === 'votes' || section === 'reviews') && (
-              <MyActivity sb={sb} userId={user!.id} show={section} onChanged={() => { if (target) fetchProfile(sb, target).then(setProfile); }} />
+            {(view === 'info' || view === 'votes' || view === 'reviews') && (
+              <MyActivity sb={sb} userId={mine ? user!.id : undefined} publicId={mine ? undefined : profile.id} show={view} onChanged={() => { if (target) fetchProfile(sb, target).then(setProfile); }} />
             )}
             {section === 'saved' && mine && (
               <section className="sec">
@@ -189,7 +191,7 @@ export default function ProfileView({ id }: { id: string }) {
                 )}
               </section>
             )}
-            {(section === 'added' || !mine) && (
+            {view === 'added' && (
             <section className="sec">
               <h2>{L('מקומות שהוסיף/ה', 'Places added')}</h2>
               {roleError && mine && <div className="err" role="alert">{roleError}</div>}

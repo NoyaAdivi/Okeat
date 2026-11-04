@@ -11,6 +11,7 @@ const TOPICS = [
   { v: 'business', label: 'אני בעל/ת עסק', en: 'I own a business', emoji: '🏪' },
   { v: 'accessibility', label: 'נגישות', en: 'Accessibility', emoji: '♿' },
   { v: 'privacy', label: 'פרטיות ומחיקת מידע', en: 'Privacy and deleting data', emoji: '🔒' },
+  { v: 'other', label: 'אחר', en: 'Something else', emoji: '✉️' },
 ] as const;
 
 export default function ContactForm({ initialTopic = 'general' }: { initialTopic?: string }) {

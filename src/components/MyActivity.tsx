@@ -3,21 +3,24 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { deleteReview, fetchMyActivity, updateMyClaim, withdrawClaim, withdrawVote, type MyActivity as Activity } from '@/lib/places';
+import { deleteReview, fetchMyActivity, fetchPublicActivity, updateMyClaim, withdrawClaim, withdrawVote, type MyActivity as Activity } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { LEVELS, levelInfo, levelText, needLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
 
 interface Props {
   sb: SupabaseClient;
-  userId: string;
+  /** Your own account: everything can be changed. */
+  userId?: string;
+  /** Someone else's profile: read only, and only what is public. */
+  publicId?: string;
   show: 'info' | 'votes' | 'reviews';
   /** The numbers on the profile changed. */
   onChanged: () => void;
 }
 
 /** Your own information, confirmations and reviews, opened from the numbers on your profile. */
-export default function MyActivity({ sb, userId, show, onChanged }: Props) {
+export default function MyActivity({ sb, userId, publicId, show, onChanged }: Props) {
   const L = useL();
   const lang = L.lang;
   const [data, setData] = useState<Activity | null>(null);
@@ -26,7 +29,7 @@ export default function MyActivity({ sb, userId, show, onChanged }: Props) {
   const [editing, setEditing] = useState<{ id: string; level: string } | null>(null);
   const [sure, setSure] = useState<string | null>(null);
 
-  const load = () => fetchMyActivity(sb).then(setData).catch((e) => setError(friendly(e, lang)));
+  const load = () => (publicId ? fetchPublicActivity(sb, publicId) : fetchMyActivity(sb)).then(setData).catch((e) => setError(friendly(e, lang)));
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const levelName = (need: Activity['claims'][number]['need'], level: string) => {
@@ -71,19 +74,19 @@ export default function MyActivity({ sb, userId, show, onChanged }: Props) {
   if (show === 'info') {
     return (
       <section className="sec">
-        <h2>{L('המידע שהוספתי', 'Information I added')}</h2>
+        <h2>{publicId ? L('מידע שהוסיף/ה', 'Information added') : L('המידע שהוספתי', 'Information I added')}</h2>
         {note}
         {data.claims.length === 0 ? empty(L('עוד אין. בכל מקום אפשר להוסיף מידע.', 'None yet. You can add information on any place.')) : (
           <ul className="my-rows">
             {data.claims.map((c) => (
               <li key={c.id}>
                 <Link href={`/map?place=${c.placeId}`}><b>{c.place}</b><small>{levelName(c.need, c.level)}, {statusName(c.status)}</small></Link>
-                <span className="my-acts">
+                {!publicId && <span className="my-acts">
                   {LEVELS[c.need].filter((l) => l.value !== 'marked').length > 1 && (
                     <button type="button" className="link" onClick={() => setEditing({ id: c.id, level: c.level })}>{L('עריכה', 'Edit')}</button>
                   )}
                   {remove(c.id, () => withdrawClaim(sb, c.id))}
-                </span>
+                </span>}
                 {editing?.id === c.id && (
                   <form className="my-edit" onSubmit={(e) => { e.preventDefault(); act(() => updateMyClaim(sb, c.id, editing.level), L('נשמר ונשלח שוב לאישור.', 'Saved and sent for confirmation again.')); }}>
                     <label htmlFor={`level-${c.id}`}>{needLabel(c.need, lang)}</label>
@@ -106,16 +109,16 @@ export default function MyActivity({ sb, userId, show, onChanged }: Props) {
   if (show === 'votes') {
     return (
       <section className="sec">
-        <h2>{L('מה שאישרתי', 'What I confirmed')}</h2>
+        <h2>{publicId ? L('מה שאישר/ה', 'What they confirmed') : L('מה שאישרתי', 'What I confirmed')}</h2>
         {note}
         {data.votes.length === 0 ? empty(L('עוד אין. הייתם במקום? אפשר לאשר את המידע עליו.', "None yet. Been to a place? You can confirm what's written.")) : (
           <ul className="my-rows">
             {data.votes.map((v, i) => (
               <li key={`${v.placeId}-${i}`}>
                 <Link href={`/map?place=${v.placeId}`}><b>{v.place}</b><small>{levelName(v.need, v.level)}, {v.vote === 1 ? L('אישרת', 'You confirmed') : L('דיווחת שלא נכון', 'You reported it')}</small></Link>
-                <span className="my-acts">{sure === v.claimId
+                {!publicId && <span className="my-acts">{sure === v.claimId
                   ? <button type="button" className="btn small ghost danger" onClick={() => act(() => withdrawVote(sb, v.claimId), L('האישור בוטל.', 'Your confirmation was removed.'))}>{L('לבטל?', 'Remove?')}</button>
-                  : <button type="button" className="link" onClick={() => setSure(v.claimId)}>{L('ביטול', 'Undo')}</button>}</span>
+                  : <button type="button" className="link" onClick={() => setSure(v.claimId)}>{L('ביטול', 'Undo')}</button>}</span>}
               </li>
             ))}
           </ul>
@@ -125,17 +128,17 @@ export default function MyActivity({ sb, userId, show, onChanged }: Props) {
   }
   return (
     <section className="sec">
-      <h2>{L('הביקורות שלי', 'My reviews')}</h2>
+      <h2>{publicId ? L('ביקורות', 'Reviews') : L('הביקורות שלי', 'My reviews')}</h2>
       {note}
       {data.reviews.length === 0 ? empty(L('עוד אין. אפשר לכתוב ביקורת בדף של מקום.', 'None yet. You can write a review on a place page.')) : (
         <ul className="my-rows">
           {data.reviews.map((r) => (
             <li key={r.placeId}>
               <Link href={`/map?place=${r.placeId}`}><b>{r.place}</b><small><span aria-label={L(`${r.rating} מתוך 5`, `${r.rating} of 5`)}>{'★'.repeat(r.rating)}</span>{r.comment ? ` ${r.comment}` : ''}</small></Link>
-              <span className="my-acts">
+              {!publicId && <span className="my-acts">
                 <Link className="link" href={`/map?place=${r.placeId}`}>{L('עריכה', 'Edit')}</Link>
-                {remove(r.placeId, () => deleteReview(sb, r.placeId, userId))}
-              </span>
+                {remove(r.placeId, () => deleteReview(sb, r.placeId, userId!))}
+              </span>}
             </li>
           ))}
         </ul>

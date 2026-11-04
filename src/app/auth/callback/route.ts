@@ -16,5 +16,6 @@ export async function GET(request: Request) {
     if (!error) return NextResponse.redirect(`${origin}${next}${sep}signed_in=1`);
   }
 
-  return NextResponse.redirect(`${origin}${next}${sep}auth_error=1`);
+  // Google said no or the person went back: the map explains it and offers to try again.
+  return NextResponse.redirect(`${origin}/map?auth_error=1&why=google`);
 }

@@ -64,7 +64,7 @@ export default function UsersPanel({ sb, meId }: { sb: SupabaseClient; meId: str
         </div>
       )}
       {shown.map((u) => (
-        <div key={u.id} className="admin-row">
+        <div key={u.id} className="admin-row user-row">
           <div>
             <Link href={`/u/${u.id}`}><b>{u.name ?? L('בלי שם', 'No name')}</b></Link>
             <div className="muted small" dir="ltr">{u.email}</div>

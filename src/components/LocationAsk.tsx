@@ -14,6 +14,12 @@ export function saveAsked(answer: 'yes' | 'no') {
   try { sessionStorage.setItem(LOCATION_ASKED, answer); } catch { /* private window */ }
 }
 
+const RETRY = 'okeat-location-retry';
+export const markRetry = () => { try { sessionStorage.setItem(RETRY, '1'); } catch { /* private window */ } };
+export function takeRetry(): boolean {
+  try { const on = !!sessionStorage.getItem(RETRY); sessionStorage.removeItem(RETRY); return on; } catch { return false; }
+}
+
 /** Our own question, before the browser's. It explains why, and the browser's window comes only after "yes". */
 export default function LocationAsk({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
   const L = useL();
@@ -33,28 +39,5 @@ export default function LocationAsk({ onYes, onNo }: { onYes: () => void; onNo: 
         <button type="button" className="btn primary" onClick={onYes}>{L('שיתוף מיקום', 'Share location')}</button>
       </div>
     </Modal>
-  );
-}
-
-/** The same question when entering the home page. */
-export function HomeLocationAsk() {
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (readAsked() || !('geolocation' in navigator)) return;
-    const show = () => setOpen(true);
-    const query = navigator.permissions?.query({ name: 'geolocation' });
-    if (query) query.then((p) => { if (p.state !== 'granted') show(); }).catch(show);
-    else show();
-  }, []);
-  if (!open) return null;
-  return (
-    <LocationAsk
-      onNo={() => { saveAsked('no'); setOpen(false); }}
-      onYes={() => {
-        saveAsked('yes');
-        setOpen(false);
-        navigator.geolocation.getCurrentPosition(() => undefined, () => undefined);
-      }}
-    />
   );
 }

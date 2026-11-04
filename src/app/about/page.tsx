@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteFooter, SiteHeader, LINKEDIN_URL } from '@/components/SiteChrome';
 import { getLang, serverL } from '@/lib/lang-server';
+import TapSeal from '@/components/TapSeal';
 import FaqList from '@/components/FaqList';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -64,14 +65,20 @@ const faqOf = (L: T) => [
   {
     group: 'trust',
     q: L('מה קורה אם מישהו מוסיף מקום שגוי?', 'What if someone adds a wrong place?'),
-    a: L('מקום חדש מופיע במפה מיד, עם סימון "ממתין לאישור". כל משתמש מחובר יכול לדווח עליו. אחרי שלושה דיווחים הוא עובר לבדיקה, ורק מאשר קהילה או מנהל יכולים להסיר אותו. מאשרי קהילה ממונים אישית על ידי מנהלת האתר.',
-      'A new place appears on the map right away, marked "waiting for confirmation". Any signed-in user can report it. After three reports it goes to review, and only a community moderator or an admin can remove it. Community moderators are appointed personally by the site admin.'),
+    a: L('מקום חדש מופיע במפה מיד, עם סימון "ממתין לאישור". כל משתמש מחובר יכול לדווח עליו. דיווח שהמקום נסגר, לא קיים, בכתובת לא נכונה או לא קשור לאוכל מגיע ישר למנהלים, ודיווח אחר אחרי שלושה דיווחים. רק מאשר קהילה או מנהל יכולים להסיר מקום. מאשרי קהילה ממונים אישית על ידי מנהלת האתר.',
+      'A new place appears on the map right away, marked "waiting for confirmation". Any signed-in user can report it. A report that it closed, does not exist, has a wrong address or is not a food place goes straight to the moderators, and other reports after three. Only a community moderator or an admin can remove a place. Community moderators are appointed personally by the site admin.'),
   },
   {
     group: 'trust',
     q: L('מה זה "אושר על ידי בעל העסק"?', 'What does "confirmed by the business owner" mean?'),
     a: L('בעל עסק יכול לאמת את המקום שלו: הוא מקבל קוד, מפרסם אותו לזמן קצר באתר או בעמוד הרשמי של העסק ברשתות, ומנהל בודק שהקוד באמת שם. כך אי אפשר להתחזות לבעל העסק. בעל עסק מאומת יכול גם לעדכן שעות, טלפון, אתר וקישור לתפריט.',
       "A business owner can verify their place: they get a code, post it for a short while on the business's website or official social page, and an admin checks the code is really there. That way nobody can pretend to be the owner. A verified owner can also update hours, phone, website and a menu link."),
+  },
+  {
+    group: 'use',
+    q: L('למה האתר שואל על המיקום שלי?', 'Why does the site ask for my location?'),
+    a: L('כדי להראות מה קרוב אליכם ולחשב כמה זמן לוקח להגיע. השאלה מופיעה רק כשנכנסים למפה, והמיקום לא נשמר אצלנו. בלי מיקום אפשר לבחור עיר או כתובת ב-📍, ואם בחרתם מקום, המרחק נמדד ממנו.',
+      'To show what is near you and how long it takes to get there. It is asked only on the map, and we do not store your location. Without it you can choose a city or an address with 📍, and the distance is then measured from there.'),
   },
   {
     group: 'account',
@@ -82,8 +89,8 @@ const faqOf = (L: T) => [
   {
     group: 'account',
     q: L('מה רואים אחרים בפרופיל שלי?', 'What can others see on my profile?'),
-    a: L('את השם ותמונת הפרופיל, האוכל האהוב אם כתבת אותו, מתי הצטרפת, ומה הוספת ואישרת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה. רשימת המקומות ששמרת גלויה רק לך.',
-      'Your name and picture, your favorite food if you added it, when you joined, and what you added and confirmed. A review you write is shown with your name. Your e-mail address is not shown to other users, and only the site admin can see it. Your saved places are visible only to you.'),
+    a: L('את השם ותמונת הפרופיל, האוכל האהוב אם כתבת אותו, מתי הצטרפת, ומה הוספת, אישרת וכתבת. ביקורת שכתבת מוצגת עם השם שלך. כתובת המייל לא מוצגת למשתמשים אחרים, ורק מנהלת האתר רואה אותה. המקומות ששמרת גלויים רק לך.',
+      'Your name and picture, your favorite food if you added it, when you joined, and what you added, confirmed and wrote. A review you write is shown with your name. Your e-mail address is not shown to other users, and only the site admin can see it. Your saved places are visible only to you.'),
   },
   {
     group: 'account',
@@ -94,20 +101,20 @@ const faqOf = (L: T) => [
   {
     group: 'use',
     q: L('מה אפשר לעשות חוץ מלאשר מידע?', 'What else can I do besides confirming?'),
-    a: L('אפשר לכתוב ביקורת עם דירוג של 1 עד 5 כוכבים, לשמור מקומות שאהבתם, ליצור רשימות ולשתף אותן בקישור, ולהעלות תמונות של המקום. תמונה מופיעה אחרי אישור של מנהל, ואם ביקורת פוגענית אפשר לדווח עליה.',
-      'You can write a review with a rating of 1 to 5 stars, save places you like, make lists and share them with a link, and add photos of the place. A photo appears after a moderator approves it, and an offensive review can be reported.'),
+    a: L('אפשר לכתוב ביקורת עם דירוג של 1 עד 5 כוכבים, לשמור מקומות שאהבתם, ליצור רשימות ולשתף אותן בקישור, להעלות תמונות, ולהציע שינוי אם סוג המקום לא נכון. תמונה והצעת סיווג מופיעות אחרי אישור של מנהל, ואם ביקורת פוגענית אפשר לדווח עליה.',
+      'You can write a review with a rating of 1 to 5 stars, save places you like, make lists and share them with a link, add photos, and suggest a change if the type of place is wrong. Photos and suggestions appear after a moderator approves them, and an offensive review can be reported.'),
   },
   {
     group: 'use',
     q: L('אפשר להתקין את Okeat בטלפון?', 'Can I install Okeat on my phone?'),
-    a: L('כן. באייפון: פותחים את האתר ב-Safari, לוחצים על שיתוף ואז על "הוספה למסך הבית". באנדרואיד: פותחים ב-Chrome, לוחצים על שלוש הנקודות ואז על "התקנת אפליקציה".',
-      'Yes. On iPhone: open the site in Safari, tap Share, then "Add to Home Screen". On Android: open it in Chrome, tap the three dots, then "Install app".'),
+    a: L('כן. באייפון, ב-Safari או ב-Chrome: לוחצים על כפתור השיתוף ואז על "הוספה למסך הבית". באנדרואיד, ב-Chrome או בדפדפן של סמסונג: פותחים את התפריט ולוחצים על "התקנת אפליקציה" או "הוספה למסך הבית".',
+      'Yes. On iPhone, in Safari or Chrome: tap the Share button, then "Add to Home Screen". On Android, in Chrome or Samsung Internet: open the menu, then tap "Install app" or "Add to Home screen".'),
   },
   {
     group: 'use',
     q: L('איך מחפשים נכון?', 'How do I search?'),
-    a: L('אפשר לכתוב שם של מקום או עיר, או משפט שלם כמו "פיצה כשרה פתוחה עכשיו ברמת גן". כשהאתר מבין את החיפוש, מופיע כפתור שמסנן לפיו. אפשר גם לבחור סינון קבוע, והוא יישמר רק במכשיר שלכם.',
-      'Type the name of a place or a city, or a whole sentence like "kosher pizza open now in Ramat Gan". When the site understands it, a button appears that filters by it. You can also keep a filter on, and it stays only on your device.'),
+    a: L('אפשר לכתוב שם של מקום, או משפט שלם כמו "בא לי פיצה כשרה שפתוחה עכשיו", והאתר מסנן לבד. אם כתבתם גם עיר, מופיע כפתור שמעביר אתכם אליה. סינון שאתם משתמשים בו תמיד אפשר לשמור, והוא נשאר רק במכשיר שלכם.',
+      'Type the name of a place, or a whole sentence like "kosher pizza open now", and the site filters by itself. If you also name a city, a button takes you there. A filter you always use can be saved, and it stays only on your device.'),
   },
   {
     group: 'account',
@@ -118,14 +125,14 @@ const faqOf = (L: T) => [
   {
     group: 'account',
     q: L('מה אומרים התגים בפרופיל?', 'What do the profile badges mean?'),
-    a: L('תגים מוענקים אוטומטית על עזרה לקהילה: 10 אישורים למאשר/ת פעיל/ה, 5 מקומות למגלה מקומות, 10 פרטי מידע למוסיף/ה מידע ו-5 ביקורות למבקר/ת.',
-      'Badges are given automatically for helping the community: 10 confirmations for an active confirmer, 5 places for a place finder, 10 details for an info helper and 5 reviews for a reviewer.'),
+    a: L('תגים הם סמלים קטנים בפרופיל, שמופיעים לבד כשעוזרים לאחרים. יש ארבעה: מאשר/ת פעיל/ה אחרי 10 אישורים, מגלה מקומות אחרי 5 מקומות שהוספתם, מוסיף/ה מידע אחרי 10 פרטי מידע, ומבקר/ת אחרי 5 ביקורות.',
+      'Badges are small marks on your profile that appear by themselves when you help others. There are four: active confirmer after 10 confirmations, place finder after 5 places you added, info helper after 10 details, and reviewer after 5 reviews.'),
   },
   {
     group: 'use',
     q: L('איך עובד הניווט?', 'How does navigation work?'),
-    a: L('בוחרים מקום, בוחרים ברגל, באופניים או ברכב, ולוחצים "יציאה לדרך". המפה עוקבת אחריכם ומקריאה בקול כל פנייה. אפשר להשתיק את הקול בכל רגע.',
-      'Choose a place, choose walking, cycling or driving, and tap "Start". The map follows you and reads every turn aloud. You can mute it at any time.'),
+    a: L('פותחים מקום, בוחרים איך מגיעים: ברגל, באופניים או ברכב, ולוחצים "יציאה לדרך". המפה עוקבת אחריכם ומקריאה בקול כל פנייה, ואפשר להשתיק אותה בכל רגע. אפשר גם לפתוח את הדרך ב-Waze או ב-Google Maps.',
+      'Open a place, choose how you are getting there: walking, cycling or driving, and tap "Start". The map follows you and reads every turn aloud, and you can mute it at any time. You can also open the way in Waze or Google Maps.'),
   },
   {
     group: 'trust',
@@ -169,13 +176,13 @@ export default async function About() {
         <section className="section" aria-labelledby="seals-h">
           <h2 id="seals-h" className="section-title">{L('מה אומרות החותמות', 'What the seals mean')}</h2>
           <ul className="legend-grid">
-            <li><span className="seal k" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('כשר:', 'Kosher:')}</b> {L('יש השגחת כשרות, עם תעודה או בלי.', 'Under kosher supervision, with or without a certificate photo.')}</span></li>
-            <li><span className="seal v" aria-hidden="true"><span>{L('ט', 'V')}</span></span><span><b>{L('טבעוני:', 'Vegan:')}</b> {L('מנות בלי מוצרים מן החי, בכל המקום או בחלק מהתפריט.', 'Dishes with no animal products, in the whole place or part of the menu.')}</span></li>
-            <li><span className="seal h" aria-hidden="true"><span>{L('צ', 'Vg')}</span></span><span><b>{L('צמחוני:', 'Vegetarian:')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהתפריט.', 'No meat or fish, in the whole place or part of the menu.')}</span></li>
-            <li><span className="seal g" aria-hidden="true"><span>{L('ג', 'G')}</span></span><span><b>{L('ללא גלוטן:', 'Gluten-free:')}</b> {L('תפריט ללא גלוטן או מטבח נפרד.', 'A gluten-free menu or a separate kitchen.')}</span></li>
-            <li><span className="seal e" aria-hidden="true"><span>{L('א', 'A')}</span></span><span><b>{L('אלרגיות:', 'Allergies:')}</b> {L('בלי חלב, ביצים, בוטנים, אגוזים, שומשום או סויה. באלרגיה חמורה תמיד כדאי לשאול במקום.', 'Free of dairy, egg, peanuts, nuts, sesame or soy. With a serious allergy, always ask on site.')}</span></li>
-            <li><span className="seal k soft" aria-hidden="true"><span>{L('כ', 'K')}</span></span><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מידע ממאגר פתוח או סיווג אוטומטי, שעוד לא אושר על ידי הקהילה.', 'From an open database or an automatic guess, not yet confirmed by the community.')}</span></li>
-            <li><span className="seal x pending" aria-hidden="true"><span>{L('?', '?')}</span></span><span><b>{L('ממתין לאישור:', 'Waiting for confirmation:')}</b> {L('מישהו הוסיף את המידע, ועכשיו מחכים לאישור של הקהילה.', 'Someone added this, and it is waiting for the community to confirm it.')}</span></li>
+            <li><TapSeal cls="k">{L('כ', 'K')}</TapSeal><span><b>{L('כשר:', 'Kosher:')}</b> {L('יש השגחת כשרות, עם תעודה או בלי.', 'Under kosher supervision, with or without a certificate photo.')}</span></li>
+            <li><TapSeal cls="v">{L('ט', 'V')}</TapSeal><span><b>{L('טבעוני:', 'Vegan:')}</b> {L('מנות בלי מוצרים מן החי, בכל המקום או בחלק מהתפריט.', 'Dishes with no animal products, in the whole place or part of the menu.')}</span></li>
+            <li><TapSeal cls="h">{L('צ', 'Vg')}</TapSeal><span><b>{L('צמחוני:', 'Vegetarian:')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהתפריט.', 'No meat or fish, in the whole place or part of the menu.')}</span></li>
+            <li><TapSeal cls="g">{L('ג', 'G')}</TapSeal><span><b>{L('ללא גלוטן:', 'Gluten-free:')}</b> {L('תפריט ללא גלוטן או מטבח נפרד.', 'A gluten-free menu or a separate kitchen.')}</span></li>
+            <li><TapSeal cls="e">{L('א', 'A')}</TapSeal><span><b>{L('אלרגיות:', 'Allergies:')}</b> {L('בלי חלב, ביצים, בוטנים, אגוזים, שומשום או סויה. באלרגיה חמורה תמיד כדאי לשאול במקום.', 'Free of dairy, egg, peanuts, nuts, sesame or soy. With a serious allergy, always ask on site.')}</span></li>
+            <li><TapSeal cls="k soft">{L('כ', 'K')}</TapSeal><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מידע ממאגר פתוח או סיווג אוטומטי, שעוד לא אושר על ידי הקהילה.', 'From an open database or an automatic guess, not yet confirmed by the community.')}</span></li>
+            <li><TapSeal cls="x pending">{L('?', '?')}</TapSeal><span><b>{L('ממתין לאישור:', 'Waiting for confirmation:')}</b> {L('מישהו הוסיף את המידע, ועכשיו מחכים לאישור של הקהילה.', 'Someone added this, and it is waiting for the community to confirm it.')}</span></li>
           </ul>
         </section>
 

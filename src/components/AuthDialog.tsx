@@ -35,6 +35,8 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
   const [code, setCode] = useState('');
   const [checking, setChecking] = useState(false);
   const [googleOld, setGoogleOld] = useState(false);
+  // On a phone Google's button opens a small window that browsers often block. The full page always works.
+  const touchPhone = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
   const [mailBusy, setMailBusy] = useState<'hour' | 'day' | null>(null);
 
   // The shared email service allows only a few messages an hour.
@@ -147,7 +149,7 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
 
   return (
     <Modal title={L('התחברות', 'Sign in')} subtitle={reason ?? L('כדי להוסיף, לאשר או לדווח צריך חשבון. ההתחברות גם שומרת את מה שעשית, בכל מכשיר.', 'You need an account to add, confirm or report. It also keeps what you did, on any device.')} onClose={onClose}>
-      {GOOGLE_CLIENT_ID && !googleOld ? (
+      {GOOGLE_CLIENT_ID && !googleOld && !touchPhone ? (
         <GoogleButton sb={sb} onDone={() => { announceSignedIn(); onClose(); }} onError={(e) => setError(friendly(e, L.lang))} onUnavailable={() => setGoogleOld(true)} />
       ) : (
         <button type="button" className="btn google" onClick={google}>

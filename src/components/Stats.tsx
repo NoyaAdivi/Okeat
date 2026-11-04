@@ -40,10 +40,13 @@ export default function Stats() {
 
   return (
     <div className="need-cards" aria-label={L('המספרים במפה', 'The map in numbers')}>
-      <Link href="/map" className="need-card p">
-        <span className="nc-top"><span className="nc-emoji" aria-hidden="true">📍</span></span>
-        <CountUp value={counts?.places ?? null} />
-        <span className="nc-title">{L('כל המקומות', 'All places')}</span>
+      <Link href="/map" className="need-hero">
+        <span className="need-hero-pins" aria-hidden="true"><i>📍</i><i>🍕</i><i>🥗</i><i>☕</i></span>
+        <span className="need-hero-text">
+          <CountUp value={counts?.places ?? null} />
+          <span className="nc-title">{L('מקומות לאכול, מהצפון ועד אילת', 'places to eat, from the north to Eilat')}</span>
+        </span>
+        <span className="need-hero-go">{L('לפתוח את המפה', 'Open the map')} <span aria-hidden="true">{L.lang === 'en' ? '→' : '←'}</span></span>
       </Link>
       {shown.map((n, i) => (
         <Link key={n} href={`/map?need=${n}`} className={`need-card ${NEED_CLASS[n]}`} style={{ '--i': i + 1 } as React.CSSProperties}>

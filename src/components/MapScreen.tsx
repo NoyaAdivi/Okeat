@@ -19,7 +19,7 @@ import { formatMeters } from '@/lib/geo';
 import Logo from './Logo';
 import FilterBar from './FilterBar';
 import LocationHelp from './LocationHelp';
-import LocationAsk, { readAsked, saveAsked } from './LocationAsk';
+import LocationAsk, { readAsked, saveAsked, takeRetry } from './LocationAsk';
 import PlaceList from './PlaceList';
 import PlaceDetail from './PlaceDetail';
 import NavPanel, { NavBanner } from './NavPanel';
@@ -80,11 +80,12 @@ interface Props {
   authError?: boolean;
   /** From /map?need=vegan: start with this filter on. */
   initialNeed?: Need | null;
+  initialQuery?: string;
   /** From /map?add=1: start by picking a spot for a new place. */
   addOnLoad?: boolean;
 }
 
-export default function MapScreen({ initialPlaceId = null, authError = false, initialNeed = null, addOnLoad = false }: Props) {
+export default function MapScreen({ initialPlaceId = null, authError = false, initialNeed = null, addOnLoad = false, initialQuery = '' }: Props) {
   const L = useL();
   const lang = L.lang;
   const sb = useMemo(() => createClient(), []);
@@ -101,8 +102,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     initialNeed ? { ...NO_FILTER, [initialNeed]: initialNeed === 'kosher' ? 0 : 1 } : NO_FILTER,
   );
   const [openNow, setOpenNow] = useState(false);
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [cuisine, setCuisine] = useState<string[]>([]);
   const [viewCenter, setViewCenter] = useState<LatLng | null>(null);
   const centerGetter = useRef<(() => LatLng) | null>(null);
@@ -183,8 +184,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
   useEffect(() => {
     if (authError) {
-      showToast(L('הקישור במייל כבר לא תקף. אפשר לכתוב את הקוד מהמייל, או לבקש חדש.', 'The link in the email no longer works. Enter the code from the email, or ask for a new one.'));
-      setAuth({ startWithCode: true });
+      const failedGoogle = new URLSearchParams(window.location.search).get('why') === 'google';
+      if (failedGoogle) {
+        showToast(L('ההתחברות עם Google לא הושלמה. אפשר לנסות שוב, או להיכנס במייל.', "Signing in with Google didn't finish. Try again, or use your email."));
+        setAuth({});
+      } else {
+        showToast(L('הקישור במייל כבר לא תקף. אפשר לכתוב את הקוד מהמייל, או לבקש חדש.', 'The link in the email no longer works. Enter the code from the email, or ask for a new one.'));
+        setAuth({ startWithCode: true });
+      }
       const url = new URL(window.location.href);
       const why = url.searchParams.get('why');
       if (why) logClientError(`sign-in link failed: ${why}`);
@@ -226,9 +233,13 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         setMapCenter(loc);
         setLocated('ok');
       },
-      fallback,
+      (err) => {
+        fallback();
+        if (retried && err.code === err.PERMISSION_DENIED) setLocHelp(true);
+      },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 },
     );
+    const retried = takeRetry();
     const asked = readAsked();
     if (asked === 'yes') return go();
     if (asked === 'no') return fallback();
@@ -468,8 +479,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     saveManual(null);
     if (!('geolocation' in navigator)) return showToast(L('הדפדפן הזה לא תומך במיקום.', "This browser doesn't support location."));
     showToast(L('מאתרים אותך…', 'Finding you…'));
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
+    const found = (pos: GeolocationPosition) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setMe(loc);
         setLocated('ok');
@@ -479,14 +489,17 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         setFollowPaused(false);
         if (pos.coords.accuracy > 1500) showToast(L('המיקום לא מדויק (כנראה לפי האינטרנט). בטלפון הוא יהיה מדויק יותר.', 'The location is not accurate (probably from your internet connection). It will be more accurate on a phone.'));
         else setToast('');
-      },
-      (err) => {
-        setToast('');
-        if (err.code === err.PERMISSION_DENIED) setLocHelp(true);
-        else showToast(L('לא קיבלנו את המיקום. בדקו שהרשיתם לאתר לראות מיקום.', "We didn't get your location. Check that the site is allowed to see it."));
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
-    );
+      };
+    const failed = (err: GeolocationPositionError) => {
+      setToast('');
+      if (err.code === err.PERMISSION_DENIED) setLocHelp(true);
+      else showToast(L('לא הצלחנו למצוא את המיקום. נסו שוב, או בחרו מיקום בעצמכם.', "We couldn't find your location. Try again, or choose one yourself."));
+    };
+    // GPS first. Indoors it can time out, so the rougher answer from the network is the second try.
+    navigator.geolocation.getCurrentPosition(found, (err) => {
+      if (err.code === err.PERMISSION_DENIED) return failed(err);
+      navigator.geolocation.getCurrentPosition(found, failed, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
   };
 
   // Our question first. If the browser already allowed it, there is nothing to ask.
@@ -1048,7 +1061,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         {!picking && !pickingMe && !navigating && TOKEN && located !== 'pending' && (
           <button type="button" className="fab" onClick={startAdd}>
             <svg viewBox="0 0 24 24" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-            {L('הוספת מקום', 'Add a place')}
+            <span className="tool-label">{L('הוספת מקום', 'Add a place')}</span>
           </button>
         )}
       </div>
@@ -1106,6 +1119,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
           </div>}
         </div>
 
+        <button type="button" className="to-map" onClick={() => setSheet('peek')}>
+          <span aria-hidden="true">🗺️</span> {L('למפה', 'To the map')}
+        </button>
         <div className="panel-body" ref={bodyRef} onScroll={(e) => {
           const far = e.currentTarget.scrollTop > 320;
           if (far !== showTop) setShowTop(far);
@@ -1203,6 +1219,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               )}
               <PlaceList
                 fromLabel={manualLabel}
+                nothingClose={(places[0]?.distance_m ?? 0) > 5000}
                 places={visible}
                 loading={loading || located === 'pending'}
                 error={error}

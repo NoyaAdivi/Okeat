@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useL } from './LangProvider';
 import Avatar from './Avatar';
-import { fetchNotifications } from '@/lib/places';
+import { adminNewCount, fetchNotifications } from '@/lib/places';
+import { adminSeen } from '@/lib/adminSeen';
 import { useEffect, useRef, useState } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 
@@ -30,7 +31,11 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
   const [fresh, setFresh] = useState(0);
   useEffect(() => {
     if (!user || user.is_anonymous) { setFresh(0); return; }
-    fetchNotifications(sb).then((n) => setFresh(n.filter((x) => x.is_new).length));
+    fetchNotifications(sb).then(async (n) => {
+      const mine = n.filter((x) => x.is_new).length;
+      // For moderators the dot also counts what people added since they last looked.
+      setFresh(mine + await adminNewCount(sb, adminSeen()));
+    });
   }, [sb, user]);
 
   if (!ready) return <span className="account" aria-hidden="true" />;
