@@ -33,6 +33,8 @@
 - **City pages and installable app** – a page for each main city and each need, and an app icon for the phone home screen
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
 - **Public profiles** – join date, places added and confirmations, never an e-mail address
+- **Admin hub** – what users added, changed and reported, each with a link to the person and the place, plus privacy-friendly visit counts
+- **Public profiles** – anyone can open what a person added, confirmed and reviewed, never their e-mail or saved places
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
 - Contact form, terms of use, privacy policy and accessibility statement
 
