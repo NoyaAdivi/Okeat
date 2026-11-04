@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { adminRestorePlace, adminSearchPlaces, moderatePlace, type AdminPlace } from '@/lib/places';
+import { adminRestorePlace, adminSearchPlaces, deleteHiddenPlace, moderatePlace, type AdminPlace } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { placeEmoji } from '@/lib/emoji';
 import { placeTypeLabel } from '@/lib/types';
@@ -10,11 +10,12 @@ import { useL } from './LangProvider';
 import AdminPlaceDialog from './AdminPlaceDialog';
 
 /** For the admin: find any place, fix it, hide it or bring it back. */
-export default function PlacesPanel({ sb }: { sb: SupabaseClient }) {
+export default function PlacesPanel({ sb, hiddenTab = false }: { sb: SupabaseClient; hiddenTab?: boolean }) {
   const L = useL();
   const lang = L.lang;
   const [query, setQuery] = useState('');
-  const [hiddenOnly, setHiddenOnly] = useState(false);
+  const [hiddenOnly, setHiddenOnly] = useState(hiddenTab);
+  const [sure, setSure] = useState<string | null>(null);
   const [rows, setRows] = useState<AdminPlace[] | null>(null);
   const [editing, setEditing] = useState<AdminPlace | null>(null);
   const [error, setError] = useState('');
@@ -32,12 +33,15 @@ export default function PlacesPanel({ sb }: { sb: SupabaseClient }) {
 
   return (
     <>
-      <h2>{L('מקומות', 'Places')}</h2>
+      <h2>{hiddenTab ? `${L('מקומות מוסתרים', 'Hidden places')}${rows ? ` (${rows.length})` : ''}` : L('מקומות', 'Places')}</h2>
+      {hiddenTab && <p className="muted small">{L('הם לא מופיעים באתר. אפשר לערוך, להחזיר למפה או למחוק לגמרי. מקומות כפולים שמוזגו לא נמצאים כאן, כי המידע שלהם עבר למקום שנשאר.', 'They do not appear on the site. You can edit them, put them back or delete them for good. Merged duplicates are not here, since their information moved to the place that stayed.')}</p>}
       <div className="mini-form">
         <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={L('חיפוש מקום לפי שם', 'Find a place by name')} aria-label={L('חיפוש מקום', 'Find a place')} />
-        <button type="button" className="btn small" aria-pressed={hiddenOnly} onClick={() => setHiddenOnly(!hiddenOnly)}>
-          {hiddenOnly ? L('כל המקומות', 'All places') : L('רק מוסתרים', 'Hidden only')}
-        </button>
+        {!hiddenTab && (
+          <button type="button" className="btn small" aria-pressed={hiddenOnly} onClick={() => setHiddenOnly(!hiddenOnly)}>
+            {hiddenOnly ? L('כל המקומות', 'All places') : L('רק מוסתרים', 'Hidden only')}
+          </button>
+        )}
       </div>
       {error && <p className="warnbox">{error}</p>}
       {!rows && <p className="muted">{L('כתבו לפחות 2 אותיות, או הציגו את המקומות המוסתרים.', 'Type at least 2 letters, or show the hidden places.')}</p>}
@@ -50,6 +54,9 @@ export default function PlacesPanel({ sb }: { sb: SupabaseClient }) {
           </div>
           <div className="admin-row-tools">
             <button type="button" className="btn small" onClick={() => setEditing(p)}>{L('עריכה', 'Edit')}</button>
+            {p.removed && (sure === p.id
+              ? <button type="button" className="btn small ghost danger" onClick={() => act(() => deleteHiddenPlace(sb, p.id))}>{L('למחוק לגמרי?', 'Delete for good?')}</button>
+              : <button type="button" className="btn small ghost danger" onClick={() => setSure(p.id)}>{L('מחיקה', 'Delete')}</button>)}
             {p.removed
               ? <button type="button" className="btn small" onClick={() => act(() => adminRestorePlace(sb, p.id))}>{L('החזרה למפה', 'Back on the map')}</button>
               : <button type="button" className="btn small ghost" onClick={() => act(() => moderatePlace(sb, p.id, true))}>{L('הסתרה', 'Hide')}</button>}

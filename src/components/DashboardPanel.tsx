@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { fetchAdminOverview, fetchDashboard, fetchVisits, type AdminKind, type AdminOverview, type Dashboard, type Visits } from '@/lib/places';
+import { fetchAdminOverview, fetchDashboard, fetchVisits, type AdminKind, type AdminOverview, type Dashboard, type Visits, fetchVisitsBegan } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { useL } from './LangProvider';
 import AdminFeed, { KIND_LOOK } from './AdminFeed';
@@ -15,18 +15,20 @@ const duration = (s: number, L: ReturnType<typeof useL>) => {
 };
 
 /** For the admin: what needs attention, who visits, what people add, and what they look for. */
-export default function DashboardPanel({ sb, onOpen }: { sb: SupabaseClient; onOpen: (tab: 'reports' | 'photos') => void }) {
+export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: SupabaseClient; onOpen: (tab: 'reports' | 'photos' | 'check' | 'dupes') => void; suspects: number; dupes: number }) {
   const L = useL();
   const [data, setData] = useState<Dashboard | null>(null);
   const [over, setOver] = useState<AdminOverview | null>(null);
   const [visits, setVisits] = useState<Visits | null>(null);
   const [range, setRange] = useState(7);
+  const [began, setBegan] = useState<string | null>(null);
   const [kind, setKind] = useState<AdminKind | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchDashboard(sb).then(setData).catch((e) => setError(friendly(e, L.lang)));
     fetchAdminOverview(sb).then(setOver).catch(() => undefined);
+    fetchVisitsBegan(sb).then(setBegan);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { fetchVisits(sb, range).then(setVisits); }, [sb, range]);
 
@@ -44,6 +46,8 @@ export default function DashboardPanel({ sb, onOpen }: { sb: SupabaseClient; onO
   };
   const a = over?.attention;
   const todo = a ? [
+    { n: suspects, emoji: '🕵️', text: L('מקומות לבדיקה', 'Places to check'), go: () => onOpen('check') },
+    { n: dupes, emoji: '🔁', text: L('כפילויות', 'Duplicates'), go: () => onOpen('dupes') },
     { n: a.reports, emoji: '🚩', text: L('מקומות שדווחו', 'Reported places'), go: () => onOpen('reports') },
     { n: a.disputed, emoji: '⚖️', text: L('מידע במחלוקת', 'Disputed details'), go: () => onOpen('reports') },
     { n: a.suggestions, emoji: '🏷️', text: L('הצעות סיווג', 'Type suggestions'), go: () => onOpen('reports') },
@@ -81,6 +85,7 @@ export default function DashboardPanel({ sb, onOpen }: { sb: SupabaseClient; onO
             ))}
           </div>
         </div>
+        {began && <p className="muted small">{L(`הספירה התחילה ב-${new Date(began).toLocaleDateString('he-IL')}, אז עד שיעבור שבוע או חודש המספרים יהיו דומים.`, `Counting began on ${new Date(began).toLocaleDateString('en-GB')}, so the numbers will look alike until a week or a month has passed.`)}</p>}
         {!visits ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
           <>
             <ul className="dash-numbers">

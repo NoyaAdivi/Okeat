@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { decideSuggestion, fetchPendingSuggestions, type PlaceSuggestion } from '@/lib/places';
+import { decideSuggestion, fetchPendingSuggestions, type PlaceSuggestion, fetchDuplicatePairs, fetchSuspects } from '@/lib/places';
 import { placeTypeLabel } from '@/lib/types';
 import { cuisineLabel } from '@/lib/cuisine';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,13 +19,14 @@ import DuplicatesPanel from './DuplicatesPanel';
 import ScrollRow from './ScrollRow';
 import UsersPanel from './UsersPanel';
 import AdminFeed from './AdminFeed';
+import SuspectsPanel from './SuspectsPanel';
 import MessagesPanel from './MessagesPanel';
 import DashboardPanel from './DashboardPanel';
 import LimitsPanel from './LimitsPanel';
 import LogPanel from './LogPanel';
 import PlacesPanel from './PlacesPanel';
 
-type TabId = 'home' | 'places' | 'limits' | 'log' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
+type TabId = 'home' | 'check' | 'hidden' | 'places' | 'limits' | 'log' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
 
 /** For community moderators and admins: reported places, disputed info, business owners. */
 export default function AdminView() {
@@ -41,9 +42,12 @@ export default function AdminView() {
   const [siteErrors, setSiteErrors] = useState<ClientError[]>([]);
   const [admin, setAdmin] = useState(false);
   const [openMessages, setOpenMessages] = useState(0);
+  const [suspects, setSuspects] = useState(0);
+  const [dupes, setDupes] = useState(0);
   const [tab, setTab] = useState<TabId>('reports');
 
   const opened = useRef(false);
+  const counted = useRef(false);
   const load = useCallback(() => {
     fetchModerationQueue(sb).then(setQ).catch((e) => setError(friendly(e, lang)));
     fetchPendingPhotos(sb).then(setPhotos);
@@ -53,6 +57,11 @@ export default function AdminView() {
     fetchAdminMessages(sb).then((m) => {
       setAdmin(true);
       setOpenMessages(m.filter((x) => !x.handled).length);
+      if (!counted.current) { // both go over every place on the site, so once is enough
+        counted.current = true;
+        fetchSuspects(sb).then((s) => setSuspects(s.length)).catch(() => undefined);
+        fetchDuplicatePairs(sb).then((d) => setDupes(d.length)).catch(() => undefined);
+      }
       setTab((t) => (t === 'reports' && !opened.current ? 'home' : t));
     }).catch(() => setAdmin(false));
   }, [sb, lang]);
@@ -71,14 +80,16 @@ export default function AdminView() {
   const adminOnly: typeof everyone = [
     { id: 'home', cls: 'h', emoji: '📊', label: L('סקירה', 'Overview'), count: 0 },
     { id: 'messages', cls: 'e', emoji: '💌', label: L('הודעות', 'Messages'), count: openMessages },
+    { id: 'check', cls: 'k', emoji: '🕵️', label: L('לבדיקה', 'To check'), count: suspects },
     { id: 'places', cls: 'g', emoji: '🍽️', label: L('מקומות', 'Places'), count: 0 },
+    { id: 'hidden', cls: 'x', emoji: '🙈', label: L('מוסתרים', 'Hidden'), count: 0 },
     { id: 'users', cls: 'v', emoji: '👥', label: L('משתמשים', 'Users'), count: 0 },
     { id: 'limits', cls: 'k', emoji: '⏳', label: L('מכסות', 'Limits'), count: 0 },
-    { id: 'dupes', cls: 'g', emoji: '🔁', label: L('כפילויות', 'Duplicates'), count: 0 },
+    { id: 'dupes', cls: 'g', emoji: '🔁', label: L('כפילויות', 'Duplicates'), count: dupes },
     { id: 'log', cls: 'h', emoji: '📜', label: L('יומן', 'Log'), count: 0 },
     { id: 'errors', cls: 'x', emoji: '🛠️', label: L('שגיאות', 'Errors'), count: siteErrors.length },
   ];
-  const tabs = admin ? [adminOnly[0], adminOnly[1], ...everyone, ...adminOnly.slice(2)] : everyone;
+  const tabs = admin ? [adminOnly[0], adminOnly[1], adminOnly[2], ...everyone, ...adminOnly.slice(3)] : everyone;
 
   return (
     <div className="page">
@@ -106,7 +117,9 @@ export default function AdminView() {
               ))}
             </ScrollRow>
             <div id="admin-panel" key={tab} className="admin-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0}>
-            {tab === 'home' && admin && <DashboardPanel sb={sb} onOpen={setTab} />}
+            {tab === 'home' && admin && <DashboardPanel sb={sb} onOpen={setTab} suspects={suspects} dupes={dupes} />}
+            {tab === 'check' && admin && <SuspectsPanel sb={sb} onCount={setSuspects} />}
+            {tab === 'hidden' && admin && <PlacesPanel sb={sb} hiddenTab />}
             {tab === 'messages' && admin && <MessagesPanel sb={sb} onChange={setOpenMessages} />}
             {tab === 'places' && admin && <PlacesPanel sb={sb} />}
             {tab === 'users' && admin && user && <UsersPanel sb={sb} meId={user.id} />}

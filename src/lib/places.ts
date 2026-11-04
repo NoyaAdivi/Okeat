@@ -736,6 +736,37 @@ export async function adminUpdatePlace(sb: SupabaseClient, place: AdminPlace) {
   if (error) throw error;
 }
 
+export type SuspectReason = 'hand' | 'new' | 'butcher' | 'catering' | 'hall' | 'shop' | 'service' | 'health' | 'other' | 'spot';
+export type Suspect = AdminPlace & { reason: SuspectReason };
+
+/** Admin: places that look wrong, found by their name, by being new, or by a crowded spot. */
+export async function fetchSuspects(sb: SupabaseClient): Promise<Suspect[]> {
+  const { data, error } = await sb.rpc('admin_suspects');
+  if (error) throw error;
+  return (data ?? []) as Suspect[];
+}
+
+export async function markPlacesOk(sb: SupabaseClient, ids: string[]) {
+  const { error } = await sb.rpc('admin_places_ok', { p_ids: ids });
+  if (error) throw error;
+}
+
+export async function hidePlaces(sb: SupabaseClient, ids: string[]) {
+  const { error } = await sb.rpc('admin_hide_places', { p_ids: ids });
+  if (error) throw error;
+}
+
+/** Admin: delete a hidden place for good. */
+export async function deleteHiddenPlace(sb: SupabaseClient, id: string) {
+  const { error } = await sb.rpc('admin_delete_place', { p_place: id });
+  if (error) throw error;
+}
+
+export async function fetchVisitsBegan(sb: SupabaseClient): Promise<string | null> {
+  const { data, error } = await sb.rpc('admin_visits_began');
+  return error ? null : (data as string | null);
+}
+
 export async function adminRestorePlace(sb: SupabaseClient, id: string) {
   const { error } = await sb.rpc('admin_restore_place', { p_place: id });
   if (error) throw error;
