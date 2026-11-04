@@ -1880,3 +1880,9 @@ a.dash-city { color: inherit; text-decoration: none; }
 .check-row .admin-row-tools { flex-basis: 100%; }
 .check-row .btn.small { min-height: 36px; padding-block: 4px; }
 .check-why { font-size: 0.875rem; color: var(--ink); }
+
+/* Bigger letters on the map and on the filters. */
+.mk-seal { width: 42px; height: 42px; }
+.mk-seal b { font-size: 1.1875rem; }
+.chip .mini { width: 28px; height: 28px; font-size: 1.0625rem; }
+.need-card .small-seal { font-size: 1.0625rem; }

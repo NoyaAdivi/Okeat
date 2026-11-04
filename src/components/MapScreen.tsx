@@ -657,14 +657,20 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
   // /map?add=1
   const addedOnLoad = useRef(false);
+  const askedToAdd = useRef(false);
   useEffect(() => {
-    if (!addOnLoad || addedOnLoad.current || located === 'pending') return;
+    if (!addOnLoad || addedOnLoad.current || located === 'pending' || !ready) return;
+    // Sign in comes first, so nobody fills in the whole form for nothing.
+    if (!user || user.is_anonymous) {
+      if (!askedToAdd.current) { askedToAdd.current = true; needAccount(); }
+      return;
+    }
     addedOnLoad.current = true;
     setPicking(true);
     setFocus({ key: Date.now(), points: [viewCenter ?? mapCenter], exact: true });
     // drop ?add=1 so a reload doesn't start adding again
     window.history.replaceState(null, '', '/map');
-  }, [addOnLoad, located]);
+  }, [addOnLoad, located, ready, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Esc: cancel picking, else close the place.
   useEffect(() => {

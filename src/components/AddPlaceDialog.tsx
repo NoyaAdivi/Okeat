@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Modal from './Modal';
+import AuthDialog from './AuthDialog';
 import CertificateCapture, { type CertificateValue } from './CertificateCapture';
 import { LEVELS, PLACE_TYPES, levelText, needLabel, placeTypeLabel, type Level, type Need } from '@/lib/types';
 import { useL } from './LangProvider';
@@ -50,6 +51,7 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  const [signIn, setSignIn] = useState(false);
   const submit = async () => {
     setError('');
     if (!name.trim()) return setError(L('צריך שם למקום.', 'The place needs a name.'));
@@ -69,13 +71,17 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
     } catch (e) {
       if (placeId) onDone(placeId, L(`המקום נוסף, אבל חלק מהפרטים לא נשמרו: ${friendly(e)}`, `The place was added, but some details weren't saved: ${friendly(e, 'en')}`));
       else {
-        setError(friendly(e, lang));
+        // The account ran out while filling this in: sign in here, and everything typed stays.
+        if (/sign in|anonymous|not signed/i.test(e instanceof Error ? e.message : String((e as { message?: string })?.message))) setSignIn(true);
+        else setError(friendly(e, lang));
         setBusy(false);
       }
     }
   };
 
   return (
+    <>
+    {signIn && <AuthDialog sb={sb} reason={L('כדי לשמור את המקום צריך להתחבר. מה שמילאת נשמר כאן.', 'Sign in to save the place. What you filled in stays here.')} onClose={() => setSignIn(false)} />}
     <Modal title={L('מקום חדש', 'New place')} subtitle={L('המקום יופיע במפה מיד, ומה שסימנתם יאושר אחרי ששלושה אנשים נוספים יאשרו.', 'The place appears on the map right away; what you marked is confirmed after three more people agree.')} onClose={onClose}>
       <div className="field">
         <label htmlFor="add-name">{L('שם המקום', "The place's name")}</label>
@@ -135,5 +141,6 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
         </button>
       </div>
     </Modal>
+    </>
   );
 }

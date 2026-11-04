@@ -16,7 +16,7 @@
 
 ## ✨ Features
 
-- **Nationwide map** of over 20,000 eateries, clustered for speed, Israel only, in Hebrew and English, with light, dark and automatic themes
+- **Nationwide map** of over 20,000 eateries, clustered for speed, across Israel and the Israeli towns in Judea and Samaria, in Hebrew and English, with light, dark and automatic themes
 - **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by food type (pizza, sushi, coffee…) and "open now" in Israel time
 - **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
 - **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. The site reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
@@ -32,8 +32,8 @@
 - **Admin tools** – dashboard, limits, activity log, users and roles, contact messages, photo approval and merging duplicates
 - **City pages and installable app** – a page for each main city and each need, and an app icon for the phone home screen
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
-- **Public profiles** – join date, places added and confirmations, never an e-mail address
 - **Admin hub** – what users added, changed and reported, each with a link to the person and the place, plus privacy-friendly visit counts
+- **Places to check** – suspicious names, new places and rough locations reach the admin by themselves, each with the reason, to approve, fix, hide or delete from any phone
 - **Public profiles** – anyone can open what a person added, confirmed and reviewed, never their e-mail or saved places
 - **Business owner approval** – owners prove ownership with a code and an admin approves them
 - Contact form, terms of use, privacy policy and accessibility statement
