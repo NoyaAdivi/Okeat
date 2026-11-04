@@ -15,7 +15,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
-import { townAt } from './yesha-towns.mjs';
+import { fitsTowns, townAt } from './yesha-towns.mjs';
 
 // ---------- env / options ----------
 if (existsSync('.env.local')) {
@@ -244,7 +244,7 @@ function isEatery(cat) {
 
 const junk = []; // ext ids of non-food places (to remove if an earlier run saved them)
 for (const r of raw) {
-  if (towns && !townAt(Number(r.lat), Number(r.lng))) continue;
+  if (towns && !(townAt(Number(r.lat), Number(r.lng)) && fitsTowns([r.name, r.common]))) continue;
   if (!isEatery(r.cat)) { junk.push(`overture:${r.id}`); continue; }
   let common = {};
   try { common = JSON.parse(r.common ?? 'null') ?? {}; } catch { /* keep empty */ }

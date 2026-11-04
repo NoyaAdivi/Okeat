@@ -18,7 +18,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
-import { TOWNS, townAt } from './yesha-towns.mjs';
+import { TOWNS, fitsTowns, townAt } from './yesha-towns.mjs';
 
 // ---------- env ----------
 if (existsSync('.env.local')) {
@@ -77,7 +77,13 @@ async function overpass() {
       const { elements } = await res.json();
       if (!towns) return elements;
       // The box holds more than the towns; keep only what is really inside one.
-      return elements.filter((e) => townAt(e.lat ?? e.center?.lat, e.lon ?? e.center?.lon));
+      const kept = elements.filter((e) => {
+        const t = e.tags ?? {};
+        return townAt(e.lat ?? e.center?.lat, e.lon ?? e.center?.lon)
+          && fitsTowns([t.name, t['name:he'], t['name:en']], /yes|only/.test(t['diet:kosher'] ?? ''));
+      });
+      for (const e of kept) console.log('  ', townAt(e.lat ?? e.center?.lat, e.lon ?? e.center?.lon), '|', e.tags?.['name:he'] ?? e.tags?.name);
+      return kept;
     } catch (e) {
       console.log(`  לא הצליח (${e.message}), מנסה שרת אחר…`);
     }

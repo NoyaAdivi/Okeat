@@ -5,7 +5,7 @@ export const TOWNS = [
   ['אריאל', 32.106, 35.185, 2600], ['ברקן', 32.105, 35.112, 1800], ['קרני שומרון', 32.172, 35.098, 2000],
   ['עמנואל', 32.161, 35.135, 1200], ['קדומים', 32.213, 35.159, 1500], ['שבי שומרון', 32.263, 35.128, 900],
   ['אורנית', 32.131, 34.989, 1400], ['שערי תקווה', 32.127, 35.022, 1200], ['אלקנה', 32.110, 35.034, 1200],
-  ['אלפי מנשה', 32.166, 34.979, 1500], ['בית אריה', 32.038, 35.051, 1400], ['עלי', 32.067, 35.263, 1000],
+  ['אלפי מנשה', 32.168, 35.008, 1100], ['בית אריה', 32.038, 35.051, 1400], ['עלי', 32.067, 35.263, 1000],
   ['שילה', 32.053, 35.298, 1000], ['עפרה', 31.957, 35.261, 900], ['בית אל', 31.943, 35.222, 900],
   ['כוכב יעקב', 31.882, 35.246, 900], ['מעלה אדומים', 31.777, 35.298, 3000], ['מישור אדומים', 31.797, 35.327, 1500],
   ['כפר אדומים', 31.822, 35.341, 1000], ['גבעת זאב', 31.859, 35.170, 1500], ['מודיעין עילית', 31.932, 35.042, 2000],
@@ -16,6 +16,13 @@ export const TOWNS = [
 ];
 
 const meters = (lat, lng, a, b) => Math.hypot((lat - a) * 111_000, (lng - b) * 111_000 * Math.cos(lat * Math.PI / 180));
+
+/**
+ * Some towns sit right next to Palestinian towns, and a circle on the map cannot tell them apart.
+ * A place stays if it has a Hebrew name, a kosher tag, or a name that is plainly an Israeli-style chain or pizza place.
+ */
+export const fitsTowns = (names, kosher = false) =>
+  kosher || names.some((n) => /[א-ת]/.test(n ?? '') || /aroma|burger ranch|pizza|cofix|landwer|roladin/i.test(n ?? ''));
 
 /** The town a point belongs to, if any. */
 export const townAt = (lat, lng) => TOWNS.find(([, a, b, r]) => meters(lat, lng, a, b) <= r)?.[0] ?? null;
