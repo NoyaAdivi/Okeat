@@ -51,7 +51,7 @@ export default function AdminFeed({ sb, kind = null }: { sb: SupabaseClient; kin
     vote: () => r.rating === 1 ? L(`אישר/ה: ${level(r)}`, `Confirmed: ${level(r)}`) : L(`דיווח/ה שלא נכון: ${level(r)}`, `Said this is wrong: ${level(r)}`),
     review: () => `${'★'.repeat(Math.max(r.rating ?? 0, 0))} ${r.detail ?? ''}`.trim(),
     photo: () => L('העלה/תה תמונה', 'Added a photo'),
-    report: () => r.detail || L('דיווח/ה על המקום', 'Reported the place'),
+    report: () => r.detail?.replace(/^\[(.+?)\]\s*/, '$1. ').replace(/\.\s*$/, '') || L('דיווח/ה על המקום', 'Reported the place'),
     suggestion: () => L(`הציע/ה סיווג: ${placeTypeLabel(r.level ?? '', lang)}${r.detail ? `, ${r.detail}` : ''}`, `Suggested: ${placeTypeLabel(r.level ?? '', lang)}`),
     list: () => L('יצר/ה רשימה', 'Made a list'),
     message: () => r.detail ?? '',
