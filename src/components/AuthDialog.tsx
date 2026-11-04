@@ -5,7 +5,7 @@ import { useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Modal from './Modal';
 import { friendly } from '@/lib/errors';
-import GoogleButton, { GOOGLE_CLIENT_ID } from './GoogleButton';
+import GoogleButton, { GOOGLE_CLIENT_ID, goToGoogle } from './GoogleButton';
 import { announceSignedIn } from './SignedInNote';
 
 interface Props {
@@ -59,6 +59,10 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
 
   const google = async () => {
     setError('');
+    if (GOOGLE_CLIENT_ID) {
+      goToGoogle(`${location.pathname}${location.search}`).catch((e) => setError(friendly(e, L.lang)));
+      return;
+    }
     const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: callbackUrl() } });
     if (error) setError(friendly(error, L.lang));
   };

@@ -18,6 +18,7 @@ import { useL } from './LangProvider';
 import DuplicatesPanel from './DuplicatesPanel';
 import ScrollRow from './ScrollRow';
 import UsersPanel from './UsersPanel';
+import AdminFeed from './AdminFeed';
 import MessagesPanel from './MessagesPanel';
 import DashboardPanel from './DashboardPanel';
 import LimitsPanel from './LimitsPanel';
@@ -131,6 +132,9 @@ export default function AdminView() {
 
             </>)}
             {tab === 'reports' && (<>
+            <h2>{L('כל הדיווחים של המשתמשים', 'Everything users reported')}</h2>
+            <AdminFeed sb={sb} kind="report" />
+
             <h2>{L('ביקורות שדווחו', 'Reported reviews')} ({badReviews.length})</h2>
             {badReviews.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
             {badReviews.map((r) => (

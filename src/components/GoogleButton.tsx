@@ -26,7 +26,7 @@ interface Props {
 
 const SCRIPT = 'https://accounts.google.com/gsi/client';
 
-async function sha256(text: string) {
+export async function sha256(text: string) {
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
@@ -48,6 +48,34 @@ function loadScript() {
     script.onerror = () => reject(new Error('Google did not load'));
     document.head.append(script);
   });
+}
+
+const STORE = 'okeat-google';
+
+/** The full-page way in, for phones. Google comes back to this site and not to the database address, so that is the name it shows. */
+export async function goToGoogle(next: string) {
+  const nonce = crypto.randomUUID();
+  localStorage.setItem(STORE, JSON.stringify({ nonce, next }));
+  const query = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID ?? '',
+    redirect_uri: `${location.origin}/auth/google`,
+    response_type: 'id_token',
+    scope: 'openid email profile',
+    nonce: await sha256(nonce),
+    prompt: 'select_account',
+  });
+  location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${query}`);
+}
+
+/** What goToGoogle left behind, read once. */
+export function takeGoogleState(): { nonce: string; next: string } | null {
+  try {
+    const raw = localStorage.getItem(STORE);
+    localStorage.removeItem(STORE);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Google's own button: the sign-in window names this site and not the database address behind it. */
