@@ -39,7 +39,9 @@ if (!dryRun && (!url || !key || key.includes('your-'))) {
 const argIdx = process.argv.indexOf('--bbox');
 const bbox = argIdx > -1 ? process.argv[argIdx + 1] : null;
 const towns = process.argv.includes('--towns');
-const scope = towns ? `(around:3000,${TOWNS.map(([, a, b]) => `${a},${b}`).join(',')})` : bbox ? `(${bbox})` : '(area.il)';
+// One box around all the towns is far lighter for the map servers than a circle around each one.
+const box = () => [Math.min(...TOWNS.map((t) => t[1])) - 0.03, Math.min(...TOWNS.map((t) => t[2])) - 0.03, Math.max(...TOWNS.map((t) => t[1])) + 0.03, Math.max(...TOWNS.map((t) => t[2])) + 0.03].join(',');
+const scope = towns ? `(${box()})` : bbox ? `(${bbox})` : '(area.il)';
 const header = bbox || towns ? '' : 'area["ISO3166-1"="IL"][admin_level=2]->.il;';
 
 // ---------- Overpass ----------
@@ -74,7 +76,7 @@ async function overpass() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { elements } = await res.json();
       if (!towns) return elements;
-      // Overpass searched a wide circle around each town; keep only what is really inside it.
+      // The box holds more than the towns; keep only what is really inside one.
       return elements.filter((e) => townAt(e.lat ?? e.center?.lat, e.lon ?? e.center?.lon));
     } catch (e) {
       console.log(`  לא הצליח (${e.message}), מנסה שרת אחר…`);
