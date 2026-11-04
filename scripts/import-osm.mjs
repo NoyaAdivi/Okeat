@@ -4,6 +4,7 @@
 //   npm run import:osm                 (every eatery in Israel)
 //   npm run import:osm -- --dry-run    (only print what it found)
 //   npm run import:osm -- --bbox 32.06,34.77,32.10,34.84   (south,west,north,east)
+//   npm run import:osm -- --towns      (Israeli towns in Judea and Samaria, see yesha-towns.mjs)
 //
 // Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.
 //
@@ -17,6 +18,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { TOWNS, townAt } from './yesha-towns.mjs';
 
 // ---------- env ----------
 if (existsSync('.env.local')) {
@@ -36,8 +38,9 @@ if (!dryRun && (!url || !key || key.includes('your-'))) {
 // Default: all of Israel (by country boundary). --bbox south,west,north,east limits it.
 const argIdx = process.argv.indexOf('--bbox');
 const bbox = argIdx > -1 ? process.argv[argIdx + 1] : null;
-const scope = bbox ? `(${bbox})` : '(area.il)';
-const header = bbox ? '' : 'area["ISO3166-1"="IL"][admin_level=2]->.il;';
+const towns = process.argv.includes('--towns');
+const scope = towns ? `(around:3000,${TOWNS.map(([, a, b]) => `${a},${b}`).join(',')})` : bbox ? `(${bbox})` : '(area.il)';
+const header = bbox || towns ? '' : 'area["ISO3166-1"="IL"][admin_level=2]->.il;';
 
 // ---------- Overpass ----------
 const AM = 'restaurant|cafe|fast_food|ice_cream|bakery|food_court';
@@ -69,7 +72,10 @@ async function overpass() {
         signal: AbortSignal.timeout(620_000),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return (await res.json()).elements;
+      const { elements } = await res.json();
+      if (!towns) return elements;
+      // Overpass searched a wide circle around each town; keep only what is really inside it.
+      return elements.filter((e) => townAt(e.lat ?? e.center?.lat, e.lon ?? e.center?.lon));
     } catch (e) {
       console.log(`  לא הצליח (${e.message}), מנסה שרת אחר…`);
     }

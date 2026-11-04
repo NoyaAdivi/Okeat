@@ -43,7 +43,10 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
     rows?.forEach((r) => { c[r.reason] = (c[r.reason] ?? 0) + 1; });
     return c;
   }, [rows]);
-  const list = rows?.filter((r) => !group || r.reason === group) ?? [];
+  // The likeliest mistakes come first, in the same order as the buttons above.
+  const order = Object.keys(names);
+  const list = (rows?.filter((r) => !group || r.reason === group) ?? [])
+    .sort((a, b) => order.indexOf(a.reason) - order.indexOf(b.reason));
 
   const pick = (g: SuspectReason | null) => { setGroup(g); setMarked(new Set()); setShown(PAGE); };
   const toggle = (id: string) => setMarked((m) => {

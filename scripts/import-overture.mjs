@@ -8,12 +8,14 @@
 // Run after import-osm, so places that are already on the map are skipped, not doubled:
 //   npm install @duckdb/node-api        (once)
 //   npm run import:overture
-// Options: --dry-run (only count), --release 2026-10-21.0, --min-confidence 0.5
+// Options: --dry-run (only count), --release 2026-10-21.0, --min-confidence 0.5,
+//          --towns (Israeli towns in Judea and Samaria, see yesha-towns.mjs)
 //
 // Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local, and migration 0007.
 
 import { readFileSync, existsSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { townAt } from './yesha-towns.mjs';
 
 // ---------- env / options ----------
 if (existsSync('.env.local')) {
@@ -27,6 +29,7 @@ const arg = (name, def) => {
   return i > -1 ? process.argv[i + 1] : def;
 };
 const dryRun = process.argv.includes('--dry-run');
+const towns = process.argv.includes('--towns');
 const RELEASE = arg('--release', process.env.OVERTURE_RELEASE ?? '2026-10-21.0');
 const MIN_CONF = Number(arg('--min-confidence', '0.5'));
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -67,7 +70,7 @@ SELECT
   bbox.ymin::DOUBLE                             AS lat
 FROM read_parquet('s3://overturemaps-us-west-2/release/${RELEASE}/theme=places/type=place/*', hive_partitioning = 1)
 WHERE bbox.xmin BETWEEN ${W} AND ${E} AND bbox.ymin BETWEEN ${S} AND ${N}
-  AND addresses[1].country = 'IL'
+  ${towns ? '' : "AND addresses[1].country = 'IL'"}
   AND coalesce(confidence, 1) >= ${MIN_CONF}
   AND coalesce(operating_status::VARCHAR, 'open') <> 'permanently_closed'
   AND names.primary IS NOT NULL
@@ -241,6 +244,7 @@ function isEatery(cat) {
 
 const junk = []; // ext ids of non-food places (to remove if an earlier run saved them)
 for (const r of raw) {
+  if (towns && !townAt(Number(r.lat), Number(r.lng))) continue;
   if (!isEatery(r.cat)) { junk.push(`overture:${r.id}`); continue; }
   let common = {};
   try { common = JSON.parse(r.common ?? 'null') ?? {}; } catch { /* keep empty */ }

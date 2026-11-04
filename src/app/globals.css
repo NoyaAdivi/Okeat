@@ -1875,3 +1875,7 @@ a.dash-city { color: inherit; text-decoration: none; }
 .brand, .display-toggles, .site-tools, .map-top .brand, .map-top .display-toggles { gap: var(--tools-gap); }
 .brand-home, .map-top .brand-home { margin-inline-end: auto; }
 .brand .account, .brand .account-in, .brand .account-wrap { margin-inline-start: 0; }
+.admin-page .check-row { flex-direction: row; align-items: flex-start; padding: 10px 12px; gap: 8px 10px; }
+.check-row > input { margin-block-start: 3px; }
+.check-row .admin-row-tools { flex-basis: 100%; }
+.check-row .btn.small { min-height: 36px; padding-block: 4px; }
