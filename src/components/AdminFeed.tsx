@@ -43,18 +43,19 @@ export default function AdminFeed({ sb, kind = null }: { sb: SupabaseClient; kin
     const info = levelInfo(r.need, r.level as Level);
     return info ? levelText(info, lang) : needLabel(r.need, lang);
   };
+  // Only the line for this row's kind runs: a "wrong" vote is -1, which is not a number of stars.
   const action = (r: AdminEvent) => ({
-    user: L('נרשם/ה לאתר', 'Signed up'),
-    place: L('הוסיף/ה מקום', 'Added a place'),
-    claim: L(`הוסיף/ה מידע: ${level(r)}`, `Added: ${level(r)}`),
-    vote: r.rating === 1 ? L(`אישר/ה: ${level(r)}`, `Confirmed: ${level(r)}`) : L(`דיווח/ה שלא נכון: ${level(r)}`, `Said this is wrong: ${level(r)}`),
-    review: `${'★'.repeat(r.rating ?? 0)} ${r.detail ?? ''}`.trim(),
-    photo: L('העלה/תה תמונה', 'Added a photo'),
-    report: r.detail || L('דיווח/ה על המקום', 'Reported the place'),
-    suggestion: L(`הציע/ה סיווג: ${placeTypeLabel(r.level ?? '', lang)}${r.detail ? `, ${r.detail}` : ''}`, `Suggested: ${placeTypeLabel(r.level ?? '', lang)}`),
-    list: L('יצר/ה רשימה', 'Made a list'),
-    message: r.detail ?? '',
-  })[r.kind];
+    user: () => L('נרשם/ה לאתר', 'Signed up'),
+    place: () => L('הוסיף/ה מקום', 'Added a place'),
+    claim: () => L(`הוסיף/ה מידע: ${level(r)}`, `Added: ${level(r)}`),
+    vote: () => r.rating === 1 ? L(`אישר/ה: ${level(r)}`, `Confirmed: ${level(r)}`) : L(`דיווח/ה שלא נכון: ${level(r)}`, `Said this is wrong: ${level(r)}`),
+    review: () => `${'★'.repeat(Math.max(r.rating ?? 0, 0))} ${r.detail ?? ''}`.trim(),
+    photo: () => L('העלה/תה תמונה', 'Added a photo'),
+    report: () => r.detail || L('דיווח/ה על המקום', 'Reported the place'),
+    suggestion: () => L(`הציע/ה סיווג: ${placeTypeLabel(r.level ?? '', lang)}${r.detail ? `, ${r.detail}` : ''}`, `Suggested: ${placeTypeLabel(r.level ?? '', lang)}`),
+    list: () => L('יצר/ה רשימה', 'Made a list'),
+    message: () => r.detail ?? '',
+  })[r.kind]();
   const when = (at: string) => {
     const d = new Date(at);
     const today = d.toDateString() === new Date().toDateString();
