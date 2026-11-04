@@ -737,7 +737,7 @@ export async function adminUpdatePlace(sb: SupabaseClient, place: AdminPlace) {
 }
 
 export type SuspectReason = 'hand' | 'new' | 'butcher' | 'catering' | 'hall' | 'shop' | 'service' | 'health' | 'other' | 'spot';
-export type Suspect = AdminPlace & { reason: SuspectReason };
+export type Suspect = AdminPlace & { reason: SuspectReason; note: string | null };
 
 /** Admin: places that look wrong, found by their name, by being new, or by a crowded spot. */
 export async function fetchSuspects(sb: SupabaseClient): Promise<Suspect[]> {

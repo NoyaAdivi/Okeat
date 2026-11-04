@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { fetchSuspects, hidePlaces, markPlacesOk, type Suspect, type SuspectReason } from '@/lib/places';
+import { deleteHiddenPlace, fetchSuspects, hidePlaces, markPlacesOk, type Suspect, type SuspectReason } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { placeEmoji } from '@/lib/emoji';
 import { placeTypeLabel } from '@/lib/types';
@@ -20,6 +20,7 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
   const [marked, setMarked] = useState<Set<string>>(new Set());
   const [shown, setShown] = useState(PAGE);
   const [editing, setEditing] = useState<Suspect | null>(null);
+  const [sure, setSure] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const names: Record<SuspectReason, [string, string]> = {
@@ -33,6 +34,20 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
     hall: ['🎉', L('אולמות אירועים', 'Event halls')],
     catering: ['🍱', L('קייטרינג', 'Catering')],
     spot: ['📍', L('מיקום לא מדויק', 'Rough location')],
+  };
+
+  // Why each place is on the list, in plain words.
+  const why: Record<SuspectReason, string> = {
+    hand: L('צריך לבדוק', 'Needs a look'),
+    new: L('משתמש/ת הוסיף/ה אותו לאחרונה, ועוד לא נבדק', 'A user added it lately and nobody checked yet'),
+    shop: L('בשם יש מילה של חנות, לא של אוכל', 'The name sounds like a shop, not food'),
+    service: L('השם נשמע כמו עסק או שירות, לא אוכל', 'The name sounds like a business, not food'),
+    health: L('השם נשמע כמו מקום בריאות', 'The name sounds like a health place'),
+    other: L('השם נשמע כמו מוסד או מקום שאינו אוכל', 'The name sounds like an institution'),
+    butcher: L('נשמע כמו אטליז: יש שם מה לקנות ולאכול, או רק בשר לא מוכן?', 'Sounds like a butcher: is there anything ready to eat?'),
+    hall: L('נשמע כמו אולם: אפשר פשוט לבוא ולאכול?', 'Sounds like a hall: can you just walk in and eat?'),
+    catering: L('נשמע כמו קייטרינג: יש מקום לקנות בו?', 'Sounds like catering: is there a place to buy from?'),
+    spot: L('כמה מקומות יושבים על אותה נקודה, אז המיקום כנראה כללי', 'Several places share this spot, so the location is probably rough'),
   };
 
   const load = () => fetchSuspects(sb).then((r) => { setRows(r); onCount(r.length); }).catch((e) => setError(friendly(e, lang)));
@@ -72,7 +87,7 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
   return (
     <>
       <h2>{L('מקומות לבדיקה', 'Places to check')} ({rows.length})</h2>
-      <p className="muted small">{L('הרשימה מתעדכנת לבד. "תקין" נשמר, והמקום לא יחזור לכאן. "הסתרה" מעבירה ללשונית מוסתרים.', 'This list updates by itself. "Fine" is remembered, and the place will not come back. "Hide" moves it to the Hidden tab.')}</p>
+      <p className="muted small">{L('הרשימה מתעדכנת לבד. "תקין" נשמר, והמקום לא יחזור לכאן. "הסתרה" מעבירה ללשונית מוסתרים, ומשם אפשר להחזיר. "מחיקה" אי אפשר לבטל.', 'This list updates by itself. "Fine" is remembered, and the place will not come back. "Hide" moves it to the Hidden tab, where it can come back. "Delete" cannot be undone.')}</p>
       {error && <p className="warnbox" role="alert">{error}</p>}
 
       <div className="check-groups" role="group" aria-label={L('סוג הבדיקה', 'What to check')}>
@@ -90,12 +105,16 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
           <input type="checkbox" checked={marked.has(p.id)} onChange={() => toggle(p.id)} aria-label={L(`בחירת ${p.name}`, `Select ${p.name}`)} />
           <div>
             <a href={`/map?place=${p.id}`} target="_blank" rel="noreferrer"><span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b></a>
-            <div className="muted small">{names[p.reason][0]} {names[p.reason][1]}, {placeTypeLabel(p.place_type, lang)}{p.address ? `, ${p.address}` : ''}</div>
+            <div className="check-why"><span aria-hidden="true">{names[p.reason][0]}</span> {p.note ?? why[p.reason]}</div>
+            <div className="muted small">{placeTypeLabel(p.place_type, lang)}{p.address ? `, ${p.address}` : ''}</div>
           </div>
           <div className="admin-row-tools">
             <button type="button" className="btn small" onClick={() => decide([p.id], markPlacesOk)}>{L('תקין', 'Fine')}</button>
             <button type="button" className="btn small ghost danger" onClick={() => decide([p.id], hidePlaces)}>{L('הסתרה', 'Hide')}</button>
             <button type="button" className="btn small ghost" onClick={() => setEditing(p)}>{L('עריכה', 'Edit')}</button>
+            {sure === p.id
+              ? <button type="button" className="btn small ghost danger" onClick={() => decide([p.id], async (s, i) => { await hidePlaces(s, i); await deleteHiddenPlace(s, p.id); })}>{L('למחוק לגמרי?', 'Delete for good?')}</button>
+              : <button type="button" className="btn small ghost danger" onClick={() => setSure(p.id)}>{L('מחיקה', 'Delete')}</button>}
             <a className="btn small ghost" href={`https://www.google.com/search?q=${encodeURIComponent(`${p.name} ${p.address ?? ''}`.trim())}`} target="_blank" rel="noreferrer">{L('בגוגל', 'Google')}</a>
           </div>
         </div>
