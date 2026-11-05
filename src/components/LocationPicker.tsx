@@ -64,6 +64,16 @@ export default function LocationPicker({ onGps, onPickOnMap, onChoose, onClose, 
 
   const choose = (r: GeoResult) => onChoose(r.point, r.detail ? `${r.name}, ${r.detail}` : r.name);
 
+  // On a phone the window stops above the keyboard, also where the browser does not shrink the page for it.
+  useEffect(() => {
+    const view = window.visualViewport;
+    if (!view || !window.matchMedia('(max-width: 760px)').matches) return;
+    const fit = () => { if (box.current) box.current.style.maxHeight = `${Math.max(220, view.height - 84)}px`; };
+    fit();
+    view.addEventListener('resize', fit);
+    return () => view.removeEventListener('resize', fit);
+  }, []);
+
   const pop = (
     <div className="loc-pop" ref={box} role="dialog" aria-label={L('בחירת המיקום שלי', 'Choose my location')}>
       <div className="loc-head">

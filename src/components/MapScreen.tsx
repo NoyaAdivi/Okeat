@@ -674,24 +674,21 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     window.history.replaceState(null, '', '/map');
   }, [addOnLoad, located, ready, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // A phone has no pointer to hover with. The first tap on a button only shows its name, the next one
-  // uses it. Once a button is known on this device a tap works at once and its name just flashes by.
+  // A phone has no pointer to hover with. The first tap on a button shows its name, the second uses it.
   useEffect(() => {
-    const KEY = 'okeat-tools-seen';
     const onClick = (e: MouseEvent) => {
       if ((e as PointerEvent).pointerType === 'mouse') return;
       const button = (e.target as HTMLElement).closest?.('.map-tool.wide, .fab');
-      const name = button?.querySelector('.tool-label')?.textContent;
-      if (!button || !name) return;
-      let seen: string[] = [];
-      try { seen = JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { /* treated as new */ }
-      const known = seen.includes(name);
-      button.classList.add('show-name');
-      setTimeout(() => button.classList.remove('show-name'), known ? 1200 : 3000);
-      if (known) return;
+      if (!button) return;
+      if (button.classList.contains('show-name')) {
+        button.classList.remove('show-name');
+        return;
+      }
       e.preventDefault();
       e.stopPropagation();
-      try { localStorage.setItem(KEY, JSON.stringify([...seen, name])); } catch { /* asks again next time */ }
+      document.querySelectorAll('.show-name').forEach((b) => b.classList.remove('show-name'));
+      button.classList.add('show-name');
+      setTimeout(() => button.classList.remove('show-name'), 3500);
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
