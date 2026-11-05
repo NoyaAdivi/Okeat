@@ -695,20 +695,6 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     return () => document.removeEventListener('click', onClick, true);
   }, []);
 
-  // A phone's closed menu stops just under the kosher, vegan and other filter buttons, so they always show.
-  useEffect(() => {
-    const fit = () => {
-      const panel = document.querySelector('.panel');
-      const row = document.querySelector('.panel .filters-row');
-      if (!panel || !row || !window.matchMedia('(max-width: 760px)').matches) return;
-      const h = Math.round(row.getBoundingClientRect().bottom - panel.getBoundingClientRect().top + 12);
-      if (h > 120 && h < 420) appRef.current?.style.setProperty('--peek-h', `${h}px`);
-    };
-    fit();
-    window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
-  }, [user, tab]);
-
   // Esc: cancel picking, else close the place.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -963,8 +949,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       const vh = window.innerHeight;
       const dy = d.y - e.clientY;
       const end = d.h + dy;
-      const peek = parseInt(getComputedStyle(appRef.current as HTMLElement).getPropertyValue('--peek-h'), 10) || 280;
-      const sizes: [Sheet, number][] = [['peek', peek], ['half', vh * 0.56], ['full', sheetMax()]];
+      const sizes: [Sheet, number][] = [['peek', 200], ['half', vh * 0.56], ['full', sheetMax()]];
       // a quick flick goes one size further in that direction
       const flick = Math.abs(dy) / Math.max(1, Date.now() - d.t) > 0.5;
       const aim = flick ? end + Math.sign(dy) * vh * 0.2 : end;
@@ -1090,16 +1075,16 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
         {TOKEN && located !== 'pending' && !picking && !pickingMe && (
           <div className="map-tools">
+            {!navigating && (
+              <button type="button" className={`map-tool wide back${turned || (strayed && me) ? '' : ' idle'}`} onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
+                <span aria-hidden="true">🧭</span> <span className="tool-label">{me ? L('חזרה אליי', 'Back to me') : L('יישור המפה', 'Straighten the map')}</span>
+              </button>
+            )}
             {navigating && followPaused ? (
               <button type="button" className="map-tool wide" onClick={() => setFollowPaused(false)}>🧭 {L('חזרה למסלול', 'Back to the route')}</button>
             ) : (
               <button type="button" className={`map-tool wide${manualLabel ? ' manual' : ''}`} onClick={() => setLocOpen((o) => !o)} aria-expanded={locOpen} aria-haspopup="dialog">
                 <span aria-hidden="true">📍</span> <span className="tool-label">{manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}</span>
-              </button>
-            )}
-            {!navigating && (
-              <button type="button" className={`map-tool wide back${turned || (strayed && me) ? '' : ' idle'}`} onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
-                <span aria-hidden="true">🧭</span> <span className="tool-label">{me ? L('חזרה אליי', 'Back to me') : L('יישור המפה', 'Straighten the map')}</span>
               </button>
             )}
             {route && !navigating && (

@@ -1937,11 +1937,8 @@ a.dash-city { color: inherit; text-decoration: none; }
   .loc-pop .loc-credit { margin: 0; }
 }
 
-/* Phone: the closed menu shows the filters, and the Mapbox logo and credit sit above the menu, in view. */
+/* Phone: the Mapbox logo and credit sit above the menu, in view. */
 @media (max-width: 760px) {
-  .app { --sheet-h: var(--peek-h, 280px); }
-  .app[data-sheet="half"] { --sheet-h: 56svh; }
-  .app[data-sheet="full"] { --sheet-h: 90dvh; }
   .mapboxgl-ctrl-bottom-left { left: auto; right: 6px; bottom: calc(var(--sheet-h) + env(safe-area-inset-bottom, 0px)); transition: bottom .3s; }
   .mapboxgl-ctrl-bottom-right { bottom: calc(26px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); transition: bottom .3s; }
 }
