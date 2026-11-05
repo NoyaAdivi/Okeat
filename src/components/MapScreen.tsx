@@ -1075,8 +1075,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
         {TOKEN && located !== 'pending' && !picking && !pickingMe && (
           <div className="map-tools">
-            {!navigating && (
-              <button type="button" className={`map-tool wide back${turned || (strayed && me) ? '' : ' idle'}`} onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
+            {!navigating && (turned || (strayed && me)) && (
+              <button type="button" className="map-tool wide back" onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
                 <span aria-hidden="true">🧭</span> <span className="tool-label">{me ? L('חזרה אליי', 'Back to me') : L('יישור המפה', 'Straighten the map')}</span>
               </button>
             )}
