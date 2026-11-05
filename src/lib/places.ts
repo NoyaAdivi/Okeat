@@ -90,7 +90,11 @@ function cacheGet<T>(key: string): T | null {
 function cacheSet(key: string, data: unknown) {
   try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), data })); } catch { /* full or blocked */ }
 }
+// After a change on this device the map has to show it now, so the shared copy is skipped.
+let wantFresh = false;
+
 export function clearPointsCache() {
+  wantFresh = true;
   recent.clear();
   try {
     for (const k of Object.keys(sessionStorage)) if (k.startsWith('okeat:pts:')) sessionStorage.removeItem(k);
@@ -117,6 +121,21 @@ const pointsKey = (filter: NeedFilter, query?: string, cuisine?: string[]) =>
 
 /** Every matching place in the country. Pages are fetched 4 at a time. */
 export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, query?: string, cuisine?: string[], signal?: AbortSignal): Promise<MapPoint[]> {
+  const plain = !query?.trim() && !cuisine?.length && Object.values(filter).every((v) => v === null || v === undefined);
+  if (plain && !wantFresh) {
+    try {
+      const res = await fetch('/api/points', { signal });
+      const data = res.ok ? ((await res.json()) as MapPoint[]) : [];
+      if (data.length > 1000) {
+        remember(pointsKey(filter, query, cuisine), data);
+        return data;
+      }
+    } catch (e) {
+      if (signal?.aborted) throw e;
+      // otherwise the pages below still work
+    }
+  }
+
   const PAGE = 1000;
   const PARALLEL = 4;
   const page = async (from: number) => {
