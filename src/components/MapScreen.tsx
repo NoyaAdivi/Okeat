@@ -1062,7 +1062,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               </button>
             )}
             {!navigating && (turned || (strayed && me)) && (
-              <button type="button" className="map-tool wide" onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
+              <button type="button" className="map-tool wide back" onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
                 <span aria-hidden="true">🧭</span> <span className="tool-label">{me ? L('חזרה אליי', 'Back to me') : L('יישור המפה', 'Straighten the map')}</span>
               </button>
             )}
