@@ -674,17 +674,27 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     window.history.replaceState(null, '', '/map');
   }, [addOnLoad, located, ready, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // On a phone there is no pointer to hover with, so a tap shows the button's name for a moment.
+  // A phone has no pointer to hover with. The first tap on a button only shows its name, the next one
+  // uses it. Once a button is known on this device a tap works at once and its name just flashes by.
   useEffect(() => {
-    const onPress = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse') return;
+    const KEY = 'okeat-tools-seen';
+    const onClick = (e: MouseEvent) => {
+      if ((e as PointerEvent).pointerType === 'mouse') return;
       const button = (e.target as HTMLElement).closest?.('.map-tool.wide, .fab');
-      if (!button) return;
+      const name = button?.querySelector('.tool-label')?.textContent;
+      if (!button || !name) return;
+      let seen: string[] = [];
+      try { seen = JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { /* treated as new */ }
+      const known = seen.includes(name);
       button.classList.add('show-name');
-      setTimeout(() => button.classList.remove('show-name'), 1800);
+      setTimeout(() => button.classList.remove('show-name'), known ? 1200 : 3000);
+      if (known) return;
+      e.preventDefault();
+      e.stopPropagation();
+      try { localStorage.setItem(KEY, JSON.stringify([...seen, name])); } catch { /* asks again next time */ }
     };
-    document.addEventListener('pointerdown', onPress);
-    return () => document.removeEventListener('pointerdown', onPress);
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   // Esc: cancel picking, else close the place.
@@ -1074,8 +1084,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                 <span aria-hidden="true">📍</span> <span className="tool-label">{manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}</span>
               </button>
             )}
-            {!navigating && (turned || (strayed && me)) && (
-              <button type="button" className="map-tool wide back" onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
+            {!navigating && (
+              <button type="button" className={`map-tool wide back${turned || (strayed && me) ? '' : ' idle'}`} onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
                 <span aria-hidden="true">🧭</span> <span className="tool-label">{me ? L('חזרה אליי', 'Back to me') : L('יישור המפה', 'Straighten the map')}</span>
               </button>
             )}

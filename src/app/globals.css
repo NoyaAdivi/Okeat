@@ -1924,3 +1924,6 @@ a.dash-city { color: inherit; text-decoration: none; }
 /* A tap on a phone opens the name for a moment, like the pointer does on a computer. */
 .map-tool.wide.show-name, .fab.show-name { width: auto !important; padding: 0 12px !important; border-radius: 22px !important; }
 .map-tool.wide.show-name .tool-label, .fab.show-name .tool-label { position: static !important; width: auto !important; height: auto !important; clip-path: none !important; max-width: 150px; margin-inline-start: 6px; }
+/* The compass always keeps its place, and is only paler while the map is already straight and on you. */
+.map-tool.wide.back { transition: opacity .25s; }
+.map-tool.wide.back.idle { opacity: .55; }
