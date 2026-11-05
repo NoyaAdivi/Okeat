@@ -1914,8 +1914,8 @@ a.dash-city { color: inherit; text-decoration: none; }
 @media (max-width: 760px) {
   .map-tool.wide, .fab, [dir="ltr"] .fab { border-radius: 50%; }
   .fab .tool-label, .map-tool.wide .tool-label, .app:not([data-sheet="peek"]) .fab .tool-label { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); }
-  .map-tools, .app:not([data-sheet="peek"]) .map-tools { left: 16px; bottom: calc(66px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); }
-  .fab, .app:not([data-sheet="peek"]):not([data-sheet="full"]):not([data-place="open"]) .fab { left: 16px; bottom: calc(14px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); width: 44px; height: 44px; }
+  .map-tools, .app:not([data-sheet="peek"]) .map-tools { left: 16px; bottom: calc(60px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); }
+  .fab, .app:not([data-sheet="peek"]):not([data-sheet="full"]):not([data-place="open"]) .fab { left: 16px; bottom: calc(8px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); width: 44px; height: 44px; }
   [dir="ltr"] .map-tools, [dir="ltr"] .app:not([data-sheet="peek"]) .map-tools { left: auto; right: 16px; }
   [dir="ltr"] .fab, [dir="ltr"] .app:not([data-sheet="peek"]):not([data-sheet="full"]):not([data-place="open"]) .fab { left: auto; right: 16px; }
 }
@@ -1935,4 +1935,13 @@ a.dash-city { color: inherit; text-decoration: none; }
   .loc-pop { position: fixed; inset: calc(68px + env(safe-area-inset-top, 0px)) 12px auto 12px; height: auto; max-height: calc(100dvh - 84px); border-radius: 22px; box-shadow: 0 16px 44px rgba(43, 33, 64, .3); padding: 14px; }
   .loc-pop .loc-results { flex: 0 1 auto; overflow: auto; }
   .loc-pop .loc-credit { margin: 0; }
+}
+
+/* Phone: the closed menu shows the filters, and the Mapbox logo and credit sit above the menu, in view. */
+@media (max-width: 760px) {
+  .app { --sheet-h: var(--peek-h, 280px); }
+  .app[data-sheet="half"] { --sheet-h: 56svh; }
+  .app[data-sheet="full"] { --sheet-h: 90dvh; }
+  .mapboxgl-ctrl-bottom-left { left: auto; right: 6px; bottom: calc(var(--sheet-h) + env(safe-area-inset-bottom, 0px)); transition: bottom .3s; }
+  .mapboxgl-ctrl-bottom-right { bottom: calc(26px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); transition: bottom .3s; }
 }
