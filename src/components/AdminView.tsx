@@ -146,7 +146,7 @@ export default function AdminView() {
             </>)}
             {tab === 'reports' && (<>
             <h2>{L('כל הדיווחים של המשתמשים', 'Everything users reported')}</h2>
-            <AdminFeed sb={sb} kind="report" />
+            <AdminFeed sb={sb} kind="report" canDelete={admin} />
 
             <h2>{L('ביקורות שדווחו', 'Reported reviews')} ({badReviews.length})</h2>
             {badReviews.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}

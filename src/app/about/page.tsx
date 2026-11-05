@@ -181,8 +181,8 @@ export default async function About() {
             <li><TapSeal cls="h">{L('צ', 'Vg')}</TapSeal><span><b>{L('צמחוני:', 'Vegetarian:')}</b> {L('בלי בשר ודגים, בכל המקום או בחלק מהתפריט.', 'No meat or fish, in the whole place or part of the menu.')}</span></li>
             <li><TapSeal cls="g">{L('ג', 'G')}</TapSeal><span><b>{L('ללא גלוטן:', 'Gluten-free:')}</b> {L('תפריט ללא גלוטן או מטבח נפרד.', 'A gluten-free menu or a separate kitchen.')}</span></li>
             <li><TapSeal cls="e">{L('א', 'A')}</TapSeal><span><b>{L('אלרגיות:', 'Allergies:')}</b> {L('בלי חלב, ביצים, בוטנים, אגוזים, שומשום או סויה. באלרגיה חמורה תמיד כדאי לשאול במקום.', 'Free of dairy, egg, peanuts, nuts, sesame or soy. With a serious allergy, always ask on site.')}</span></li>
-            <li><TapSeal cls="k soft">{L('כ', 'K')}</TapSeal><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מידע ממאגר פתוח או סיווג אוטומטי, שעוד לא אושר על ידי הקהילה.', 'From an open database or an automatic guess, not yet confirmed by the community.')}</span></li>
-            <li><TapSeal cls="x pending">{L('?', '?')}</TapSeal><span><b>{L('ממתין לאישור:', 'Waiting for confirmation:')}</b> {L('מישהו הוסיף את המידע, ועכשיו מחכים לאישור של הקהילה.', 'Someone added this, and it is waiting for the community to confirm it.')}</span></li>
+            <li><TapSeal cls="k soft">{L('ח', 'L')}</TapSeal><span><b>{L('חותמת בהירה:', 'Light seal:')}</b> {L('מידע ממאגר פתוח או סיווג אוטומטי, שעוד לא אושר על ידי הקהילה.', 'From an open database or an automatic guess, not yet confirmed by the community.')}</span></li>
+            <li><TapSeal cls="x">{L('מ', 'W')}</TapSeal><span><b>{L('ממתין לאישור:', 'Waiting for confirmation:')}</b> {L('מישהו הוסיף את המידע, ועכשיו מחכים לאישור של הקהילה.', 'Someone added this, and it is waiting for the community to confirm it.')}</span></li>
           </ul>
         </section>
 

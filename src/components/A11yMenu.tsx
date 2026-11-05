@@ -7,9 +7,40 @@ import { hasHebrewVoice, isReadingAloud, readAloud, readableText, speechSupporte
 import { useL } from './LangProvider';
 
 const SIZES = [1, 1.15, 1.3, 1.5];
+const SPOT_KEY = 'okeat-a11y-spot';
 
 /** Accessibility menu, available on every page from a tab on the side of the screen. */
 export default function A11yMenu() {
+  // The button can be dragged out of the way; where it was left is remembered on this device.
+  const [spot, setSpot] = useState<{ side: 'left' | 'right'; top: number }>({ side: 'left', top: 50 });
+  const dragged = useRef(false);
+  const press = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(SPOT_KEY) ?? 'null');
+      if (saved?.side && typeof saved.top === 'number') setSpot(saved);
+    } catch { /* stays where it is */ }
+  }, []);
+  const moveSpot = (next: typeof spot) => {
+    setSpot(next);
+    try { localStorage.setItem(SPOT_KEY, JSON.stringify(next)); } catch { /* only for this visit */ }
+  };
+  const startDrag = (e: React.PointerEvent<HTMLButtonElement>) => {
+    press.current = { x: e.clientX, y: e.clientY };
+    dragged.current = false;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const drag = (e: React.PointerEvent) => {
+    if (!press.current) return;
+    if (!dragged.current && Math.hypot(e.clientX - press.current.x, e.clientY - press.current.y) < 8) return;
+    dragged.current = true;
+    setSpot({ side: e.clientX < innerWidth / 2 ? 'left' : 'right', top: Math.min(92, Math.max(8, (e.clientY / innerHeight) * 100)) });
+  };
+  const endDrag = () => {
+    press.current = null;
+    if (dragged.current) moveSpot(spot);
+  };
+
   const L = useL();
   const [open, setOpen] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
@@ -109,19 +140,25 @@ export default function A11yMenu() {
       <button
         ref={button}
         type="button"
-        className="a11y-tab"
+        className={`a11y-tab${spot.side === 'right' ? ' right' : ''}`}
+        style={{ top: `${spot.top}%`, touchAction: 'none' }}
+        title={L('אפשר לגרור למקום אחר', 'You can drag this somewhere else')}
         aria-expanded={open}
         aria-controls="a11y-panel"
-        onClick={() => setOpen((o) => !o)}
+        onPointerDown={startDrag}
+        onPointerMove={drag}
+        onPointerUp={endDrag}
+        onClick={() => { if (!dragged.current) setOpen((o) => !o); dragged.current = false; }}
         aria-label={L('תפריט נגישות', 'Accessibility menu')}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2" /><path d="M5 8l7 1.5L19 8M12 9.5V14l-3 7M12 14l3 7" /></svg>
       </button>
 
       {open && (
-        <div id="a11y-panel" ref={panel} className="a11y-panel" role="dialog" aria-label={L('הגדרות נגישות', 'Accessibility settings')}>
+        <div id="a11y-panel" ref={panel} className={`a11y-panel${spot.side === 'right' ? ' right' : ''}`} role="dialog" aria-label={L('הגדרות נגישות', 'Accessibility settings')}>
           <div className="a11y-head">
             <h2>{L('נגישות', 'Accessibility')}</h2>
+            <button type="button" className="link" onClick={() => moveSpot({ ...spot, side: spot.side === 'left' ? 'right' : 'left' })}>{L('העברת הכפתור לצד השני', 'Move the button to the other side')}</button>
             <button type="button" className="link" onClick={() => setOpen(false)} aria-label={L('סגירה', 'Close')}>✕</button>
           </div>
 

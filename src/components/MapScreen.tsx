@@ -137,6 +137,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedFallback, setSelectedFallback] = useState<Place | null>(null);
   const [focus, setFocus] = useState<FocusRequest | null>(null);
+  const [turned, setTurned] = useState(false);
+  const [strayed, setStrayed] = useState(false);
   const [sheet, setSheet] = useState<Sheet>('peek');
 
   // navigation
@@ -963,11 +965,12 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             focus={focus}
             onSelect={select}
             onUserMove={setMapCenter}
+            onTurned={setTurned}
             picking={picking || pickingMe || fixingPin}
             onCenter={setViewCenter}
             centerGetter={centerGetter}
             follow={navigating && !followPaused}
-            onUserDrag={() => navigating && pauseFollow()}
+            onUserDrag={() => { setStrayed(true); if (navigating) pauseFollow(); }}
             lang={lang}
           />
         )}
@@ -1056,6 +1059,11 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
             ) : (
               <button type="button" className={`map-tool wide${manualLabel ? ' manual' : ''}`} onClick={() => setLocOpen((o) => !o)} aria-expanded={locOpen} aria-haspopup="dialog">
                 <span aria-hidden="true">📍</span> <span className="tool-label">{manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}</span>
+              </button>
+            )}
+            {!navigating && (turned || (strayed && me)) && (
+              <button type="button" className="map-tool wide" onClick={() => { setStrayed(false); setFocus({ key: Date.now(), points: [me ?? viewCenter ?? mapCenter], straight: true }); }}>
+                <span aria-hidden="true">🧭</span> <span className="tool-label">{me ? L('חזרה אליי', 'Back to me') : L('יישור המפה', 'Straighten the map')}</span>
               </button>
             )}
             {route && !navigating && (

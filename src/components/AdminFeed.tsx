@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { fetchAdminFeed, placePhotoUrl, type AdminEvent, type AdminKind } from '@/lib/places';
+import { adminDeleteItem, fetchAdminFeed, placePhotoUrl, type AdminEvent, type AdminKind } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { levelInfo, levelText, needLabel, placeTypeLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
@@ -22,11 +22,16 @@ export const KIND_LOOK: Record<AdminKind, { emoji: string; cls: string }> = {
 };
 
 /** Everything people did on the site, newest first. Each name opens the profile, each place opens the place. */
-export default function AdminFeed({ sb, kind = null }: { sb: SupabaseClient; kind?: AdminKind | null }) {
+export default function AdminFeed({ sb, kind = null, canDelete = false }: { sb: SupabaseClient; kind?: AdminKind | null; canDelete?: boolean }) {
   const L = useL();
   const lang = L.lang;
   const [rows, setRows] = useState<AdminEvent[] | null>(null);
   const [error, setError] = useState('');
+  const [sure, setSure] = useState<string | null>(null);
+  const remove = (r: AdminEvent) => {
+    setRows((list) => list?.filter((x) => x !== r) ?? null);
+    adminDeleteItem(sb, r).catch((e) => setError(friendly(e, lang)));
+  };
 
   useEffect(() => {
     let live = true;
@@ -87,6 +92,9 @@ export default function AdminFeed({ sb, kind = null }: { sb: SupabaseClient; kin
             </Link>
           )}
           <time>{when(r.at)}</time>
+          {canDelete && r.kind !== 'user' && (sure === `${r.kind}-${r.id}`
+            ? <button type="button" className="btn small ghost danger" onClick={() => remove(r)}>{r.kind === 'place' ? L('להסתיר?', 'Hide?') : L('למחוק?', 'Delete?')}</button>
+            : <button type="button" className="link" onClick={() => setSure(`${r.kind}-${r.id}`)}>{r.kind === 'place' ? L('הסתרה', 'Hide') : L('מחיקה', 'Delete')}</button>)}
         </li>
       ))}
     </ul>

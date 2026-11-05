@@ -14,7 +14,7 @@ import { placeEmoji } from '@/lib/emoji';
 export type RouteLine = { type: 'LineString'; coordinates: [number, number][] };
 /** Change `key` to make the map frame these points. */
 /** zoom: how close to go. exact: put the point in the very middle of the map box (under the pick pin), ignoring the panels. */
-export type FocusRequest = { key: number; points: LatLng[]; exact?: boolean; zoom?: number };
+export type FocusRequest = { key: number; points: LatLng[]; exact?: boolean; zoom?: number; straight?: boolean };
 
 interface Props {
   initialCenter: LatLng;
@@ -27,6 +27,8 @@ interface Props {
   onSelect: (id: string) => void;
   /** Fired only after the person pans or zooms, not after programmatic moves. */
   onUserMove: (center: LatLng) => void;
+  /** The map was turned or tilted away from straight. */
+  onTurned?: (turned: boolean) => void;
   /** When true, a click on the map picks a location instead of doing nothing. */
   picking?: boolean;
   onPick?: (point: LatLng) => void;
@@ -300,7 +302,7 @@ function markerButton(p: MapPoint, selected: boolean, onClick: () => void): HTML
 }
 
 export default function MapView({
-  initialCenter, user, places, selectedId, route, focus, onSelect, onUserMove, picking = false, onPick, centerGetter, follow = false, onCenter, onUserDrag, lang = 'he',
+  initialCenter, user, places, selectedId, route, focus, onSelect, onUserMove, onTurned, picking = false, onPick, centerGetter, follow = false, onCenter, onUserDrag, lang = 'he',
 }: Props) {
   markerLang = lang;
   const container = useRef<HTMLDivElement>(null);
@@ -309,6 +311,7 @@ export default function MapView({
   const routeRef = useRef<RouteLine | null>(route);
   const onSelectRef = useRef(onSelect);
   const onUserMoveRef = useRef(onUserMove);
+  const onTurnedRef = useRef(onTurned);
   const pickingRef = useRef(picking);
   const onPickRef = useRef(onPick);
   const onCenterRef = useRef(onCenter);
@@ -317,6 +320,7 @@ export default function MapView({
   onUserDragRef.current = onUserDrag;
   onSelectRef.current = onSelect;
   onUserMoveRef.current = onUserMove;
+  onTurnedRef.current = onTurned;
   pickingRef.current = picking;
   onPickRef.current = onPick;
 
@@ -353,6 +357,10 @@ export default function MapView({
       drawRoute(map, routeRef.current, false);
     });
     map.on('dragstart', () => onUserDragRef.current?.());
+    const reportTurn = () => onTurnedRef.current?.(Math.abs(map.getBearing()) > 3 || map.getPitch() > 3);
+    map.on('rotateend', reportTurn);
+    map.on('pitchend', reportTurn);
+    map.on('moveend', reportTurn);
     // The point under the middle of the map box, where the pick pin is drawn.
     // (map.getCenter() is NOT that point: easeTo/fitBounds leave padding behind for the side panel and the
     // bottom sheet, and getCenter() then answers the middle of the padded area, up to hundreds of meters away.)
@@ -578,7 +586,7 @@ export default function MapView({
     if (focus.points.length === 1) {
       const [p] = focus.points;
       // picking needs street level: at a low zoom one pixel is many meters
-      map.easeTo({ center: [p.lng, p.lat], zoom: focus.zoom ?? Math.max(map.getZoom(), focus.exact ? 17.5 : 15.5), padding, duration: reducedMotion() ? 0 : 700 });
+      map.easeTo({ ...(focus.straight ? { bearing: 0, pitch: 0 } : {}), center: [p.lng, p.lat], zoom: focus.zoom ?? Math.max(map.getZoom(), focus.exact ? 17.5 : 15.5), padding, duration: reducedMotion() ? 0 : 700 });
       return;
     }
     const b = new mapboxgl.LngLatBounds();

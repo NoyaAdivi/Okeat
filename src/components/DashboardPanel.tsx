@@ -125,7 +125,7 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
             );
           })}
         </div>
-        <AdminFeed sb={sb} kind={kind} />
+        <AdminFeed sb={sb} kind={kind} canDelete />
       </section>
 
       {over && over.topUsers.length > 0 && (

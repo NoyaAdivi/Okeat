@@ -159,7 +159,7 @@ export default function ProfileView({ id }: { id: string }) {
             )}
             <div key={section} className="profile-section">
             {mine && section === 'feed' && <MyTimeline sb={sb} onManage={setSection} />}
-            {mine && section === 'site' && <AdminFeed sb={sb} />}
+            {mine && section === 'site' && <AdminFeed sb={sb} canDelete={profile.role === 'admin'} />}
             {mine && user && section === 'notes' && <ProfileExtras sb={sb} userId={user.id} show="notes" />}
             {mine && user && section === 'lists' && (
               <>

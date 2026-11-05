@@ -868,6 +868,12 @@ export async function fetchVisits(sb: SupabaseClient, days: number): Promise<Vis
   return error ? null : (data as Visits);
 }
 
+/** Admin: remove anything a user added, from the feed. */
+export async function adminDeleteItem(sb: SupabaseClient, r: AdminEvent) {
+  const { error } = await sb.rpc('admin_delete_item', { p_kind: r.kind, p_id: r.id, p_place: r.place_id, p_user: r.user_id });
+  if (error) throw error;
+}
+
 export const logVisit = (sb: SupabaseClient, sid: string, seconds: number, pages: number, signed: boolean) =>
   sb.rpc('log_visit', { p_sid: sid, p_seconds: seconds, p_pages: pages, p_signed: signed }).then(() => undefined, () => undefined);
 
