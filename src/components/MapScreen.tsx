@@ -674,6 +674,19 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     window.history.replaceState(null, '', '/map');
   }, [addOnLoad, located, ready, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // On a phone there is no pointer to hover with, so a tap shows the button's name for a moment.
+  useEffect(() => {
+    const onPress = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') return;
+      const button = (e.target as HTMLElement).closest?.('.map-tool.wide, .fab');
+      if (!button) return;
+      button.classList.add('show-name');
+      setTimeout(() => button.classList.remove('show-name'), 1800);
+    };
+    document.addEventListener('pointerdown', onPress);
+    return () => document.removeEventListener('pointerdown', onPress);
+  }, []);
+
   // Esc: cancel picking, else close the place.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
