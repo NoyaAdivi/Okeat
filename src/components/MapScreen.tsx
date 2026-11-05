@@ -677,7 +677,8 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   // A phone has no pointer to hover with. The first tap on a button shows its name, the second uses it.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if ((e as PointerEvent).pointerType === 'mouse') return;
+      // Phones report a tap in different ways, some even as a mouse, so go by the screen itself.
+      if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
       const button = (e.target as HTMLElement).closest?.('.map-tool.wide, .fab');
       if (!button) return;
       if (button.classList.contains('show-name')) {
