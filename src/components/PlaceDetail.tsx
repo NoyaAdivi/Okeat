@@ -161,7 +161,7 @@ export default function PlaceDetail({
       {kosher?.certificate?.expired && (
         <div className="warnbox">
           <span>
-            <b>{L(`תעודת הכשרות פגה ב-${formatDate(kosher.certificate.validUntil)}.`, `The kosher certificate expired on ${formatDate(kosher.certificate.validUntil)}.`)}</b> {L('ייתכן שהמקום חידש אותה ועוד לא צילמו את החדשה.', "The place may have renewed it and nobody has photographed the new one yet.")}
+            <b>{L(`תעודת הכשרות פגה ב־${formatDate(kosher.certificate.validUntil)}.`, `The kosher certificate expired on ${formatDate(kosher.certificate.validUntil)}.`)}</b> {L('ייתכן שהמקום חידש אותה ועוד לא צילמו את החדשה.', "The place may have renewed it and nobody has photographed the new one yet.")}
           </span>
         </div>
       )}

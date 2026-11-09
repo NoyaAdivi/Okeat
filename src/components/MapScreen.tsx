@@ -577,7 +577,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     lastReroute.current = 0;
     setStepIndex(1);
     spokenStep.current = -1;
-    if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${formatDuration(directions.minutes, 'he').replace(/ ו-/g, ' ו')}. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${formatDuration(directions.minutes, 'en').replace(' hr', ' hours').replace(' min', ' minutes')}. ${directions.steps[0]?.instruction ?? ''}`));
+    if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${formatDuration(directions.minutes, 'he').replace(/ ו[-־]/g, ' ו')}. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${formatDuration(directions.minutes, 'en').replace(' hr', ' hours').replace(' min', ' minutes')}. ${directions.steps[0]?.instruction ?? ''}`));
     setSheet('peek');
     // A chosen location is not live GPS: the person moves through the turns with the buttons.
     if (manualLabel) {

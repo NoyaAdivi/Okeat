@@ -117,8 +117,8 @@ export default function PlaceList({ fromLabel, nothingClose, places, loading, er
                       const t = estimateTrip(p.distance_m);
                       return (
                         <>
-                          {t.walk !== null && <span>{L(`כ-${formatDuration(t.walk, 'he')} הליכה`, `~${formatDuration(t.walk, 'en')} walk`)}</span>}
-                          {t.drive !== null && <span>{L(`כ-${formatDuration(t.drive, 'he')} נסיעה`, `~${formatDuration(t.drive, 'en')} drive`)}</span>}
+                          {t.walk !== null && <span>{L(`כ־${formatDuration(t.walk, 'he')} הליכה`, `~${formatDuration(t.walk, 'en')} walk`)}</span>}
+                          {t.drive !== null && <span>{L(`כ־${formatDuration(t.drive, 'he')} נסיעה`, `~${formatDuration(t.drive, 'en')} drive`)}</span>}
                         </>
                       );
                     })()}</span>

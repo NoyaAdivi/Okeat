@@ -97,7 +97,7 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
             <span className="nav-meta">
               {formatMeters(directions.meters, lang)}
               <br />
-              {L('הגעה ב-', 'Arrive at ')}{eta(directions.minutes)}
+              {L('הגעה ב־', 'Arrive at ')}{eta(directions.minutes)}
             </span>
           </>
         )}

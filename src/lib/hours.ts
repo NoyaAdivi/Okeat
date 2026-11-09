@@ -58,7 +58,7 @@ export function openStatus(hours: WeeklyHours | null, lang: Lang = 'he', now = n
     }
     let when = i === 0 ? 'היום' : i === 1 ? 'מחר' : `ביום ${DAYS[d]}`;
     if (d === 6 && toMin(next[0]) >= 18 * 60) when = 'במוצאי שבת';
-    return { open: false, text: `סגור, נפתח ${when} ב-${next[0]}` };
+    return { open: false, text: `סגור, נפתח ${when} ב־${next[0]}` };
   }
   return { open: false, text: en ? 'Closed' : 'סגור' };
 }

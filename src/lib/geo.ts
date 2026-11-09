@@ -73,7 +73,7 @@ export function formatDuration(totalMinutes: number, lang: Lang = 'he'): string 
   if (lang === 'en') {
     return shown.map(([n, u]) => `${n} ${EN_UNITS[u][n === 1 ? 0 : 1]}`).join(' ');
   }
-  return shown.map(([n, u]) => heCount(n, u)).join(' ו-');
+  return shown.map(([n, u]) => heCount(n, u)).join(' ו־');
 }
 
 export function formatMeters(m: number, lang: Lang = 'he'): string {
