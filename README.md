@@ -1,52 +1,56 @@
 <p align="center">
-  <img src="src/app/icon.svg" width="72" alt="Okeat logo">
+  <a href="https://okeat.vercel.app"><img src="public/icon-192.png" width="96" alt="Okeat"></a>
 </p>
 
 <h1 align="center">Okeat</h1>
 
 <p align="center"><b>English</b> · <a href="README.he.md">עברית</a></p>
 
-<p align="center"><b>OK to eat</b> · A map of kosher, vegan, vegetarian and gluten-free places to eat in Israel,<br>where every claim is confirmed by people who have actually been there.</p>
+<p align="center">
+  <b>OK to eat.</b><br>
+  A bilingual map of kosher, vegan, vegetarian and gluten-free eateries across Israel,<br>
+  where the community confirms what is true and the database enforces the rules.
+</p>
 
-<p align="center"><a href="https://okeat.vercel.app"><b>🌐 Open the live site: okeat.vercel.app</b></a></p>
+<p align="center">
+  <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_live_site-FFD5C9?style=for-the-badge&logo=vercel&logoColor=A8483A" alt="Open live site"></a> <img src="https://img.shields.io/badge/Next.js_15-DAD5FF?style=for-the-badge&logo=nextdotjs&logoColor=5548C8" alt="Next.js 15"> <img src="https://img.shields.io/badge/TypeScript-CFE6FA?style=for-the-badge&logo=typescript&logoColor=3F6D9F" alt="TypeScript"> <img src="https://img.shields.io/badge/PostGIS-BFEBD9?style=for-the-badge&logo=postgresql&logoColor=1F7350" alt="PostGIS"> <img src="https://img.shields.io/badge/Mapbox-FBD5E0?style=for-the-badge&logo=mapbox&logoColor=A03A5C" alt="Mapbox">
+</p>
 
-<p align="center"><img src="okeat-en.png" alt="Okeat screenshot" width="800"></p>
+<p align="center">
+  <a href="https://okeat.vercel.app"><img src="okeat-en.png" width="820" alt="Okeat map and home page"></a>
+</p>
 
----
+<p align="center">
+  🗺️ <b>20,000+</b> eateries &nbsp;·&nbsp; ✅ <b>3</b> confirmations per claim &nbsp;·&nbsp; 🌍 Hebrew + English &nbsp;·&nbsp; 🧪 Tests on every push
+</p>
 
-## ✨ Features
+## ✨ Highlights
 
-- **Nationwide map** of over 20,000 eateries, clustered for speed, across Israel and the Israeli towns in Judea and Samaria, in Hebrew and English, with light, dark and automatic themes
-- **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by over 60 food types in groups (favorite dishes, meat and fish, cafés and sweets, community kitchens, world kitchens) and "open now" in Israel time
-- **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
-- **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. The site reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
-- **Turn-by-turn navigation** inside the site (walking, cycling, driving) with Hebrew voice guidance, rerouting and "choose my location"
-- **Open to read, accounts to contribute** – anyone can search; adding, confirming and reporting need Google or email sign-in
-- **Accessibility** – text size, high contrast, dark mode, read-aloud, pause animations, readable font, full keyboard support
-- **Live details from Google** (optional) – type, hours, rating and services, shown on demand and never stored
-- **Reviews, saved places and photos** – 1–5 star reviews with a short comment, a private saved list on your profile, and place photos that appear after moderator approval
-- **Tests** – automated tests and real-browser screen checks run on GitHub on every push, and browser errors are collected privately for the admin
-- **Smart search** – "kosher pizza open now in Ramat Gan" becomes filters and a city; a filter can be kept on the device
-- **Lists and notifications** – shareable lists, similar places, badges, and on-site notifications when information is confirmed or a certificate is ending
-- **Business owners** – verified owners update hours, phone, website and a menu link
-- **Admin tools** – dashboard, limits, activity log, users and roles, contact messages, photo approval and merging duplicates
-- **City pages and installable app** – pick a city, then filter it by need and food type; a page for each need, and an app icon for the phone home screen
-- **Live numbers on the home page** – how many places there are in total and for each need, refreshing by themselves
-- **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
-- **Admin hub** – what users added, changed and reported, each with a link to the person and the place, plus privacy-friendly visit counts
-- **Places to check** – suspicious names, new places and rough locations reach the admin by themselves, each with the reason, to approve, fix, hide or delete from any phone
-- **Public profiles** – anyone can open what a person added, confirmed and reviewed, never their e-mail or saved places
-- **Business owner approval** – owners prove ownership with a code and an admin approves them
-- Contact form, terms of use, privacy policy and accessibility statement
+### 🗺️ Find a place you can eat at
+- **Nationwide map** of 20,000+ eateries across Israel, clustered so it stays fast
+- **Filters that matter:** kosher level and supervising body, vegan, vegetarian, gluten-free and allergies
+- **Smart search:** "kosher pizza open now in Ramat Gan" becomes filters and a city
+- **Turn-by-turn navigation** inside the site with Hebrew voice guidance
 
-📐 How it fits together: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+### 🤝 Information the community can trust
+- **Every claim needs 3 confirmations,** and nobody can confirm their own
+- **Kosher certificates** can be added as photos and are read with OCR
+- **Rules live in the database** (Row Level Security and triggers), so they hold even without the site
+- **Moderators** appointed by the admin handle reported places
+
+### 💛 Built like a real product
+- **Reviews, saved places, shareable lists** and photo uploads with approval
+- **Business owners** prove ownership with a code and update their own details
+- **Admin hub** that flags suspicious names, duplicates and rough locations by itself
+- **Full accessibility menu,** dark mode, right-to-left support and an installable app
+- **Automated tests** and real-browser screen checks on GitHub Actions
 
 ## 🛠️ Tech stack
 
 | Part | Technology |
 |---|---|
 | Framework | Next.js 15 (App Router), React 19, TypeScript |
-| Database | Supabase – Postgres + PostGIS, Row Level Security, Auth, Storage |
+| Database | Supabase - Postgres + PostGIS, Row Level Security, Auth, Storage |
 | Maps | Mapbox GL JS v3, Mapbox Directions & Geocoding |
 | Certificate reading | Tesseract OCR in the browser; Claude API when a key is set |
 | Classification | Name and type rules; Claude API when a key is set |
