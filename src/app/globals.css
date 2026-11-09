@@ -2219,3 +2219,11 @@ a.dash-city { color: inherit; text-decoration: none; }
 @media (max-height: 600px) and (max-width: 760px) {
   .app[data-sheet="peek"] { --sheet-h: 170px; }
 }
+
+/* Computer: "places to eat" and "know a place that is missing?" a bit lower, and both exactly the same height and width */
+@media (min-width: 761px) {
+  .need-hero, .join { min-height: 176px; width: 100%; padding: 18px 28px; }
+  .join-art { font-size: 2.25rem; }
+  .join .section-title { font-size: 1.75rem; }
+  .need-cards > .need-card { min-height: 160px; }
+}
