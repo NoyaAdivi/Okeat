@@ -155,6 +155,8 @@ const NAME_HINTS: Record<string, RegExp> = {
   vietnamese: /וייטנאמ|vietnam|\bpho\b|באן מי|banh mi/i,
   korean: /קוריא|korea/i,
   healthy: /בריא|healthy|organic|אורגני/i,
+  vegan: /טבעונ|vegan/i,
+  vegetarian: /צמחונ|vegetarian|veggie/i,
 };
 
 /** Place types that count as a category on their own. */
