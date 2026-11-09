@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/לאתר_החי-FFD5C9?style=for-the-badge&logo=vercel&logoColor=A8483A" alt="לאתר החי"></a> <img src="https://img.shields.io/badge/Next.js_15-DAD5FF?style=for-the-badge&logo=nextdotjs&logoColor=5548C8" alt="Next.js 15"> <img src="https://img.shields.io/badge/TypeScript-CFE6FA?style=for-the-badge&logo=typescript&logoColor=3F6D9F" alt="TypeScript"> <img src="https://img.shields.io/badge/PostGIS-BFEBD9?style=for-the-badge&logo=postgresql&logoColor=1F7350" alt="PostGIS"> <img src="https://img.shields.io/badge/Mapbox-FBD5E0?style=for-the-badge&logo=mapbox&logoColor=A03A5C" alt="Mapbox">
+  <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/לאתר_החי-FFD5C9?style=for-the-badge&logo=vercel&logoColor=A8483A" alt="לאתר החי"></a>
 </p>
 
 <p align="center">
