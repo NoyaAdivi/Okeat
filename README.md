@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://okeat.vercel.app"><img src="okeat-en.png" width="820" alt="Okeat map and home page"></a>
+  <a href="https://okeat.vercel.app"><img src="Banner.png" width="820" alt="Okeat map and home page"></a>
 </p>
 
 <p align="center">
