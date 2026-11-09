@@ -2227,3 +2227,22 @@ a.dash-city { color: inherit; text-decoration: none; }
   .join .section-title { font-size: 1.75rem; }
   .need-cards > .need-card { min-height: 160px; }
 }
+
+/* "More filters": nothing inside may stretch the menu wider than the screen.
+   (A long row pushed the menu sideways, so the need buttons grew and got cut, and the rest couldn't be reached.) */
+.filters, .filters-row, .filters-more, .filters-more > *, .food-groups, .food-group { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.filters { overflow-x: clip; }
+
+/* "More kinds" groups: small pills that wrap, so every kind fits in the menu without sideways scrolling */
+.food-groups { display: grid; gap: 8px; margin-top: 6px; }
+.food-group { padding: 8px 10px; border-radius: 16px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.food-group:nth-child(5n+1) { background: color-mix(in srgb, var(--peach-soft) 60%, transparent); }
+.food-group:nth-child(5n+2) { background: color-mix(in srgb, var(--kosher-soft) 60%, transparent); }
+.food-group:nth-child(5n+3) { background: color-mix(in srgb, var(--vegan-soft) 60%, transparent); }
+.food-group-title { margin: 0 0 6px; font-size: 0.75rem; }
+.food-groups .cuisines { flex-wrap: wrap; overflow: visible; gap: 5px; margin: 0; padding: 0; scroll-snap-type: none; }
+.food-groups .cuisine { flex: none; display: inline-flex; align-items: center; gap: 4px; min-width: 0; padding: 4px 10px 4px 8px; border-radius: 999px; font-size: 0.75rem; line-height: 1.2; background: var(--surface); box-shadow: 0 1px 3px rgba(60, 40, 90, .08); animation: rise .35s cubic-bezier(.2, .8, .2, 1) backwards; }
+.food-groups .cuisine .ce { font-size: 1rem; line-height: 1; }
+.food-groups .cuisine:hover { transform: translateY(-2px); }
+.food-groups .cuisine:hover .ce { transform: scale(1.2) rotate(-8deg); }
+@media (prefers-reduced-motion: reduce) { .food-groups .cuisine { animation: none; } }
