@@ -2202,3 +2202,11 @@ a.dash-city { color: inherit; text-decoration: none; }
 .place-tabs button:nth-child(2)[aria-selected="true"] { background: var(--vegan-soft); box-shadow: 0 4px 12px rgba(60, 40, 90, .12); }
 .place-tabs button:nth-child(3)[aria-selected="true"] { background: var(--peach-soft); box-shadow: 0 4px 12px rgba(60, 40, 90, .12); }
 @media (max-width: 380px) { .place-tabs button { font-size: 0.75rem; } }
+
+/* "Know a place that is missing?" matches the "places to eat" card above it: same width, height and roundness */
+.need-hero, .join { box-sizing: border-box; min-height: 216px; border-radius: 28px; padding: 24px 28px; }
+.join { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.join > div { display: grid; justify-items: center; gap: 12px; }
+.join .section-title { margin: 0; }
+.join-art { font-size: 2.75rem; line-height: 1; }
+@media (max-width: 560px) { .need-hero, .join { min-height: 200px; padding: 18px; } }
