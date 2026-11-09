@@ -1,7 +1,7 @@
 'use client';
 
 import { TRAVEL_MODES, arrowRotation, eta, type Directions, type NavStep, type TravelMode } from '@/lib/directions';
-import { formatMeters, googleMapsUrl, wazeUrl, type LatLng } from '@/lib/geo';
+import { formatDuration, formatMeters, googleMapsUrl, wazeUrl, type LatLng } from '@/lib/geo';
 import { useL } from './LangProvider';
 
 const MODE_ICON: Record<TravelMode, React.ReactNode> = {
@@ -91,7 +91,9 @@ export default function NavPanel({ place, hasLocation, mode, directions, loading
           )
         ) : (
           <>
-            <span className="nav-time">{directions.minutes}<small> {L('דק׳', 'min')}</small></span>
+            {directions.minutes < 60
+              ? <span className="nav-time">{directions.minutes}<small> {L('דק׳', 'min')}</small></span>
+              : <span className="nav-time long">{formatDuration(directions.minutes, lang)}</span>}
             <span className="nav-meta">
               {formatMeters(directions.meters, lang)}
               <br />

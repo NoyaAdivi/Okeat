@@ -1942,3 +1942,235 @@ a.dash-city { color: inherit; text-decoration: none; }
   .mapboxgl-ctrl-bottom-left { left: auto; right: 6px; bottom: calc(var(--sheet-h) + env(safe-area-inset-bottom, 0px)); transition: bottom .3s; }
   .mapboxgl-ctrl-bottom-right { bottom: calc(26px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); transition: bottom .3s; }
 }
+
+/* =====================================================================
+   November polish: centered home, soft pastel choices, clearer actions
+   ===================================================================== */
+
+/* ---------- home: the four cards fill the row evenly, under the big card ---------- */
+.need-cards { display: flex; flex-wrap: wrap; justify-content: center; }
+.need-cards > .need-hero { flex: 1 1 100%; }
+.need-cards > .need-card { flex: 1 1 165px; max-width: 100%; }
+@media (max-width: 560px) {
+  .need-cards > .need-card { flex-basis: calc(50% - 10px); }
+  .need-cards .need-card:last-child:nth-child(even) { flex-basis: 100%; }
+}
+/* the big card: number, words, button and the little icons all in the middle */
+.need-hero { flex-direction: column; justify-content: center; text-align: center; gap: 14px; }
+.need-hero-text { justify-items: center; }
+.need-hero-pins i:nth-child(1) { top: 16%; inset-inline-end: auto; inset-inline-start: 10%; }
+.need-hero-pins i:nth-child(2) { bottom: 14%; inset-inline-end: 12%; }
+.need-hero-pins i:nth-child(3) { top: 18%; inset-inline-end: 9%; }
+.need-hero-pins i:nth-child(4) { bottom: 12%; inset-inline-end: auto; inset-inline-start: 16%; }
+@media (max-width: 560px) { .need-hero-go { width: auto; } }
+#needs-h { text-align: center; }
+.join { justify-items: center; text-align: center; grid-template-columns: 1fr; }
+.join .section-title { margin-bottom: 14px; }
+
+/* ---------- a letter in a seal or a circle sits exactly in the middle ---------- */
+.seal > span, .chip .mini { display: grid; place-items: center; line-height: 1; }
+@supports (text-box: trim-both cap alphabetic) {
+  :lang(he) .seal > span, :lang(he) .chip .mini { text-box: trim-both ex alphabetic; }
+  :lang(en) .seal > span, :lang(en) .chip .mini { text-box: trim-both cap alphabetic; }
+}
+@supports not (text-box: trim-both cap alphabetic) {
+  /* Fredoka's Hebrew letters sit a little low in their line box */
+  :lang(he) .seal > span, :lang(he) .chip .mini { transform: translateY(-0.06em); }
+}
+
+/* ---------- the four main filters: soft pastel when chosen, in light and dark ---------- */
+.filters-row { justify-items: stretch; }
+.filters-row .chip { justify-items: center; }
+.chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 26%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 55%, transparent); font-weight: 700; }
+.chip[aria-pressed="true"] .mini { background: color-mix(in srgb, var(--c) 78%, var(--surface)); color: var(--surface); }
+.chip.o[aria-pressed="true"] { background: color-mix(in srgb, var(--open) 24%, var(--surface)); }
+:root[data-theme="dark"] .chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 30%, var(--surface)); }
+:root[data-theme="dark"] .chip[aria-pressed="true"] .mini { color: var(--bg); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 30%, var(--surface)); }
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"] .mini { color: var(--bg); }
+}
+.seg button[aria-pressed="true"] { background: color-mix(in srgb, var(--kosher) 22%, var(--surface)); color: var(--ink); }
+
+/* ---------- iPad: a slimmer menu, so the map has room ---------- */
+@media (min-width: 761px) and (max-width: 1180px) {
+  .panel { width: clamp(320px, 40vw, 380px); top: 12px; bottom: 12px; inset-inline-start: 12px; border-radius: 24px; }
+  .panel-head { padding: 14px 16px 0; gap: 10px; }
+  .panel-body { padding-inline: 14px; }
+  .filters-row .chip { min-height: 52px; font-size: 0.75rem; }
+  .brand .tag { display: none; }
+}
+
+/* ---------- "hide the route": a round button like the others, in a soft rose ---------- */
+.map-tool.wide.route-off { background: color-mix(in srgb, var(--extra) 32%, var(--surface)); }
+.map-tool.wide.route-off svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; flex: none; }
+.map-tool.wide.route-off circle { fill: currentColor; stroke: none; }
+
+/* ---------- a place: the three parts look like buttons you can press ---------- */
+.place-tabs-hint { margin: 4px 0 -4px; text-align: center; font-size: 0.75rem; color: var(--muted); }
+.place-tabs { gap: 6px; padding: 5px; background: color-mix(in srgb, var(--kosher) 10%, var(--surface-2)); box-shadow: inset 0 0 0 1px var(--line); }
+.place-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 9px 6px; background: var(--surface); box-shadow: 0 2px 6px rgba(60, 40, 90, .08); white-space: normal; line-height: 1.15; transition: background .18s, transform .15s, box-shadow .18s; }
+.place-tabs button:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(60, 40, 90, .14); }
+.place-tabs button .pt-chev { font-size: 0.75rem; opacity: .55; transition: transform .2s; }
+.place-tabs button[aria-selected="true"] { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--kosher) 45%, transparent); }
+.place-tabs button[aria-selected="true"] .pt-chev { transform: rotate(180deg); opacity: .9; }
+.place-tabs button:nth-child(2)[aria-selected="true"] { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--vegan) 45%, transparent); }
+.place-tabs button:nth-child(3)[aria-selected="true"] { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--peach-deep) 45%, transparent); }
+@media (max-width: 380px) { .place-tabs button .pt-chev { display: none; } .place-tabs button { font-size: 0.8125rem; } }
+
+/* kinds of food and levels on a place open the list filtered by them */
+.head-foods li { padding: 0; }
+.head-foods li > a, .head-foods li > button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.head-foods li > a:hover, .head-foods li > button:hover { background: color-mix(in srgb, var(--peach-deep) 14%, var(--surface)); }
+.head-foods .foods-guess { padding: 5px 4px; }
+.need-link { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; cursor: pointer; }
+.need-link:hover { text-decoration-style: solid; }
+.he-line { margin: -2px 0 4px; color: var(--muted); font-weight: 600; }
+.detail-tools { display: inline-flex; gap: 12px; align-items: center; }
+.detail-tools a.link { text-decoration: none; }
+.btn.admin-ok { background: color-mix(in srgb, var(--kosher) 22%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kosher) 50%, transparent); }
+.photos-top { margin-top: 4px; }
+.place-photos-slot:empty { display: none; }
+.sec.similar { border-top: 1px dashed var(--line); padding-top: 14px; }
+
+/* the community buttons at the bottom of a place: soft chips, easy to spot */
+.community-acts { gap: 8px; }
+.community-acts > .link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: var(--surface-2); color: var(--ink); text-decoration: none; font-weight: 600; }
+.community-acts > .link:hover { background: color-mix(in srgb, var(--kosher) 14%, var(--surface)); }
+.community-acts > .link.danger { background: color-mix(in srgb, var(--extra) 14%, var(--surface)); }
+
+/* reporting a place: a window with big, clear choices */
+.report-form { display: grid; gap: 10px; }
+.report-form label, .report-form .lab { font-weight: 700; }
+.report-form input { border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface); color: var(--ink); font: inherit; }
+.report-kinds { display: flex; flex-wrap: wrap; gap: 8px; }
+.report-kind { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; transition: background .15s, transform .15s; }
+.report-kind:hover { transform: translateY(-1px); }
+.report-kind[aria-checked="true"] { background: color-mix(in srgb, var(--extra) 26%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--extra) 55%, transparent); }
+
+/* ---------- messages after an action: a soft card that slides in, with a colored mark ---------- */
+.toast { display: flex; align-items: center; gap: 10px; padding: 12px 18px 12px 14px; border-radius: 20px; background: var(--surface); color: var(--ink); font-weight: 600; text-align: start; overflow: hidden;
+  box-shadow: 0 14px 34px rgba(60, 40, 90, .22), inset 0 0 0 1.5px color-mix(in srgb, var(--tc, var(--kosher)) 40%, transparent);
+  transition: opacity .3s, transform .45s cubic-bezier(.2, 1.4, .4, 1); }
+.toast.ok { --tc: var(--vegan); background: color-mix(in srgb, var(--vegan) 12%, var(--surface)); }
+.toast.warn { --tc: var(--peach-deep); background: color-mix(in srgb, var(--peach-deep) 12%, var(--surface)); }
+.toast.info { --tc: var(--kosher); background: color-mix(in srgb, var(--kosher) 12%, var(--surface)); }
+.toast-ic { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--tc); color: var(--surface); font-weight: 800; font-size: 0.9375rem; line-height: 1; }
+.toast.show .toast-ic { animation: toast-pop .5s cubic-bezier(.3, 1.8, .5, 1) .1s backwards; }
+.toast-text { flex: 1; min-width: 0; }
+.toast-bar { position: absolute; inset-inline: 0; bottom: 0; height: 3px; background: var(--tc); opacity: .45; animation: toast-time 3.6s linear forwards; }
+[dir="rtl"] .toast-bar { transform-origin: right; }
+[dir="ltr"] .toast-bar { transform-origin: left; }
+@keyframes toast-pop { from { transform: scale(0) rotate(-40deg); } }
+@keyframes toast-time { to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .toast.show .toast-ic, .toast-bar { animation: none; } }
+.my-done { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--vegan) 14%, var(--surface)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--vegan) 35%, transparent); animation: feed-in .35s cubic-bezier(.2, .8, .2, 1); }
+.my-done > span[aria-hidden] { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--vegan); color: var(--surface); font-size: 0.75rem; }
+
+/* ---------- the account menu: notifications, where they came from, and "mark as read" ---------- */
+.account-menu { min-width: 280px; max-width: min(340px, calc(100vw - 24px)); gap: 2px; }
+.menu-notes { display: grid; gap: 4px; margin: 4px 0; padding: 8px 6px; border-radius: 14px; background: var(--surface-2); }
+.menu-notes-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px 2px; font-size: 0.875rem; }
+.account-menu .menu-mark { padding: 4px 10px; border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 0.75rem; font-weight: 700; }
+.account-menu .menu-mark:hover { background: color-mix(in srgb, var(--kosher) 16%, var(--surface)); }
+.menu-note { display: flex; gap: 8px; align-items: flex-start; padding: 8px; border-radius: 12px; color: var(--ink); text-decoration: none; font-size: 0.8125rem; line-height: 1.35; }
+.menu-note:hover { background: var(--surface); }
+.menu-note small { display: block; color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+.menu-note.new { background: var(--surface); box-shadow: inset 3px 0 0 var(--peach-deep); font-weight: 600; }
+[dir="rtl"] .menu-note.new { box-shadow: inset -3px 0 0 var(--peach-deep); }
+.menu-empty { margin: 0; padding: 4px; font-size: 0.8125rem; color: var(--muted); }
+.menu-more { padding: 4px 8px; font-size: 0.8125rem; font-weight: 700; color: var(--ink); }
+
+/* ---------- handled or not: one clear label, and a filter to see only what is open ---------- */
+.handled-filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.handled-filter button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+.handled-filter button b { min-width: 20px; padding: 0 5px; border-radius: 999px; background: var(--surface); font-size: 0.75rem; text-align: center; }
+.handled-filter button.open span { color: var(--peach-deep); }
+.handled-filter button.done span { color: var(--vegan); }
+.handled-filter button[aria-pressed="true"] { background: color-mix(in srgb, var(--kosher) 22%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--kosher) 45%, transparent); }
+.handled-tag { display: inline-block; margin-inline-start: 8px; padding: 1px 9px; border-radius: 999px; font-size: 0.7188rem; font-weight: 700; vertical-align: middle; }
+.handled-tag.open { background: color-mix(in srgb, var(--peach-deep) 16%, var(--surface)); color: var(--ink); }
+.handled-tag.done { background: color-mix(in srgb, var(--vegan) 18%, var(--surface)); color: var(--ink); }
+.admin-feed li .chip-act { margin-inline-start: 6px; }
+.admin-row.handled { opacity: .7; }
+
+/* small soft action chips: edit, replace, delete, Google */
+.chip-act { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 0.8125rem; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; transition: background .15s, transform .15s; }
+.chip-act:hover { background: color-mix(in srgb, var(--kosher) 16%, var(--surface)); transform: translateY(-1px); }
+.chip-act.danger:hover { background: color-mix(in srgb, var(--extra) 20%, var(--surface)); }
+.admin-row-tools, .admin-row .acts, .admin-dialog-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.admin-dialog-tools { padding-top: 6px; border-top: 1px dashed var(--line); }
+
+/* ---------- the profile: cards you can act on, not a plain list ---------- */
+.feed-acts { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.feed-row { padding: 12px 14px; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .18s, box-shadow .18s; }
+.feed-row:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(60, 40, 90, .14); }
+.feed-line li { list-style: none; margin-bottom: 8px; }
+.feed-line li.k .feed-row { box-shadow: inset 4px 0 0 var(--kosher), var(--shadow-sm); }
+.feed-line li.v .feed-row { box-shadow: inset 4px 0 0 var(--vegan), var(--shadow-sm); }
+.feed-line li.g .feed-row { box-shadow: inset 4px 0 0 var(--gf), var(--shadow-sm); }
+.feed-line li.h .feed-row { box-shadow: inset 4px 0 0 var(--veg, var(--vegan)), var(--shadow-sm); }
+.feed-line li.e .feed-row { box-shadow: inset 4px 0 0 var(--extra), var(--shadow-sm); }
+[dir="rtl"] .feed-line li.k .feed-row { box-shadow: inset -4px 0 0 var(--kosher), var(--shadow-sm); }
+[dir="rtl"] .feed-line li.v .feed-row { box-shadow: inset -4px 0 0 var(--vegan), var(--shadow-sm); }
+[dir="rtl"] .feed-line li.g .feed-row { box-shadow: inset -4px 0 0 var(--gf), var(--shadow-sm); }
+[dir="rtl"] .feed-line li.h .feed-row { box-shadow: inset -4px 0 0 var(--veg, var(--vegan)), var(--shadow-sm); }
+[dir="rtl"] .feed-line li.e .feed-row { box-shadow: inset -4px 0 0 var(--extra), var(--shadow-sm); }
+.feed-photos li > div { display: grid; gap: 6px; }
+.my-rows li { border-radius: 20px; padding: 14px 16px; transition: transform .18s; }
+.my-rows li:hover { transform: translateY(-2px); }
+.my-rows li > a:first-child b { font-size: 1rem; }
+.btn.edit-me { margin-top: 4px; }
+.avatar-pick { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.avatar-pick-seal.seal { width: 84px; height: 84px; }
+.avatar-pick-seal.seal > * { border-radius: 50%; }
+.avatar-pick-acts { display: grid; gap: 6px; justify-items: start; }
+.review-edit { display: grid; gap: 10px; }
+.review-edit textarea { border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface); color: var(--ink); font: inherit; resize: vertical; }
+.star-pick.big button { font-size: 2.125rem; }
+
+/* ---------- picking the kind of food: groups, a search box, big chips ---------- */
+.cz { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+.cz legend { font-weight: 700; padding: 0; margin-bottom: 6px; }
+.cz-search { border: 2px solid var(--line); border-radius: 14px; padding: 9px 12px; background: var(--surface); color: var(--ink); font: inherit; }
+.cz-groups { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.cz-groups::-webkit-scrollbar { display: none; }
+.cz-groups button { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+.cz-groups button[aria-selected="true"] { background: color-mix(in srgb, var(--peach-deep) 20%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--peach-deep) 45%, transparent); }
+.cz-groups button b { min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--peach-deep); color: #fff; font-size: 0.6875rem; line-height: 18px; text-align: center; }
+.cz-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; }
+.cz-chip { display: grid; justify-items: center; gap: 2px; padding: 9px 4px; border: 0; border-radius: 16px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 0.8125rem; font-weight: 600; line-height: 1.2; text-align: center; cursor: pointer; transition: transform .15s, background .15s; }
+.cz-chip:hover:not(:disabled) { transform: translateY(-2px); }
+.cz-chip:disabled { opacity: .45; cursor: default; }
+.cz-chip .cz-emoji { font-size: 1.5rem; line-height: 1.1; }
+.cz-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--peach-deep) 22%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--peach-deep) 50%, transparent); }
+.cz-picked { display: flex; flex-wrap: wrap; gap: 6px; }
+.cz-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 0; border-radius: 999px; background: color-mix(in srgb, var(--peach-deep) 18%, var(--surface)); color: var(--ink); font: inherit; font-size: 0.8125rem; font-weight: 700; cursor: pointer; }
+.food-groups { display: grid; gap: 10px; margin-top: 8px; }
+.food-group-title { margin: 0 0 4px; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+.cuisine.more-foods { background: color-mix(in srgb, var(--kosher) 12%, var(--surface)); }
+
+/* ---------- city and topic pages: filters as soft chips ---------- */
+.list-filters { display: grid; gap: 10px; margin: 0 0 18px; }
+.lf-needs, .lf-foods { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.lf-need, .lf-food { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.875rem; text-decoration: none; box-shadow: var(--shadow-sm); transition: transform .15s, background .15s; }
+.lf-food { font-size: 0.8125rem; padding: 6px 12px; }
+.lf-need:hover, .lf-food:hover { transform: translateY(-1px); }
+.lf-need[aria-current="true"] { background: color-mix(in srgb, var(--c, var(--peach-deep)) 24%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c, var(--peach-deep)) 50%, transparent); }
+.lf-food[aria-current="true"] { background: color-mix(in srgb, var(--peach-deep) 20%, var(--surface)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--peach-deep) 45%, transparent); }
+
+/* ---------- dashboard: one range for everything ---------- */
+.dash-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.dash-top h2 { margin: 0; }
+.dash-head h3 small, .dash-block h3 small { font-weight: 500; font-size: 0.8125rem; margin-inline-start: 6px; }
+
+/* ---------- a long trip says hours and days, smaller than the minutes ---------- */
+.nav-time.long { font-size: 1.25rem; line-height: 1.2; }
+
+/* ---------- phone: a window stays still while typing in it ---------- */
+.modal { overflow-x: hidden; overscroll-behavior: contain; }
+.modal:focus { outline: none; }
+@media (max-width: 760px) {
+  .modal { max-height: 92svh; }
+  .modal .grid2 { grid-template-columns: 1fr; }
+}

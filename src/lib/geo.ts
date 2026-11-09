@@ -36,6 +36,46 @@ export function estimateTrip(meters: number): { walk: number | null; drive: numb
   return { walk: walk <= 20 ? walk : null, drive: walk > 10 ? drive : null };
 }
 
+const HE_UNITS = {
+  month: ['חודש', 'חודשיים', 'חודשים'],
+  day: ['יום', 'יומיים', 'ימים'],
+  hour: ['שעה', 'שעתיים', 'שעות'],
+  minute: ['דקה', '2 דקות', 'דקות'],
+} as const;
+const EN_UNITS = { month: ['month', 'months'], day: ['day', 'days'], hour: ['hr', 'hr'], minute: ['min', 'min'] } as const;
+type Unit = keyof typeof HE_UNITS;
+
+function heCount(n: number, unit: Unit): string {
+  const [one, two, many] = HE_UNITS[unit];
+  return n === 1 ? one : n === 2 ? two : `${n} ${many}`;
+}
+
+/**
+ * A trip's length the way people say it: "45 דקות", "4 שעות ו-21 דקות", "יומיים ו-3 שעות", "חודש ו-4 ימים".
+ * Up to an hour it is minutes, up to a day hours and minutes, up to a month days and hours, then months and days.
+ * Only the two biggest parts are said, and a part that is zero is left out.
+ */
+export function formatDuration(totalMinutes: number, lang: Lang = 'he'): string {
+  const m = Math.max(1, Math.round(totalMinutes));
+  const DAY = 1440, MONTH = 30 * DAY;
+  let parts: [number, Unit][];
+  if (m < 60) parts = [[m, 'minute']];
+  else if (m < DAY) parts = [[Math.floor(m / 60), 'hour'], [m % 60, 'minute']];
+  else if (m < MONTH) {
+    const hours = Math.round((m % DAY) / 60);
+    // 23.6 hours rounds up to a whole day
+    parts = hours === 24 ? [[Math.floor(m / DAY) + 1, 'day']] : [[Math.floor(m / DAY), 'day'], [hours, 'hour']];
+  } else {
+    const days = Math.round((m % MONTH) / DAY);
+    parts = days === 30 ? [[Math.floor(m / MONTH) + 1, 'month']] : [[Math.floor(m / MONTH), 'month'], [days, 'day']];
+  }
+  const shown = parts.filter(([n]) => n > 0);
+  if (lang === 'en') {
+    return shown.map(([n, u]) => `${n} ${EN_UNITS[u][n === 1 ? 0 : 1]}`).join(' ');
+  }
+  return shown.map(([n, u]) => heCount(n, u)).join(' ו-');
+}
+
 export function formatMeters(m: number, lang: Lang = 'he'): string {
   if (lang === 'en') return m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
   return m < 1000 ? `${Math.round(m / 10) * 10} מ׳` : `${(m / 1000).toFixed(1)} ק״מ`;
@@ -53,8 +93,12 @@ export function ago(iso: string | null, lang: Lang = 'he'): string {
     const w = Math.round(days / 7);
     return w === 1 ? 'לפני שבוע' : w === 2 ? 'לפני שבועיים' : `לפני ${w} שבועות`;
   }
-  const m = Math.round(days / 30);
-  return m === 1 ? 'לפני חודש' : m === 2 ? 'לפני חודשיים' : `לפני ${m} חודשים`;
+  if (days < 365) {
+    const m = Math.min(11, Math.round(days / 30));
+    return m === 1 ? 'לפני חודש' : m === 2 ? 'לפני חודשיים' : `לפני ${m} חודשים`;
+  }
+  const y = Math.round(days / 365);
+  return y === 1 ? 'לפני שנה' : y === 2 ? 'לפני שנתיים' : `לפני ${y} שנים`;
 }
 
 function agoEn(iso: string | null): string {
@@ -64,8 +108,9 @@ function agoEn(iso: string | null): string {
   if (days === 1) return 'yesterday';
   if (days < 7) return `${days} days ago`;
   if (days < 30) { const w = Math.round(days / 7); return w === 1 ? 'a week ago' : `${w} weeks ago`; }
-  const m = Math.round(days / 30);
-  return m === 1 ? 'a month ago' : `${m} months ago`;
+  if (days < 365) { const m = Math.min(11, Math.round(days / 30)); return m === 1 ? 'a month ago' : `${m} months ago`; }
+  const y = Math.round(days / 365);
+  return y === 1 ? 'a year ago' : `${y} years ago`;
 }
 
 export function formatDate(ymd: string): string {

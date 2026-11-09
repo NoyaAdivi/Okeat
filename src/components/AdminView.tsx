@@ -25,6 +25,7 @@ import DashboardPanel from './DashboardPanel';
 import LimitsPanel from './LimitsPanel';
 import LogPanel from './LogPanel';
 import PlacesPanel from './PlacesPanel';
+import AdminPlaceTools from './AdminPlaceTools';
 
 type TabId = 'home' | 'check' | 'hidden' | 'places' | 'limits' | 'log' | 'messages' | 'reports' | 'photos' | 'owners' | 'users' | 'dupes' | 'errors';
 
@@ -146,7 +147,7 @@ export default function AdminView() {
             </>)}
             {tab === 'reports' && (<>
             <h2>{L('כל הדיווחים של המשתמשים', 'Everything users reported')}</h2>
-            <AdminFeed sb={sb} kind="report" canDelete={admin} />
+            <AdminFeed sb={sb} kind="report" canDelete={admin} canHandle />
 
             <h2>{L('ביקורות שדווחו', 'Reported reviews')} ({badReviews.length})</h2>
             {badReviews.length === 0 && <p className="muted">{L('אין כרגע.', 'Nothing right now.')}</p>}
@@ -179,6 +180,7 @@ export default function AdminView() {
                 <div className="acts">
                   <button type="button" className="btn small" onClick={() => act(() => decideSuggestion(sb, s.id, true))}>{L('אישור', 'Approve')}</button>
                   <button type="button" className="btn small ghost danger" onClick={() => act(() => decideSuggestion(sb, s.id, false))}>{L('דחייה', 'Reject')}</button>
+                  {admin && <AdminPlaceTools sb={sb} id={s.placeId} name={s.name} onChanged={load} onError={setError} />}
                 </div>
               </div>
             ))}
@@ -192,9 +194,9 @@ export default function AdminView() {
                   <div className="muted small">{p.reports === 0 ? L('מי שהוסיף/ה את המקום ערך/ה אותו', 'Edited by the person who added it') : L(`${p.reports} דיווחים`, `${p.reports} reports`)}{p.reasons?.length ? ': ' + p.reasons.join(' · ') : ''}</div>
                 </div>
                 <div className="acts">
-                  <Link className="btn small" href={`/map?place=${p.id}`}>{L('תיקון כתובת', 'Fix address')}</Link>
-                  <button type="button" className="btn small" onClick={() => act(() => moderatePlace(sb, p.id, false))}>{L('המקום בסדר', 'Keep it')}</button>
-                  <button type="button" className="btn small ghost danger" onClick={() => act(() => moderatePlace(sb, p.id, true))}>{L('הסרה', 'Remove')}</button>
+                  {admin && <AdminPlaceTools sb={sb} id={p.id} name={p.name} address={p.address} onChanged={load} onError={setError} />}
+                  <button type="button" className="btn small" onClick={() => act(() => moderatePlace(sb, p.id, false))}>{L('✓ המקום בסדר, טופל', '✓ Fine, handled')}</button>
+                  {!admin && <button type="button" className="btn small ghost danger" onClick={() => act(() => moderatePlace(sb, p.id, true))}>{L('הסרה', 'Remove')}</button>}
                 </div>
               </div>
             ))}

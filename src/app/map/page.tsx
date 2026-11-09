@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
 import MapScreen from '@/components/MapScreen';
 import type { Need } from '@/lib/types';
+import { CUISINES } from '@/lib/cuisine';
 
 export const metadata: Metadata = { title: 'Okeat' };
 
 interface Props {
-  searchParams: Promise<{ place?: string; auth_error?: string; need?: string; add?: string; q?: string }>;
+  searchParams: Promise<{ place?: string; auth_error?: string; need?: string; add?: string; q?: string; food?: string }>;
 }
 
 const NEEDS: Need[] = ['kosher', 'vegan', 'vegetarian', 'gluten_free'];
 
 export default async function MapPage({ searchParams }: Props) {
-  const { place, auth_error, need, add, q } = await searchParams;
+  const { place, auth_error, need, add, q, food } = await searchParams;
   return (
     <MapScreen
       initialPlaceId={place ?? null}
@@ -19,6 +20,7 @@ export default async function MapPage({ searchParams }: Props) {
       initialNeed={NEEDS.includes(need as Need) ? (need as Need) : null}
       addOnLoad={add === '1'}
       initialQuery={q ?? ''}
+      initialCuisine={food && CUISINES[food] ? food : null}
     />
   );
 }

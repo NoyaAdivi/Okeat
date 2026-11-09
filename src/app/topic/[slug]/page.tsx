@@ -6,14 +6,17 @@ import { notFound, redirect } from 'next/navigation';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { TOPICS } from '@/lib/cities';
 import { NEED_CLASS, NEED_ORDER, withoutPending } from '@/lib/claims';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 import { FILTER_OPTIONS } from '@/lib/filters';
 import { getLang, serverL } from '@/lib/lang-server';
 import { fetchNearby } from '@/lib/places';
 import { createPublicClient } from '@/lib/supabase/server';
 import { placeTypeLabel, type NeedFilter } from '@/lib/types';
+import { CUISINES, cuisineLabel, placeFoods } from '@/lib/cuisine';
+import ListFilters from '@/components/ListFilters';
+import { cleanName } from '@/lib/text';
 
-interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ level?: string }> }
+interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ level?: string; food?: string }> }
 
 const NO_FILTER = Object.fromEntries(NEED_ORDER.map((n) => [n, null])) as NeedFilter;
 const ISRAEL = { lat: 32.0853, lng: 34.7818, radiusM: 400000 };
@@ -29,7 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TopicPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { level } = await searchParams;
+  const { level, food: foodParam } = await searchParams;
+  const food = foodParam && CUISINES[foodParam] ? foodParam : null;
   if (MOVED[slug]) redirect(MOVED[slug]);
   const topic = TOPICS.find((t) => t.slug === slug);
   if (!topic) notFound();
@@ -38,7 +42,8 @@ export default async function TopicPage({ params, searchParams }: Props) {
   const L = await serverL();
   const lang = (await getLang()) === 'en' ? 'en' : 'he';
   const sb = createPublicClient();
-  const places = await fetchNearby(sb, { ...ISRAEL, filter: { ...NO_FILTER, [topic.need]: chosen.min }, limit: 40 }).catch(() => []);
+  const places = await fetchNearby(sb, { ...ISRAEL, filter: { ...NO_FILTER, [topic.need]: chosen.min }, limit: food ? 600 : 40, cuisine: food ? [food] : undefined })
+    .then((list) => list.slice(0, 60)).catch(() => []);
   return (
     <div className="page">
       <SiteHeader />
@@ -52,15 +57,16 @@ export default async function TopicPage({ params, searchParams }: Props) {
         </header>
         <nav className={`level-pills ${NEED_CLASS[topic.need]}`} aria-label={L('סינון לפי רמה', 'Filter by level')}>
           {options.map((o, i) => (
-            <Link key={o.min} href={`/topic/${topic.slug}?level=${o.min}`} scroll={false} aria-current={o.min === chosen.min ? 'true' : undefined} style={{ '--i': i } as React.CSSProperties}>
+            <Link key={o.min} href={`/topic/${topic.slug}?level=${o.min}${food ? `&food=${food}` : ''}`} scroll={false} aria-current={o.min === chosen.min ? 'true' : undefined} style={{ '--i': i } as React.CSSProperties}>
               {lang === 'en' ? o.en : o.label}
             </Link>
           ))}
         </nav>
+        <ListFilters base={`/topic/${topic.slug}`} need={null} food={food} lang={lang} needs={false} keep={{ level: String(chosen.min) }} />
         {places.length === 0 && <p className="muted">{L('עוד אין כאן מקומות מאושרים. מכירים מקום? אפשר להוסיף אותו במפה.', 'No confirmed places here yet. Know one? You can add it on the map.')}</p>}
-        <ul className="tiles" key={chosen.min}>
+        <ul className="tiles" key={`${chosen.min}-${food}`}>
           {places.map((p, i) => (
-            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
+            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeIcon(p)} name={cleanName(p.name)} sub={placeFoods(p, 2).map((c) => cuisineLabel(c, lang)).join(', ') || placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
           ))}
         </ul>
         <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>

@@ -13,6 +13,7 @@ import {
 import { friendly } from '@/lib/errors';
 import { formatDate } from '@/lib/geo';
 import Avatar from './Avatar';
+import Modal from './Modal';
 
 interface Props {
   sb: SupabaseClient;
@@ -28,11 +29,11 @@ interface Props {
 
 /** Bottom of a place: who added it, the owner's badge, "report", "I own this business", and moderator tools. */
 const REPORT_KINDS = [
-  { id: 'notfood', he: 'לא קשור לאוכל', en: 'Not a food place' },
-  { id: 'closed', he: 'המקום נסגר', en: 'It closed' },
-  { id: 'gone', he: 'המקום לא קיים', en: "It doesn't exist" },
-  { id: 'address', he: 'הכתובת לא נכונה', en: 'Wrong address' },
-  { id: 'other', he: 'אחר', en: 'Something else' },
+  { id: 'notfood', he: 'לא קשור לאוכל', en: 'Not a food place', emoji: '🚫' },
+  { id: 'closed', he: 'המקום נסגר', en: 'It closed', emoji: '🔒' },
+  { id: 'gone', he: 'המקום לא קיים', en: "It doesn't exist", emoji: '👻' },
+  { id: 'address', he: 'הכתובת לא נכונה', en: 'Wrong address', emoji: '📍' },
+  { id: 'other', he: 'אחר', en: 'Something else', emoji: '💬' },
 ] as const;
 
 export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn, onToast, onChanged }: Props) {
@@ -129,7 +130,8 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
         {!meta.iReported ? (
           <button type="button" className="link danger" onClick={() => {
             if (needAccount(L('כדי לדווח על מקום צריך להתחבר עם חשבון.', 'To report a place, sign in with an account.'))) return;
-            setPanel(panel === 'report' ? 'none' : 'report');
+            setError('');
+            setPanel('report');
           }}>
             <span aria-hidden="true">🚩</span> {L('דיווח על מקום שגוי', 'Report a wrong place')}
           </button>
@@ -146,28 +148,37 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
       )}
 
       {panel === 'report' && (
-        <div className="mini-form">
-          <span className="lab">{L('מה לא בסדר?', "What's wrong?")}</span>
-          <div className="report-kinds" role="radiogroup" aria-label={L('סוג הדיווח', 'Type of report')}>
-            {REPORT_KINDS.map((k) => (
-              <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} className="btn small ghost" onClick={() => setKind(k.id)}>{L(k.he, k.en)}</button>
-            ))}
+        <Modal title={L('דיווח על מקום שגוי', 'Report a wrong place')} subtitle={place.name} onClose={() => setPanel('none')}>
+          <div className="report-form">
+            <span className="lab">{L('מה לא בסדר?', "What's wrong?")}</span>
+            <div className="report-kinds" role="radiogroup" aria-label={L('סוג הדיווח', 'Type of report')}>
+              {REPORT_KINDS.map((k) => (
+                <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} className="report-kind" onClick={() => setKind(k.id)}>
+                  <span aria-hidden="true">{k.emoji}</span> {L(k.he, k.en)}
+                </button>
+              ))}
+            </div>
+            <label htmlFor="rep">{kind === 'address' ? L('מה הכתובת הנכונה?', 'What is the correct address?') : L('פרטים נוספים (לא חובה)', 'More details (optional)')}</label>
+            <input id="rep" type="text" maxLength={260} value={reason} onChange={(e) => setReason(e.target.value)} />
+            <p className="hint">{L('הדיווח מגיע למנהלי הקהילה, והמקום משתנה רק אחרי אישור.', 'Your report goes to the moderators, and the place changes only after approval.')}</p>
+            {error && <div className="err" role="alert">{error}</div>}
+            <div className="modal-acts">
+              <button type="button" className="btn" onClick={() => setPanel('none')}>{L('ביטול', 'Cancel')}</button>
+              <button type="button" className="btn primary" disabled={busy || (kind === 'address' && !reason.trim())} onClick={() => run(async () => {
+                const chosen = REPORT_KINDS.find((k) => k.id === kind)!;
+                await reportPlace(sb, place.id, `[${chosen.he}] ${reason.trim()}`.trim());
+                setPanel('none');
+                onToast(L('הדיווח נשלח. תודה!', 'Report sent. Thanks!'));
+                await load();
+              })}>{busy ? L('שולח…', 'Sending…') : L('שליחת דיווח', 'Send report')}</button>
+            </div>
           </div>
-          <label htmlFor="rep">{kind === 'address' ? L('מה הכתובת הנכונה?', 'What is the correct address?') : L('פרטים נוספים (לא חובה)', 'More details (optional)')}</label>
-          <input id="rep" type="text" maxLength={260} value={reason} onChange={(e) => setReason(e.target.value)} />
-          <p className="hint">{L('הדיווח מגיע למנהלי הקהילה, והמקום משתנה רק אחרי אישור.', 'Your report goes to the site admin, and the place changes only after approval.')}</p>
-          <button type="button" className="btn small" disabled={busy || (kind === 'address' && !reason.trim())} onClick={() => run(async () => {
-            const chosen = REPORT_KINDS.find((k) => k.id === kind)!;
-            await reportPlace(sb, place.id, `[${chosen.he}] ${reason.trim()}`.trim());
-            setPanel('none');
-            onToast(L('הדיווח נשלח. תודה!', 'Report sent. Thanks!'));
-            await load();
-          })}>{L('שליחת דיווח', 'Send report')}</button>
-        </div>
+        </Modal>
       )}
 
       {panel === 'owner' && code && (
-        <div className="mini-form">
+        <Modal title={L('אימות בעלות על העסק', 'Verify you own the business')} subtitle={place.name} onClose={() => setPanel('none')}>
+        <div className="report-form">
           <p><b>{L('איך מוכיחים שהעסק שלכם?', 'How to prove the business is yours')}</b></p>
           <ol className="steps-list">
             <li>{L('הוסיפו את הקוד הזה לזמן קצר באתר של העסק, או בביו / פוסט בעמוד האינסטגרם או הפייסבוק הרשמי שלו:', "Add this code for a short while to the business's website, or to the bio / a post on its official Instagram or Facebook page:")} <code dir="ltr">{code}</code></li>
@@ -185,6 +196,7 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
             await load();
           })}>{L('שליחה לאימות', 'Send for verification')}</button>
         </div>
+        </Modal>
       )}
 
       {meta.canModerate && (

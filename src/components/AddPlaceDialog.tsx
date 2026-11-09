@@ -11,6 +11,7 @@ import { MAIN_NEEDS, NEED_CLASS, NEED_ORDER } from '@/lib/claims';
 import { addPlace, proposeClaim, proposeKosherClaim } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import type { LatLng } from '@/lib/geo';
+import CuisinePicker from './CuisinePicker';
 
 interface Props {
   /** filled in when the place was found by its address */
@@ -41,6 +42,7 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
   const lang = L.lang;
   const [name, setName] = useState('');
   const [placeType, setPlaceType] = useState('restaurant');
+  const [foods, setFoods] = useState<string[]>([]);
   const [address, setAddress] = useState(initialAddress);
   const [needs, setNeeds] = useState<Record<Need, boolean>>(() => Object.fromEntries(NEED_ORDER.map((n) => [n, false])) as Record<Need, boolean>);
   const [levels, setLevels] = useState<Record<Need, Level>>(() =>
@@ -61,7 +63,7 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
     setBusy(true);
     let placeId: string | null = null;
     try {
-      placeId = await addPlace(sb, { name: name.trim(), placeType, address: address.trim() || undefined, ...location });
+      placeId = await addPlace(sb, { name: name.trim(), placeType, address: address.trim() || undefined, cuisine: foods, ...location });
       for (const n of NEED_ORDER) {
         if (!needs[n]) continue;
         if (n === 'kosher' && withPhoto && cert) await proposeKosherClaim(sb, { placeId, ...cert });
@@ -99,6 +101,8 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
           <input id="add-address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
       </div>
+
+      <CuisinePicker value={foods} onChange={setFoods} />
 
       <div className="field">
         <span className="lab">{L('מה יש שם?', "What's there?")}</span>

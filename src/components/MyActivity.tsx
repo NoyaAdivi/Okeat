@@ -7,6 +7,7 @@ import { deleteReview, fetchMyActivity, fetchPublicActivity, updateMyClaim, with
 import { friendly } from '@/lib/errors';
 import { LEVELS, levelInfo, levelText, needLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
+import ReviewEditor from './ReviewEditor';
 
 interface Props {
   sb: SupabaseClient;
@@ -28,6 +29,7 @@ export default function MyActivity({ sb, userId, publicId, show, onChanged }: Pr
   const [done, setDone] = useState('');
   const [editing, setEditing] = useState<{ id: string; level: string } | null>(null);
   const [sure, setSure] = useState<string | null>(null);
+  const [review, setReview] = useState<Activity['reviews'][number] | null>(null);
 
   const load = () => (publicId ? fetchPublicActivity(sb, publicId) : fetchMyActivity(sb)).then(setData).catch((e) => setError(friendly(e, lang)));
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -130,13 +132,17 @@ export default function MyActivity({ sb, userId, publicId, show, onChanged }: Pr
     <section className="sec">
       <h2>{publicId ? L('ביקורות', 'Reviews') : L('הביקורות שלי', 'My reviews')}</h2>
       {note}
+      {review && userId && (
+        <ReviewEditor sb={sb} userId={userId} placeId={review.placeId} placeName={review.place} rating={review.rating} comment={review.comment}
+          onClose={() => setReview(null)} onSaved={() => { setReview(null); setDone(L('הביקורת עודכנה.', 'Review updated.')); load(); }} />
+      )}
       {data.reviews.length === 0 ? empty(publicId ? L('עוד אין.', 'None yet.') : L('עוד אין. אפשר לכתוב ביקורת בדף של מקום.', 'None yet. You can write a review on a place page.')) : (
         <ul className="my-rows">
           {data.reviews.map((r) => (
             <li key={r.placeId}>
               <Link href={`/map?place=${r.placeId}`}><b>{r.place}</b><small><span aria-label={L(`${r.rating} מתוך 5`, `${r.rating} of 5`)}>{'★'.repeat(r.rating)}</span>{r.comment ? ` ${r.comment}` : ''}</small></Link>
               {!publicId && <span className="my-acts">
-                <Link className="link" href={`/map?place=${r.placeId}`}>{L('עריכה', 'Edit')}</Link>
+                <button type="button" className="link" onClick={() => setReview(r)}>{L('עריכה', 'Edit')}</button>
                 {remove(r.placeId, () => deleteReview(sb, r.placeId, userId!))}
               </span>}
             </li>

@@ -1,5 +1,6 @@
 'use client';
 
+import { googleUrl } from '@/lib/text';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -77,6 +78,7 @@ export default function DuplicatesPanel({ sb }: { sb: SupabaseClient }) {
               <div className="acts">
                 <button type="button" className="btn small" disabled={busy} onClick={() => handle(p, mergePair)}>{L('איחוד', 'Merge')}</button>
                 <button type="button" className="btn small ghost" disabled={busy} onClick={() => handle(p, dismissPair)}>{L('לא אותו מקום', 'Not the same')}</button>
+                <a className="chip-act" href={googleUrl(p.a_name, p.a_address)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('גוגל', 'Google')}</a>
               </div>
             </div>
           ))}

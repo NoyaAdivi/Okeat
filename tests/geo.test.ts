@@ -23,3 +23,21 @@ test('close places show the walk, then both, then the drive', () => {
   assert.equal(estimateTrip(19000).drive, 34);
   assert.equal(estimateTrip(60000).drive, 73);
 });
+
+test('a trip longer than an hour is said in hours and minutes, then days, then months', async () => {
+  const { formatDuration } = await import('../src/lib/geo.ts');
+  assert.equal(formatDuration(45), '45 דקות');
+  assert.equal(formatDuration(1), 'דקה');
+  assert.equal(formatDuration(60), 'שעה');
+  assert.equal(formatDuration(65), 'שעה ו-5 דקות');
+  assert.equal(formatDuration(120), 'שעתיים');
+  assert.equal(formatDuration(261), '4 שעות ו-21 דקות');
+  assert.equal(formatDuration(1439), '23 שעות ו-59 דקות');
+  assert.equal(formatDuration(1440), 'יום');
+  assert.equal(formatDuration(1440 + 180), 'יום ו-3 שעות');
+  assert.equal(formatDuration(2 * 1440 + 1435), '3 ימים');
+  assert.equal(formatDuration(30 * 1440), 'חודש');
+  assert.equal(formatDuration(64 * 1440), 'חודשיים ו-4 ימים');
+  assert.equal(formatDuration(261, 'en'), '4 hr 21 min');
+  assert.equal(formatDuration(1440 * 3, 'en'), '3 days');
+});

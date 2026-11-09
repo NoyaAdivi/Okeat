@@ -4,12 +4,13 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { cachedMapPoints, certificateUrl, clearPointsCache, fetchAllPlacesFallback, fetchMapPoints, fetchProfile, fixPlaceLocation, fetchMyVotes, fetchNearby, fetchPlace, fetchQueue, vote } from '@/lib/places';
+import { cachedMapPoints, certificateUrl, clearPointsCache, fetchAllPlacesFallback, fetchMapPoints, fetchProfile, fixPlaceLocation, fetchMyVotes, fetchNearby, fetchPlace, fetchQueue, moderateClaim, vote } from '@/lib/places';
 import { NEED_ORDER, placeToPoint, withoutPending } from '@/lib/claims';
 import { matchesAnyCuisine } from '@/lib/cuisine';
+import { FILTER_OPTIONS } from '@/lib/filters';
 import type { MapPoint, Need, NeedFilter, PendingClaim, Place } from '@/lib/types';
 import { isOpen } from '@/lib/hours';
-import { snapToLine, RAMAT_GAN, distanceToLine, haversine, type LatLng } from '@/lib/geo';
+import { snapToLine, RAMAT_GAN, distanceToLine, formatDuration, haversine, type LatLng } from '@/lib/geo';
 import { fetchDirections, type Directions, type TravelMode } from '@/lib/directions';
 import { friendly } from '@/lib/errors';
 import { MAPBOX_TOKEN } from '@/lib/mapboxToken';
@@ -17,6 +18,7 @@ import { useUser } from '@/lib/useUser';
 import { speak, speechSupported, stopSpeaking } from '@/lib/speech';
 import { formatMeters } from '@/lib/geo';
 import Logo from './Logo';
+import Toast from './Toast';
 import FilterBar from './FilterBar';
 import LocationHelp from './LocationHelp';
 import LocationAsk, { readAsked, saveAsked, takeRetry } from './LocationAsk';
@@ -81,11 +83,13 @@ interface Props {
   /** From /map?need=vegan: start with this filter on. */
   initialNeed?: Need | null;
   initialQuery?: string;
+  /** ?food=pizza: open with this kind of food chosen */
+  initialCuisine?: string | null;
   /** From /map?add=1: start by picking a spot for a new place. */
   addOnLoad?: boolean;
 }
 
-export default function MapScreen({ initialPlaceId = null, authError = false, initialNeed = null, addOnLoad = false, initialQuery = '' }: Props) {
+export default function MapScreen({ initialPlaceId = null, authError = false, initialNeed = null, addOnLoad = false, initialQuery = '', initialCuisine = null }: Props) {
   const L = useL();
   const lang = L.lang;
   const sb = useMemo(() => createClient(), []);
@@ -104,7 +108,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
   const [openNow, setOpenNow] = useState(false);
   const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
-  const [cuisine, setCuisine] = useState<string[]>([]);
+  const [cuisine, setCuisine] = useState<string[]>(initialCuisine ? [initialCuisine] : []);
   const [viewCenter, setViewCenter] = useState<LatLng | null>(null);
   const centerGetter = useRef<(() => LatLng) | null>(null);
 
@@ -573,7 +577,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     lastReroute.current = 0;
     setStepIndex(1);
     spokenStep.current = -1;
-    if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${directions.minutes} דקות. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${directions.minutes} minutes. ${directions.steps[0]?.instruction ?? ''}`));
+    if (voice && speechSupported()) speak(L(`יוצאים לדרך ל${selected.name}. ${formatDuration(directions.minutes, 'he').replace(/ ו-/g, ' ו')}. ${directions.steps[0]?.instruction ?? ''}`, `Starting the route to ${selected.name}. ${formatDuration(directions.minutes, 'en').replace(' hr', ' hours').replace(' min', ' minutes')}. ${directions.steps[0]?.instruction ?? ''}`));
     setSheet('peek');
     // A chosen location is not live GPS: the person moves through the turns with the buttons.
     if (manualLabel) {
@@ -837,6 +841,17 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
     [sb, user, showToast, refreshSelected],
   );
 
+  // An admin's approval counts like three people's.
+  const adminApprove = useCallback(async (claimId: string) => {
+    try {
+      await moderateClaim(sb, claimId, true);
+      setQueue((q) => q.filter((x) => x.claim_id !== claimId));
+      showToast(L('אושר באישור מנהל ✓', 'Approved by an admin ✓'));
+      refreshSelected();
+      setRefreshKey((k) => k + 1);
+    } catch (e) { showToast(friendly(e, lang)); }
+  }, [sb, showToast, refreshSelected]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const startAdd = () => {
     if (needAccount()) return;
     deselect();
@@ -1088,7 +1103,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               </button>
             )}
             {route && !navigating && (
-              <button type="button" className="map-tool wide" onClick={clearRoute}>✕ {L('הסתרת המסלול', 'Hide the route')}</button>
+              <button type="button" className="map-tool wide route-off" onClick={clearRoute}>
+                <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 19c3-6 11-3 13-9" strokeDasharray="2.6 3.2" /><circle cx="5" cy="19" r="1.8" /><path d="m15 3 6 6M21 3l-6 6" /></svg>
+                <span className="tool-label">{L('הסתרת המסלול', 'Hide the route')}</span>
+              </button>
             )}
           </div>
         )}
@@ -1184,6 +1202,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               loading={queueLoading}
               onSignIn={() => setAuth({})}
               onVote={onVote}
+              onAdminApprove={isAdmin ? adminApprove : undefined}
               onShow={select}
               onAdd={startAdd}
             />
@@ -1193,6 +1212,9 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               signedIn={signedIn}
               onSignIn={() => setAuth({ reason: L('כדי להוסיף, לאשר או לתקן מידע צריך להתחבר. כך המידע באתר נשאר אמין.', 'To add, confirm or fix information, please sign in. It keeps the site reliable.') })}
               onFixLocation={isAdmin ? () => setFixOpen(true) : undefined}
+              onAdminApprove={isAdmin ? adminApprove : undefined}
+              onFood={(c) => { deselect(); setQuery(''); setCuisine([c]); if (sheet === 'peek') setSheet('half'); }}
+              onNeed={(n) => { deselect(); setQuery(''); setFilter({ ...NO_FILTER, [n]: FILTER_OPTIONS[n][0].min }); if (sheet === 'peek') setSheet('half'); }}
               goPanel={
                 <NavPanel
                   place={selected}
@@ -1241,6 +1263,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
                   onToast={showToast}
                   onChanged={() => { setRefreshKey((k) => k + 1); refreshSelected(); }}
                 />
+                <div id="place-similar" />
                 </>
               }
             />
@@ -1318,7 +1341,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
         />
       )}
 
-      <div className={`toast${toast ? ' show' : ''}`} role="status" aria-live="polite">{toast}</div>
+      <Toast text={toast} />
     </div>
   );
 }

@@ -9,7 +9,7 @@ import type { LatLng } from '@/lib/geo';
 import { MAPBOX_TOKEN } from '@/lib/mapboxToken';
 import { isDarkNow, motionAllowed } from '@/lib/prefs';
 import { NEED_CLASS, isMainNeed } from '@/lib/claims';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 
 export type RouteLine = { type: 'LineString'; coordinates: [number, number][] };
 /** Change `key` to make the map frame these points. */
@@ -258,7 +258,7 @@ function markerButton(p: MapPoint, selected: boolean, onClick: () => void): HTML
   if (verified.length === 0) {
     // No confirmed info yet: a small emoji dot. The name shows on hover / when selected.
     el.className = 'mk plain' + (selected ? ' sel' : '') + (p.pending ? ' has-pending' : '');
-    el.innerHTML = `<span class="mk-dot" aria-hidden="true">${placeEmoji(p.place_type)}</span>`;
+    el.innerHTML = `<span class="mk-dot" aria-hidden="true">${placeIcon(p)}</span>`;
     const label = document.createElement('span');
     label.className = 'mk-label';
     label.textContent = p.name;

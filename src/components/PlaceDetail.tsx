@@ -8,12 +8,14 @@ import { openStatus } from '@/lib/hours';
 import { ago, formatDate } from '@/lib/geo';
 import { expiresSoon, isStale } from '@/lib/checks';
 import CertificateCard from './CertificateCard';
-import { NEED_EMOJI, placeEmoji } from '@/lib/emoji';
+import { NEED_EMOJI, placeIcon } from '@/lib/emoji';
 import { cuisineEmoji, cuisineLabel, placeFoods } from '@/lib/cuisine';
 import HoursTable from './HoursTable';
 import GoogleInfo from './GoogleInfo';
 import { useEffect, useRef, useState } from 'react';
-import { addressAt } from '@/lib/geocode';
+import { hebrewAddressAt } from '@/lib/geocode';
+import Link from 'next/link';
+import { cleanAddress, cleanName, googleUrl, hasHebrew, isForeign } from '@/lib/text';
 
 interface Props {
   place: Place;
@@ -35,6 +37,11 @@ interface Props {
   onFixLocation?: () => void;
   /** Shown at the end: who added the place, owner, reports. */
   extra?: ReactNode;
+  /** On the map: a kind of food or a need opens the list filtered by it. Elsewhere they are links to the map. */
+  onFood?: (cuisine: string) => void;
+  onNeed?: (need: Need) => void;
+  /** Admins: one approval is enough, instead of waiting for three people. */
+  onAdminApprove?: (claimId: string) => void;
 }
 
 function Pips({ count }: { count: number }) {
@@ -53,17 +60,30 @@ function Seal({ cls, letter }: { cls: string; letter: string }) {
 
 export default function PlaceDetail({
   place, signedIn, onSignIn, goPanel, voted, certificateUrl, onBack, backLabel, onVote, onAddCertificate, onAddInfo, onShare, onFixLocation, extra,
+  onFood, onNeed, onAdminApprove,
 }: Props) {
   const L = useL();
-  // Saved without a street: show the nearest one, marked as approximate.
+  const address = cleanAddress(place.address);
+  const name = cleanName(place.name);
+  // An address without a street number, or not in Hebrew: the nearest street in Hebrew, marked as approximate.
+  // The town is also used to say in Hebrew what a place with a foreign name is.
   const [nearby, setNearby] = useState<string | null>(null);
+  const [town, setTown] = useState<string | null>(null);
+  const needsLookup = !address || !/\d/.test(address) || isForeign(address) || isForeign(name);
   useEffect(() => {
     setNearby(null);
-    if (place.address && /\d/.test(place.address)) return;
+    setTown(null);
+    if (!needsLookup) return;
     let live = true;
-    addressAt(place, L.lang).then((a) => { if (live && a) setNearby(a); }).catch(() => undefined);
+    hebrewAddressAt(place).then((a) => {
+      if (!live) return;
+      setTown(a.city);
+      if (!a.address) return;
+      // a Hebrew address in place of a foreign one, or a street where there was none
+      if ((!address || !/\d/.test(address)) || (isForeign(address) && hasHebrew(a.address))) setNearby(a.address);
+    }).catch(() => undefined);
     return () => { live = false; };
-  }, [place.id, place.lat, place.lng, place.address, L.lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [place.id, place.lat, place.lng, place.address, place.name]); // eslint-disable-line react-hooks/exhaustive-deps
   const lang = L.lang;
   const foods = placeFoods(place);
   // known only in the browser, so the page the server sends matches the first render
@@ -89,20 +109,30 @@ export default function PlaceDetail({
       <div className="detail-top">
         <button type="button" className="back-pill" onClick={onBack}><span aria-hidden="true">{lang === 'en' ? '←' : '→'}</span> {back}</button>
         <span className="detail-tools">
+          <a className="link" href={googleUrl(place.name, place.address ?? town)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('בגוגל', 'On Google')}</a>
           <button type="button" className="link" onClick={onShare}><span aria-hidden="true">🔗</span> {L('העתקת קישור', 'Copy link')}</button>
         </span>
       </div>
       <div className="detail-head">
-        <h2><span className="h-emoji" aria-hidden="true">{placeEmoji(place.place_type)}</span>{place.name}</h2>
+        <h2><span className="h-emoji" aria-hidden="true">{placeIcon(place)}</span><span dir="auto">{name}</span></h2>
+        {isForeign(name) && lang === 'he' && (
+          <p className="he-line">{foods.length ? cuisineLabel(foods[0], 'he') : placeTypeLabel(place.place_type, 'he')}{town ? ` ב${town}` : ''}</p>
+        )}
         {foods.length > 0 && (
           <ul className="head-foods" aria-label={L('מה אוכלים כאן', 'What they serve')}>
-            {foods.map((c) => <li key={c}><span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}</li>)}
+            {foods.map((c) => (
+              <li key={c}>
+                {onFood
+                  ? <button type="button" onClick={() => onFood(c)} title={L(`עוד מקומות של ${cuisineLabel(c, lang)}`, `More ${cuisineLabel(c, lang)} places`)}><span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}</button>
+                  : <Link href={`/map?food=${c}`} title={L(`עוד מקומות של ${cuisineLabel(c, lang)}`, `More ${cuisineLabel(c, lang)} places`)}><span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}</Link>}
+              </li>
+            ))}
             {place.cuisine_source !== 'community' && <li className="foods-guess">{L('לא מאושר', 'Not confirmed')}</li>}
           </ul>
         )}
         <div className="meta">
           {foods.length === 0 && <span className="tag">{placeTypeLabel(place.place_type, lang)}</span>}
-          {place.address && <span>{place.address}</span>}
+          {nearby && isForeign(address) ? null : address && <span dir="auto">{address}</span>}
           {nearby && <span>{L(`בערך: ${nearby}`, `About: ${nearby}`)}</span>}
           {st.text && <span className={st.open ? 'st-open' : undefined}>{st.text}</span>}
         </div>
@@ -110,9 +140,15 @@ export default function PlaceDetail({
 
       {goPanel}
       <div id="place-actions" className="place-actions" />
+      <div id="place-photos" className="place-photos-slot" />
+      <p className="place-tabs-hint">{L('לחצו על חלק כדי לראות את הפרטים', 'Tap a part to see its details')}</p>
       <div className="place-tabs" role="tablist" aria-label={L('החלקים של המקום', 'About this place')}>
-        {([['info', L('מה יש כאן', "What's here")], ['details', L('שעות וקשר', 'Hours and contact')], ['reviews', L('ביקורות וקהילה', 'Reviews and community')]] as const).map(([value, label]) => (
-          <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}>{label}</button>
+        {([['info', '🍽️', L('מה יש כאן', "What's here")], ['details', '🕐', L('שעות וקשר', 'Hours & contact')], ['reviews', '💬', L('ביקורות וקהילה', 'Reviews & community')]] as const).map(([value, icon, label]) => (
+          <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}>
+            <span className="pt-icon" aria-hidden="true">{icon}</span>
+            <span className="pt-label">{label}</span>
+            <span className="pt-chev" aria-hidden="true">⌄</span>
+          </button>
         ))}
       </div>
       {section === 'info' && (<div className="place-part">
@@ -151,7 +187,11 @@ export default function PlaceDetail({
               <div className="claim">
                 <Seal cls={`${isWeakKosher(c) ? 'x' : NEED_CLASS[c.need]}${imported || c.level === 'marked' ? ' soft' : ''}`} letter={needLetter(c.need, lang)} />
                 <div>
-                  <div className="lv">{info && levelText(info, lang)}</div>
+                  <div className="lv">
+                    {onNeed
+                      ? <button type="button" className="need-link" onClick={() => onNeed(c.need)} title={L(`עוד מקומות: ${needLabel(c.need, lang)}`, `More places: ${needLabel(c.need, lang)}`)}>{info ? levelText(info, lang) : needLabel(c.need, lang)}</button>
+                      : <Link className="need-link" href={`/map?need=${c.need}`} title={L(`עוד מקומות: ${needLabel(c.need, lang)}`, `More places: ${needLabel(c.need, lang)}`)}>{info ? levelText(info, lang) : needLabel(c.need, lang)}</Link>}
+                  </div>
                   {info && levelNote(info, lang) && <div className="note">{levelNote(info, lang)}</div>}
                   {c.note && <div className="note">{c.note}</div>}
                   <div className="trust">
@@ -208,6 +248,11 @@ export default function PlaceDetail({
                       {myVote === 1 ? L('אישרת, תודה', 'Confirmed, thanks') : L('נכון, ראיתי בעצמי', 'True, I saw it myself')}
                     </button>
                     <button type="button" className="btn small ghost" disabled={!!myVote} onClick={() => onVote(c.id, -1)}>{L('לא נכון', 'Not true')}</button>
+                    {onAdminApprove && (
+                      <button type="button" className="btn small admin-ok" onClick={() => onAdminApprove(c.id)} title={L('אישור מנהל מספיק, בלי לחכות לשלושה אישורים', 'An admin approval is enough, no need to wait for three')}>
+                        <span aria-hidden="true">🛡️</span> {L('אישור מנהל', 'Admin approve')}
+                      </button>
+                    )}
                   </div>
                 </div>
                 {c.certificate && (

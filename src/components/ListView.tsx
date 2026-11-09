@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/useUser';
 import { fetchList, removeFromList, type ListDetails } from '@/lib/places';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 
@@ -47,7 +47,7 @@ export default function ListView({ id }: { id: string }) {
             {list.places.length === 0 && <p className="muted">{L('עוד אין כאן מקומות.', 'No places here yet.')}</p>}
             <ul className="tiles">
               {list.places.map((p) => (
-                <PlaceTile key={p.id} href={`/map?place=${p.id}`} emoji={placeEmoji(p.placeType)} name={p.name} sub={p.address ?? undefined} action={mine ? (
+                <PlaceTile key={p.id} href={`/map?place=${p.id}`} emoji={placeIcon({ name: p.name, place_type: p.placeType })} name={p.name} sub={p.address ?? undefined} action={mine ? (
                     <button type="button" className="link" onClick={async () => {
                       await removeFromList(sb, list.id, p.id);
                       setList({ ...list, places: list.places.filter((x) => x.id !== p.id) });

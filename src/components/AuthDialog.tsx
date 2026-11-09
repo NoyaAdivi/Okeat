@@ -1,7 +1,7 @@
 'use client';
 
 import { useL } from './LangProvider';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Modal from './Modal';
 import { friendly } from '@/lib/errors';
@@ -45,6 +45,30 @@ export default function AuthDialog({ sb, reason, startWithCode, onClose }: Props
     if (/not authorized/i.test(e.message)) return L('כניסה במייל לא זמינה כרגע. אפשר להמשיך עם Google.', "Email sign-in isn't available right now. Please continue with Google.");
     return friendly(e, L.lang);
   };
+
+  // The link in the email often opens in a new tab. When that tab signs in, this one notices
+  // (the sign-in is shared by every tab of the site) and continues here, signed in.
+  const startUser = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (state !== 'sent') return;
+    let live = true;
+    const check = async () => {
+      const { data } = await sb.auth.getSession();
+      const u = data.session?.user;
+      if (startUser.current === undefined) { startUser.current = u && !u.is_anonymous ? u.id : null; return; }
+      if (live && u && !u.is_anonymous && u.id !== startUser.current) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('signed_in', '1');
+        window.location.replace(url.toString());
+      }
+    };
+    check();
+    const timer = setInterval(() => { if (!document.hidden) check(); }, 2500);
+    const back = () => { if (!document.hidden) check(); };
+    document.addEventListener('visibilitychange', back);
+    window.addEventListener('focus', back);
+    return () => { live = false; clearInterval(timer); document.removeEventListener('visibilitychange', back); window.removeEventListener('focus', back); };
+  }, [state, sb]);
 
   // A code works in any browser, unlike a link that opens somewhere else.
   const checkCode = async (e: React.FormEvent) => {

@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { adminDeleteItem, fetchAdminFeed, placePhotoUrl, type AdminEvent, type AdminKind } from '@/lib/places';
+import { adminDeleteItem, fetchAdminFeed, markMessage, markReport, placePhotoUrl, type AdminEvent, type AdminKind } from '@/lib/places';
+import { googleUrl } from '@/lib/text';
 import { friendly } from '@/lib/errors';
 import { levelInfo, levelText, needLabel, placeTypeLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
@@ -22,12 +23,33 @@ export const KIND_LOOK: Record<AdminKind, { emoji: string; cls: string }> = {
 };
 
 /** Everything people did on the site, newest first. Each name opens the profile, each place opens the place. */
-export default function AdminFeed({ sb, kind = null, canDelete = false }: { sb: SupabaseClient; kind?: AdminKind | null; canDelete?: boolean }) {
+/** Done or still open, for the kinds that need someone to look at them. Null: nothing to handle. */
+export function isHandled(r: AdminEvent): boolean | null {
+  switch (r.kind) {
+    case 'report': return r.status === 'handled';
+    case 'message': return r.status === 'seen';
+    case 'photo': return r.status === 'approved';
+    case 'suggestion': return r.status !== 'pending';
+    case 'claim': return r.status !== 'pending' && r.status !== 'disputed';
+    default: return null;
+  }
+}
+
+export default function AdminFeed({ sb, kind = null, canDelete = false, canHandle = canDelete, since = null }: { sb: SupabaseClient; kind?: AdminKind | null; canDelete?: boolean; canHandle?: boolean; since?: string | null }) {
   const L = useL();
   const lang = L.lang;
   const [rows, setRows] = useState<AdminEvent[] | null>(null);
   const [error, setError] = useState('');
   const [sure, setSure] = useState<string | null>(null);
+  const [show, setShow] = useState<'all' | 'open' | 'done'>('all');
+  // Mark a report or a message as handled, or open it again. The label moves at once.
+  const toggleHandled = (r: AdminEvent) => {
+    const done = !isHandled(r);
+    const status = r.kind === 'report' ? (done ? 'handled' : 'pending') : (done ? 'seen' : 'pending');
+    setRows((list) => list?.map((x) => (x === r ? { ...x, status } : x)) ?? null);
+    const work = r.kind === 'report' ? markReport(sb, r.place_id!, r.user_id!, done) : markMessage(sb, Number(r.id), done);
+    work.catch((e) => setError(friendly(e, lang)));
+  };
   const remove = (r: AdminEvent) => {
     setRows((list) => list?.filter((x) => x !== r) ?? null);
     adminDeleteItem(sb, r).catch((e) => setError(friendly(e, lang)));
@@ -71,10 +93,24 @@ export default function AdminFeed({ sb, kind = null, canDelete = false }: { sb: 
   if (error) return <p className="warnbox">{error}</p>;
   if (!rows) return <p className="muted">{L('טוען…', 'Loading…')}</p>;
   if (rows.length === 0) return <p className="muted">{L('עוד אין כאן כלום.', 'Nothing here yet.')}</p>;
+  const inRange = since ? rows.filter((r) => r.at >= since) : rows;
+  const handledKinds = inRange.filter((r) => isHandled(r) !== null);
+  const open = handledKinds.filter((r) => !isHandled(r)).length;
+  const shown = show === 'all' ? inRange : inRange.filter((r) => isHandled(r) === (show === 'done'));
+  if (inRange.length === 0) return <p className="muted">{L('אין כאן כלום בטווח הזה.', 'Nothing here in this range.')}</p>;
 
   return (
+    <>
+    {handledKinds.length > 0 && (
+      <div className="handled-filter" role="group" aria-label={L('סינון לפי טיפול', 'Filter by handled')}>
+        <button type="button" aria-pressed={show === 'all'} onClick={() => setShow('all')}>{L('הכול', 'All')} <b>{inRange.length}</b></button>
+        <button type="button" className="open" aria-pressed={show === 'open'} onClick={() => setShow('open')}><span aria-hidden="true">●</span> {L('לא טופל', 'Open')} <b>{open}</b></button>
+        <button type="button" className="done" aria-pressed={show === 'done'} onClick={() => setShow('done')}><span aria-hidden="true">✓</span> {L('טופל', 'Handled')} <b>{handledKinds.length - open}</b></button>
+      </div>
+    )}
+    {shown.length === 0 && <p className="muted">{show === 'open' ? L('הכול טופל 🎉', 'Everything is handled 🎉') : L('אין כאן כלום.', 'Nothing here.')}</p>}
     <ul className="admin-feed">
-      {rows.map((r) => (
+      {shown.map((r) => (
         <li key={`${r.kind}-${r.id}`} className={KIND_LOOK[r.kind].cls}>
           <span className="feed-icon" aria-hidden="true">{KIND_LOOK[r.kind].emoji}</span>
           <div>
@@ -84,6 +120,15 @@ export default function AdminFeed({ sb, kind = null, canDelete = false }: { sb: 
               {r.kind === 'list' && <> <span aria-hidden="true">·</span> <Link href={`/list/${r.id}`}>{r.title}</Link></>}
             </p>
             <small>{action(r)}</small>
+            {isHandled(r) !== null && (
+              <span className={`handled-tag ${isHandled(r) ? 'done' : 'open'}`}>{isHandled(r) ? L('✓ טופל', '✓ Handled') : L('● לא טופל', '● Open')}</span>
+            )}
+            {(r.kind === 'report' || (r.kind === 'message' && canDelete)) && canHandle && (
+              <button type="button" className="chip-act" onClick={() => toggleHandled(r)}>{isHandled(r) ? L('↩︎ החזרה ללא טופל', '↩︎ Mark open') : L('✓ סימון כטופל', '✓ Mark handled')}</button>
+            )}
+            {r.place_id && r.title && canDelete && (
+              <a className="chip-act" href={googleUrl(r.title)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('גוגל', 'Google')}</a>
+            )}
           </div>
           {r.path && (
             <Link href={`/map?place=${r.place_id}`} className="feed-thumb">
@@ -98,5 +143,6 @@ export default function AdminFeed({ sb, kind = null, canDelete = false }: { sb: 
         </li>
       ))}
     </ul>
+    </>
   );
 }

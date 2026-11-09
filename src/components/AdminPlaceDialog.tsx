@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { adminUpdatePlace, moderateClaim, type AdminPlace } from '@/lib/places';
-import { CUISINES, cuisineEmoji, cuisineLabel } from '@/lib/cuisine';
+import { adminUpdatePlace, deleteHiddenPlace, moderateClaim, moderatePlace, type AdminPlace } from '@/lib/places';
+import { googleUrl } from '@/lib/text';
+import CuisinePicker from './CuisinePicker';
 import { friendly } from '@/lib/errors';
 import { PLACE_TYPES, PLACE_TYPES_EN, levelInfo, levelText, type Claim } from '@/lib/types';
 import { useL } from './LangProvider';
@@ -28,7 +29,11 @@ export default function AdminPlaceDialog({ sb, place, claims = [], onClose, onSa
   const [error, setError] = useState('');
   const foods = form.cuisine ?? [];
   const field = (key: 'name' | 'address' | 'phone' | 'website', value: string) => setForm({ ...form, [key]: value });
-  const toggle = (c: string) => setForm({ ...form, cuisine: foods.includes(c) ? foods.filter((x) => x !== c) : [...foods, c] });
+  const [sure, setSure] = useState<'hide' | 'delete' | null>(null);
+  const drop = async (work: () => Promise<void>) => {
+    setError('');
+    try { await work(); onSaved(); } catch (e) { setError(friendly(e, lang)); }
+  };
 
   const removeSeal = async (claim: Claim) => {
     setError('');
@@ -64,14 +69,7 @@ export default function AdminPlaceDialog({ sb, place, claims = [], onClose, onSa
             {Object.keys(PLACE_TYPES).map((t) => <option key={t} value={t}>{lang === 'en' ? PLACE_TYPES_EN[t] : PLACE_TYPES[t]}</option>)}
           </select>
         </div>
-        <fieldset className="admin-foods">
-          <legend>{L('סוג האוכל, אפשר לבחור כמה', 'Food types, choose as many as you like')}</legend>
-          {Object.keys(CUISINES).map((c) => (
-            <button key={c} type="button" aria-pressed={foods.includes(c)} onClick={() => toggle(c)}>
-              <span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}
-            </button>
-          ))}
-        </fieldset>
+        <CuisinePicker value={foods} onChange={(cuisine) => setForm({ ...form, cuisine })} max={8} />
         {seals.length > 0 && (
           <div className="admin-seals">
             <p className="field-title">{L('המידע שמוצג על המקום', 'Information shown on the place')}</p>
@@ -101,6 +99,15 @@ export default function AdminPlaceDialog({ sb, place, claims = [], onClose, onSa
           <input id="ap-site" dir="ltr" value={form.website ?? ''} onChange={(e) => field('website', e.target.value)} />
         </div>
         {error && <div className="err" role="alert">{error}</div>}
+        <div className="admin-dialog-tools">
+          <a className="chip-act" href={googleUrl(form.name, form.address)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('חיפוש בגוגל', 'Search on Google')}</a>
+          {!place.removed && (sure === 'hide'
+            ? <button type="button" className="btn small ghost danger" onClick={() => drop(() => moderatePlace(sb, place.id, true))}>{L('להסתיר מהמפה?', 'Hide from the map?')}</button>
+            : <button type="button" className="chip-act danger" onClick={() => setSure('hide')}><span aria-hidden="true">🙈</span> {L('הסתרה', 'Hide')}</button>)}
+          {place.removed && (sure === 'delete'
+            ? <button type="button" className="btn small ghost danger" onClick={() => drop(() => deleteHiddenPlace(sb, place.id))}>{L('למחוק לגמרי?', 'Delete for good?')}</button>
+            : <button type="button" className="chip-act danger" onClick={() => setSure('delete')}><span aria-hidden="true">🗑️</span> {L('מחיקה', 'Delete')}</button>)}
+        </div>
         <div className="cta-row">
           <button type="submit" className="btn primary" disabled={busy}>{busy ? L('שומר…', 'Saving…') : L('שמירה', 'Save')}</button>
           <button type="button" className="btn" onClick={onClose}>{L('ביטול', 'Cancel')}</button>

@@ -1,10 +1,11 @@
 'use client';
 
 import { placeTypeLabel, type Place } from '@/lib/types';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 import { cuisineLabel } from '@/lib/cuisine';
 import { openStatus } from '@/lib/hours';
-import { estimateTrip } from '@/lib/geo';
+import { estimateTrip, formatDuration } from '@/lib/geo';
+import { cleanName } from '@/lib/text';
 import Badges from './Badges';
 import { useL } from './LangProvider';
 import { useEffect, useMemo, useState } from 'react';
@@ -108,16 +109,16 @@ export default function PlaceList({ fromLabel, nothingClose, places, loading, er
           return (
             <li key={p.id} style={{ '--i': Math.min(i, 12) } as React.CSSProperties}>
               <button type="button" className="item" onClick={() => onSelect(p.id)}>
-                <span className="av" aria-hidden="true">{placeEmoji(p.place_type)}</span>
+                <span className="av" aria-hidden="true">{placeIcon(p)}</span>
                 <span className="row1">
-                  <span className="nm">{p.name}{ratings[p.id] && <span className="list-rating"> ★ {ratings[p.id].average}</span>}</span>
+                  <span className="nm">{cleanName(p.name)}{ratings[p.id] && <span className="list-rating"> ★ {ratings[p.id].average}</span>}</span>
                   {p.distance_m !== null && (
                     <span className="dist">{(() => {
                       const t = estimateTrip(p.distance_m);
                       return (
                         <>
-                          {t.walk !== null && <span>{L(`כ-${t.walk} דק׳ הליכה`, `~${t.walk} min walk`)}</span>}
-                          {t.drive !== null && <span>{L(`כ-${t.drive} דק׳ נסיעה`, `~${t.drive} min drive`)}</span>}
+                          {t.walk !== null && <span>{L(`כ-${formatDuration(t.walk, 'he')} הליכה`, `~${formatDuration(t.walk, 'en')} walk`)}</span>}
+                          {t.drive !== null && <span>{L(`כ-${formatDuration(t.drive, 'he')} נסיעה`, `~${formatDuration(t.drive, 'en')} drive`)}</span>}
                         </>
                       );
                     })()}</span>

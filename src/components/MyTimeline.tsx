@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { deleteMyPhoto, fetchMyFeed, placePhotoUrl, type FeedKind, type FeedRow } from '@/lib/places';
+import { deleteMyPhoto, deleteReview, fetchMyFeed, placePhotoUrl, replaceMyPhoto, setFavorite, withdrawClaim, withdrawPlace, withdrawSuggestion, withdrawVote, type FeedKind, type FeedRow } from '@/lib/places';
+import EditMyPlace from './EditMyPlace';
+import ReviewEditor from './ReviewEditor';
+import SuggestType from './SuggestType';
 import { friendly } from '@/lib/errors';
 import { levelInfo, levelText, needLabel, placeTypeLabel, type Level } from '@/lib/types';
 import { useL } from './LangProvider';
@@ -23,13 +26,19 @@ const LOOK: Record<FeedKind, { emoji: string; cls: string }> = {
 };
 
 /** Everything you added, newest first. Comes back up to date whenever you return to the page. */
-export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onManage: (section: 'added' | 'info' | 'votes' | 'lists' | 'saved') => void }) {
+export default function MyTimeline({ sb, userId, onManage }: { sb: SupabaseClient; userId: string; onManage: (section: 'added' | 'info' | 'votes' | 'lists' | 'saved') => void }) {
   const L = useL();
   const lang = L.lang;
   const [rows, setRows] = useState<FeedRow[] | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [error, setError] = useState('');
   const [sure, setSure] = useState<string | null>(null);
+  const [done, setDone] = useState('');
+  const [editPlace, setEditPlace] = useState<string | null>(null);
+  const [editReview, setEditReview] = useState<FeedRow | null>(null);
+  const [editSuggestion, setEditSuggestion] = useState<FeedRow | null>(null);
+  const [replacing, setReplacing] = useState<FeedRow | null>(null);
+  const photoFile = useRef<HTMLInputElement>(null);
 
   const load = useCallback(() => {
     fetchMyFeed(sb).then((r) => { setRows(r); setError(''); }).catch((e) => setError(friendly(e, lang)));
@@ -90,17 +99,81 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
   };
   const href = (r: FeedRow) => (r.kind === 'list' ? `/list/${r.id}` : `/map?place=${r.place_id}`);
 
-  const removePhoto = async (r: FeedRow) => {
+  // Anything you added can be taken back. A change to something already approved goes to the admin again.
+  const run = async (work: () => Promise<unknown>, message: string) => {
+    setError('');
+    setDone('');
     try {
-      await deleteMyPhoto(sb, r.id, r.path!);
+      await work();
       setSure(null);
-      setRows(rows.filter((x) => !(x.kind === 'photo' && x.id === r.id)));
+      setDone(message);
+      load();
     } catch (e) { setError(friendly(e, lang)); }
   };
+  const remove = (r: FeedRow) => ({
+    place: () => withdrawPlace(sb, r.id),
+    claim: () => withdrawClaim(sb, r.id),
+    vote: () => withdrawVote(sb, r.id),
+    review: () => deleteReview(sb, r.id, userId),
+    photo: () => deleteMyPhoto(sb, r.id, r.path!),
+    suggestion: () => withdrawSuggestion(sb, r.id),
+    saved: () => setFavorite(sb, r.id, userId, false),
+    list: async () => { onManage('lists'); },
+  })[r.kind];
+  const deleteButton = (r: FeedRow, label = L('מחיקה', 'Delete'), ask = L('למחוק?', 'Delete?')) => {
+    const key = `${r.kind}-${r.id}`;
+    return sure === key
+      ? <button type="button" className="btn small ghost danger" onClick={() => run(remove(r), L('נמחק.', 'Deleted.'))}>{ask}</button>
+      : <button type="button" className="chip-act danger" onClick={() => setSure(key)}><span aria-hidden="true">🗑️</span> {label}</button>;
+  };
+  const editButton = (onClick: () => void, label = L('עריכה', 'Edit')) => (
+    <button type="button" className="chip-act" onClick={onClick}><span aria-hidden="true">✏️</span> {label}</button>
+  );
   const photoActions = (r: FeedRow) => (
-    sure === r.id
-      ? <button type="button" className="btn small ghost danger" onClick={() => removePhoto(r)}>{L('למחוק?', 'Delete?')}</button>
-      : <button type="button" className="link" onClick={() => setSure(r.id)}>{L('מחיקה', 'Delete')}</button>
+    <>
+      <button type="button" className="chip-act" onClick={() => { setReplacing(r); photoFile.current?.click(); }}><span aria-hidden="true">🔄</span> {L('החלפה', 'Replace')}</button>
+      {deleteButton(r)}
+    </>
+  );
+  const actions = (r: FeedRow) => {
+    switch (r.kind) {
+      case 'place': return <>{editButton(() => setEditPlace(r.id))}{deleteButton(r)}</>;
+      case 'claim': return <>{editButton(() => onManage('info'))}{deleteButton(r)}</>;
+      case 'vote': return deleteButton(r, L('ביטול האישור', 'Undo'), L('לבטל?', 'Undo?'));
+      case 'review': return <>{editButton(() => setEditReview(r))}{deleteButton(r)}</>;
+      case 'photo': return photoActions(r);
+      case 'suggestion': return r.status === 'pending' ? <>{editButton(() => setEditSuggestion(r))}{deleteButton(r)}</> : null;
+      case 'list': return editButton(() => onManage('lists'));
+      case 'saved': return deleteButton(r, L('הסרה מהשמורים', 'Unsave'), L('להסיר?', 'Remove?'));
+    }
+  };
+  const editors = (
+    <>
+      <input ref={photoFile} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        const old = replacing;
+        setReplacing(null);
+        if (file && old?.path && old.place_id) {
+          run(() => replaceMyPhoto(sb, { id: old.id, path: old.path!, placeId: old.place_id! }, userId, file), L('התמונה הוחלפה. החדשה מחכה לאישור מנהל.', 'Photo replaced. The new one is waiting for approval.'));
+        }
+      }} />
+      {editPlace && (
+        <EditMyPlace sb={sb} id={editPlace} onClose={() => setEditPlace(null)} onSaved={() => {
+          setEditPlace(null);
+          setDone(L('נשמר. השינוי נשלח לאישור מנהל.', 'Saved. The change was sent to the admin.'));
+          load();
+        }} />
+      )}
+      {editReview && editReview.place_id && (
+        <ReviewEditor sb={sb} userId={userId} placeId={editReview.place_id} placeName={editReview.title} rating={editReview.rating ?? 0} comment={editReview.comment}
+          onClose={() => setEditReview(null)} onSaved={() => { setEditReview(null); setDone(L('הביקורת עודכנה.', 'Review updated.')); load(); }} />
+      )}
+      {editSuggestion && editSuggestion.place_id && (
+        <SuggestType sb={sb} place={{ id: editSuggestion.place_id, name: editSuggestion.title, place_type: editSuggestion.level ?? 'restaurant' }}
+          onClose={() => setEditSuggestion(null)} onSent={() => { setEditSuggestion(null); setDone(L('ההצעה עודכנה ונשלחה שוב לאישור.', 'Your suggestion was updated and sent again.')); load(); }} />
+      )}
+    </>
   );
 
   if (rows.length === 0) {
@@ -125,6 +198,8 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
         ))}
       </ScrollRow>
       {error && <p className="warnbox" role="alert">{error}</p>}
+      {done && <p className="my-done" role="status"><span aria-hidden="true">✓</span> {done}</p>}
+      {editors}
 
       {filter === 'photo' ? (
         <ul key="photos" className="feed-photos">
@@ -135,7 +210,7 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
                 <img src={placePhotoUrl(sb, r.path!)} alt={L(`תמונה מ${r.title}`, `A photo from ${r.title}`)} loading="lazy" />
                 {pill(r)}
               </Link>
-              <div><b>{r.title}</b>{photoActions(r)}</div>
+              <div><b>{r.title}</b><span className="feed-acts">{photoActions(r)}</span></div>
             </li>
           ))}
         </ul>
@@ -155,13 +230,7 @@ export default function MyTimeline({ sb, onManage }: { sb: SupabaseClient; onMan
                     <small>{r.rating ? <span className="feed-stars" aria-label={L(`${r.rating} מתוך 5`, `${r.rating} of 5`)}>{'★'.repeat(r.rating)} </span> : null}{what(r)}</small>
                     <span className="feed-meta">
                       {pill(r)}
-                      {r.kind === 'claim' && <button type="button" className="link" onClick={() => onManage('info')}>{L('עריכה', 'Edit')}</button>}
-                      {r.kind === 'place' && <button type="button" className="link" onClick={() => onManage('added')}>{L('עריכה', 'Edit')}</button>}
-                      {r.kind === 'vote' && <button type="button" className="link" onClick={() => onManage('votes')}>{L('עריכה', 'Edit')}</button>}
-                      {r.kind === 'list' && <button type="button" className="link" onClick={() => onManage('lists')}>{L('עריכה', 'Edit')}</button>}
-                      {r.kind === 'saved' && <button type="button" className="link" onClick={() => onManage('saved')}>{L('עריכה', 'Edit')}</button>}
-                      {r.kind === 'review' && <Link className="link" href={href(r)}>{L('עריכה', 'Edit')}</Link>}
-                      {r.kind === 'photo' && photoActions(r)}
+                      <span className="feed-acts">{actions(r)}</span>
                     </span>
                   </div>
                   {r.path && (

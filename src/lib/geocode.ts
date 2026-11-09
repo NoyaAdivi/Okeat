@@ -100,3 +100,42 @@ export async function addressAt(point: LatLng, lang: 'he' | 'en'): Promise<strin
   const city = p.city || p.locality || p.district || '';
   return [street, city].filter(Boolean).join(', ') || null;
 }
+
+/** The nearest street and city from Mapbox, in Hebrew when it has a Hebrew name. */
+async function mapboxAddressAt(point: LatLng, lang: 'he' | 'en'): Promise<{ address: string | null; city: string | null }> {
+  if (!MAPBOX_TOKEN) return { address: null, city: null };
+  const res = await fetch(`https://api.mapbox.com/search/geocode/v6/reverse?longitude=${point.lng}&latitude=${point.lat}&language=${lang}&types=address,street&limit=1&access_token=${MAPBOX_TOKEN}`);
+  if (!res.ok) return { address: null, city: null };
+  const json = await res.json() as { features?: { properties: { name?: string; context?: { place?: { name?: string }; locality?: { name?: string } } } }[] };
+  const f = json.features?.[0]?.properties;
+  const city = f?.context?.place?.name ?? f?.context?.locality?.name ?? null;
+  return { address: [f?.name, city].filter(Boolean).join(', ') || null, city };
+}
+
+/**
+ * The address and town of a point, in Hebrew. Streets that only have an Arabic name stay in Arabic,
+ * because that is what is written on the sign.
+ */
+export async function hebrewAddressAt(point: LatLng): Promise<{ address: string | null; city: string | null }> {
+  const heb = (s: string | null | undefined) => !!s && /[֐-׿]/.test(s);
+  let local: { address: string | null; city: string | null } = { address: null, city: null };
+  try {
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${point.lat}&lon=${point.lng}&limit=1&lang=default`);
+    if (res.ok) {
+      const p = ((await res.json()) as { features?: { properties: PhotonProps }[] }).features?.[0]?.properties;
+      if (p) {
+        const street = p.street && p.housenumber ? `${p.street} ${p.housenumber}` : p.street;
+        const city = p.city || p.locality || p.district || null;
+        local = { address: [street, city].filter(Boolean).join(', ') || null, city };
+      }
+    }
+  } catch { /* try Mapbox */ }
+  if (heb(local.address) && heb(local.city)) return local;
+  try {
+    const mb = await mapboxAddressAt(point, 'he');
+    return {
+      address: heb(mb.address) ? mb.address : local.address ?? mb.address,
+      city: heb(local.city) ? local.city : heb(mb.city) ? mb.city : local.city ?? mb.city,
+    };
+  } catch { return local; }
+}

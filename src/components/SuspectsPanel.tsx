@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { deleteHiddenPlace, fetchSuspects, hidePlaces, markPlacesOk, type Suspect, type SuspectReason } from '@/lib/places';
 import { friendly } from '@/lib/errors';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 import { placeTypeLabel } from '@/lib/types';
 import { useL } from './LangProvider';
 import AdminPlaceDialog from './AdminPlaceDialog';
@@ -104,7 +104,7 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
         <div key={p.id} className="admin-row check-row">
           <input type="checkbox" checked={marked.has(p.id)} onChange={() => toggle(p.id)} aria-label={L(`בחירת ${p.name}`, `Select ${p.name}`)} />
           <div>
-            <a href={`/map?place=${p.id}`} target="_blank" rel="noreferrer"><span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b></a>
+            <a href={`/map?place=${p.id}`} target="_blank" rel="noreferrer"><span aria-hidden="true">{placeIcon(p)}</span> <b>{p.name}</b></a>
             <div className="check-why"><span aria-hidden="true">{names[p.reason][0]}</span> {p.note ?? why[p.reason]}</div>
             <div className="muted small">{placeTypeLabel(p.place_type, lang)}{p.address ? `, ${p.address}` : ''}</div>
           </div>

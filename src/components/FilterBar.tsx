@@ -4,7 +4,7 @@ import { needLabel, needLetter, type Need, type NeedFilter } from '@/lib/types';
 import { useL } from './LangProvider';
 import { useState } from 'react';
 import { EXTRA_NEEDS, MAIN_NEEDS, NEED_CLASS, NEED_ORDER, TWO_LEVEL_NEEDS } from '@/lib/claims';
-import { CUISINES, CUISINE_FILTERS } from '@/lib/cuisine';
+import { CUISINES, CUISINE_FILTERS, CUISINE_GROUPS } from '@/lib/cuisine';
 import { NEED_EMOJI } from '@/lib/emoji';
 import { FILTER_OPTIONS } from '@/lib/filters';
 
@@ -31,6 +31,14 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
   const anyOn = openNow || cuisine.length > 0 || Object.values(filter).some((v) => (v ?? null) !== null);
   const hidden = extraOn + (openNow ? 1 : 0) + (cuisine.length > 0 ? 1 : 0);
   const [open, setOpen] = useState(hidden > 0);
+  // the quick row holds the common kinds; "more kinds" opens all of them, in groups
+  const [allFoods, setAllFoods] = useState(cuisine.some((c) => !CUISINE_FILTERS.includes(c)));
+  const foodChip = (c: string) => (
+    <button key={c} type="button" aria-pressed={cuisine.includes(c)} className="cuisine" onClick={() => onCuisine(cuisine.includes(c) ? cuisine.filter((x) => x !== c) : [...cuisine, c])}>
+      <span className="ce" aria-hidden="true">{CUISINES[c].emoji}</span>
+      <span>{lang === 'en' ? CUISINES[c].en : CUISINES[c].label}</span>
+    </button>
+  );
 
   return (
     <div className="filters">
@@ -56,13 +64,22 @@ export default function FilterBar({ filter, openNow, onFilter, onOpenNow, cuisin
           <span className="ce" aria-hidden="true">🍽️</span>
           <span>{L('הכול', 'All')}</span>
         </button>
-        {CUISINE_FILTERS.map((c) => (
-          <button key={c} type="button" aria-pressed={cuisine.includes(c)} className="cuisine" onClick={() => onCuisine(cuisine.includes(c) ? cuisine.filter((x) => x !== c) : [...cuisine, c])}>
-            <span className="ce" aria-hidden="true">{CUISINES[c].emoji}</span>
-            <span>{lang === 'en' ? CUISINES[c].en : CUISINES[c].label}</span>
-          </button>
-        ))}
+        {CUISINE_FILTERS.map(foodChip)}
+        <button type="button" className="cuisine more-foods" aria-expanded={allFoods} onClick={() => setAllFoods((v) => !v)}>
+          <span className="ce" aria-hidden="true">{allFoods ? '➖' : '➕'}</span>
+          <span>{allFoods ? L('פחות', 'Less') : L('עוד סוגים', 'More kinds')}</span>
+        </button>
       </div>
+      {allFoods && (
+        <div className="food-groups">
+          {CUISINE_GROUPS.map((g) => (
+            <div key={g.id} className="food-group">
+              <p className="food-group-title">{lang === 'en' ? g.en : g.label}</p>
+              <div className="cuisines">{g.items.filter((c) => !CUISINE_FILTERS.includes(c)).map(foodChip)}</div>
+            </div>
+          )).filter((_, i) => CUISINE_GROUPS[i].items.some((c) => !CUISINE_FILTERS.includes(c)))}
+        </div>
+      )}
           <div className="chips">
         <button type="button" className="chip o" aria-pressed={openNow} onClick={() => onOpenNow(!openNow)}>
           <span className="dot" aria-hidden="true" />

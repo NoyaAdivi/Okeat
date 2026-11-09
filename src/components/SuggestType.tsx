@@ -4,7 +4,7 @@ import { useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { suggestPlaceType } from '@/lib/places';
 import { friendly } from '@/lib/errors';
-import { CUISINES, cuisineEmoji, cuisineLabel } from '@/lib/cuisine';
+import CuisinePicker from './CuisinePicker';
 import { PLACE_TYPES, PLACE_TYPES_EN } from '@/lib/types';
 import { useL } from './LangProvider';
 import Modal from './Modal';
@@ -25,7 +25,6 @@ export default function SuggestType({ sb, place, onClose, onSent }: Props) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const toggle = (c: string) => setFoods(foods.includes(c) ? foods.filter((x) => x !== c) : foods.length < 6 ? [...foods, c] : foods);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,14 +48,7 @@ export default function SuggestType({ sb, place, onClose, onSent }: Props) {
             {Object.keys(PLACE_TYPES).map((t) => <option key={t} value={t}>{lang === 'en' ? PLACE_TYPES_EN[t] : PLACE_TYPES[t]}</option>)}
           </select>
         </div>
-        <fieldset className="admin-foods">
-          <legend>{L('סוג האוכל, אפשר לבחור כמה', 'Food types, choose as many as you like')}</legend>
-          {Object.keys(CUISINES).map((c) => (
-            <button key={c} type="button" aria-pressed={foods.includes(c)} onClick={() => toggle(c)}>
-              <span aria-hidden="true">{cuisineEmoji(c)}</span> {cuisineLabel(c, lang)}
-            </button>
-          ))}
-        </fieldset>
+        <CuisinePicker value={foods} onChange={setFoods} />
         {error && <div className="err" role="alert">{error}</div>}
         <div className="modal-acts">
           <button type="button" className="btn" onClick={onClose}>{L('ביטול', 'Cancel')}</button>

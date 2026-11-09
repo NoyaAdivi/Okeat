@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { adminRestorePlace, adminSearchPlaces, deleteHiddenPlace, moderatePlace, type AdminPlace } from '@/lib/places';
 import { friendly } from '@/lib/errors';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 import { placeTypeLabel } from '@/lib/types';
 import { useL } from './LangProvider';
 import AdminPlaceDialog from './AdminPlaceDialog';
+import { googleUrl } from '@/lib/text';
 
 /** For the admin: find any place, fix it, hide it or bring it back. */
 export default function PlacesPanel({ sb, hiddenTab = false }: { sb: SupabaseClient; hiddenTab?: boolean }) {
@@ -49,10 +50,11 @@ export default function PlacesPanel({ sb, hiddenTab = false }: { sb: SupabaseCli
       {rows?.map((p) => (
         <div key={p.id} className="admin-row">
           <div>
-            <a href={`/map?place=${p.id}`}><span aria-hidden="true">{placeEmoji(p.place_type)}</span> <b>{p.name}</b></a>
+            <a href={`/map?place=${p.id}`}><span aria-hidden="true">{placeIcon(p)}</span> <b>{p.name}</b></a>
             <div className="muted small">{placeTypeLabel(p.place_type, lang)}{p.address ? `, ${p.address}` : ''}{p.removed ? ` (${L('מוסתר', 'hidden')})` : ''}</div>
           </div>
           <div className="admin-row-tools">
+            <a className="chip-act" href={googleUrl(p.name, p.address)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('גוגל', 'Google')}</a>
             <button type="button" className="btn small" onClick={() => setEditing(p)}>{L('עריכה', 'Edit')}</button>
             {p.removed && (sure === p.id
               ? <button type="button" className="btn small ghost danger" onClick={() => act(() => deleteHiddenPlace(sb, p.id))}>{L('למחוק לגמרי?', 'Delete for good?')}</button>

@@ -13,9 +13,11 @@ interface Props {
   onVote: (claimId: string, value: 1 | -1) => void;
   onShow: (placeId: string) => void;
   onAdd: () => void;
+  /** Admins: approve at once, without waiting for three people. */
+  onAdminApprove?: (claimId: string) => void;
 }
 
-export default function CommunityQueue({ signedIn, items, loading, onSignIn, onVote, onShow, onAdd }: Props) {
+export default function CommunityQueue({ signedIn, items, loading, onSignIn, onVote, onShow, onAdd, onAdminApprove }: Props) {
   const L = useL();
   const lang = L.lang;
   const intro = (
@@ -59,7 +61,7 @@ export default function CommunityQueue({ signedIn, items, loading, onSignIn, onV
           const level = info ? levelText(info, lang) : q.level;
           return (
             <li key={q.claim_id} className="qitem">
-              <div className={`seal pending ${NEED_CLASS[q.need]}`} aria-hidden="true">{needLetter(q.need, lang)}</div>
+              <div className={`seal pending ${NEED_CLASS[q.need]}`} aria-hidden="true"><span>{needLetter(q.need, lang)}</span></div>
               <div>
                 <div className="nm">{q.place_name}</div>
                 <div>{level}{q.has_certificate ? L(', עם צילום תעודה', ', with a certificate photo') : ''}</div>
@@ -71,6 +73,9 @@ export default function CommunityQueue({ signedIn, items, loading, onSignIn, onV
               <div className="acts">
                 <button type="button" className="btn small" onClick={() => onVote(q.claim_id, 1)}>{L('נכון, ראיתי בעצמי', 'True, I saw it myself')}</button>
                 <button type="button" className="btn small" onClick={() => onVote(q.claim_id, -1)}>{L('לא נכון', 'Not true')}</button>
+                {onAdminApprove && (
+                  <button type="button" className="btn small admin-ok" onClick={() => onAdminApprove(q.claim_id)}><span aria-hidden="true">🛡️</span> {L('אישור מנהל', 'Admin approve')}</button>
+                )}
                 <button type="button" className="link" onClick={() => onShow(q.place_id)}>{L('הצגה במפה', 'Show on the map')}</button>
               </div>
             </li>

@@ -8,11 +8,12 @@ import { useUser } from '@/lib/useUser';
 import { fetchMyFavorites, fetchPlacesAddedBy, fetchProfile, setFavorite, setUserRole, withdrawPlace, type PublicProfile } from '@/lib/places';
 import { friendly } from '@/lib/errors';
 import { placeTypeLabel } from '@/lib/types';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 import { formatDate } from '@/lib/geo';
 import { SiteFooter, SiteHeader } from './SiteChrome';
 import { useL } from './LangProvider';
 import { openProfileForm } from './ProfileSetup';
+import { PROFILE_SAVED } from './AccountButton';
 
 /** A number that runs up once when the profile opens. */
 function CountUp({ to }: { to: number }) {
@@ -63,6 +64,20 @@ export default function ProfileView({ id }: { id: string }) {
   }, [sb, target, id, ready]);
 
   const mine = !!user && profile?.id === user.id;
+  // A new name, food or picture shows at once, without reloading the page.
+  useEffect(() => {
+    const saved = (e: Event) => {
+      const d = (e as CustomEvent<{ name?: string; avatar?: string | null; food?: string | null }>).detail;
+      setProfile((p) => (p && mine ? {
+        ...p,
+        display_name: d.name ?? p.display_name,
+        avatar_url: d.avatar !== undefined ? d.avatar : p.avatar_url,
+        favorite_food: d.food !== undefined ? d.food : p.favorite_food,
+      } : p));
+    };
+    window.addEventListener(PROFILE_SAVED, saved);
+    return () => window.removeEventListener(PROFILE_SAVED, saved);
+  }, [mine]);
   // Site admins see role buttons on other people's profiles.
   const [viewerAdmin, setViewerAdmin] = useState(false);
   const [roleError, setRoleError] = useState('');
@@ -117,7 +132,7 @@ export default function ProfileView({ id }: { id: string }) {
                   </p>
                 )}
                 {profile.favorite_food && <p className="fav-food">🍽️ {L('האוכל האהוב:', 'Favorite food:')} <b>{profile.favorite_food}</b></p>}
-                {mine && <button type="button" className="link" onClick={() => openProfileForm(profile.favorite_food ?? '')}>{L('עריכת הפרטים', 'Edit details')}</button>}
+                {mine && <button type="button" className="btn small edit-me" onClick={() => openProfileForm(profile.favorite_food ?? '')}>✏️ {L('עריכת השם, התמונה והאוכל האהוב', 'Edit name, photo and favorite food')}</button>}
                 <p className="muted">{L('הצטרף/ה ל-Okeat ב-', 'Joined Okeat on ')}{formatDate(profile.joined_at.slice(0, 10))}</p>
               </div>
             </section>
@@ -158,7 +173,7 @@ export default function ProfileView({ id }: { id: string }) {
               </ScrollRow>
             )}
             <div key={section} className="profile-section">
-            {mine && section === 'feed' && <MyTimeline sb={sb} onManage={setSection} />}
+            {mine && section === 'feed' && <MyTimeline sb={sb} userId={user!.id} onManage={setSection} />}
             {mine && section === 'site' && <AdminFeed sb={sb} canDelete={profile.role === 'admin'} />}
             {mine && user && section === 'notes' && <ProfileExtras sb={sb} userId={user.id} show="notes" />}
             {mine && user && section === 'lists' && (
@@ -180,7 +195,7 @@ export default function ProfileView({ id }: { id: string }) {
                 {saved.length === 0 ? <p className="muted">{L('עוד אין. לחצו על הלב במקום שאהבתם.', 'None yet. Press the heart on a place you like.')}</p> : (
                   <ul className="tiles">
                     {saved.map((p, i) => (
-                      <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} action={
+                      <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeIcon(p)} name={p.name} action={
                         <button type="button" className="link" onClick={async () => {
                           await setFavorite(sb, p.id, user!.id, false);
                           setSaved(saved.filter((x) => x.id !== p.id));
@@ -204,7 +219,7 @@ export default function ProfileView({ id }: { id: string }) {
               {places.length === 0 ? <p className="muted">{L('עוד אין.', 'None yet.')}</p> : (
                 <ul className="tiles">
                   {places.map((p, i) => (
-                    <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={`${placeTypeLabel(p.place_type, lang)}, ${formatDate(p.created_at.slice(0, 10))}`} action={mine ? (
+                    <PlaceTile key={p.id} index={i} href={`/map?place=${p.id}`} emoji={placeIcon(p)} name={p.name} sub={`${placeTypeLabel(p.place_type, lang)}, ${formatDate(p.created_at.slice(0, 10))}`} action={mine ? (
                       <span className="my-acts">
                       <button type="button" className="link" onClick={() => setEditPlace(p.id)}>{L('עריכה', 'Edit')}</button>
                       <button type="button" className="link" onClick={async () => {

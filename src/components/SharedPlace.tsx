@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { certificateUrl, fetchMyVotes, fetchPlace, fetchProfile, vote } from '@/lib/places';
+import { certificateUrl, fetchMyVotes, fetchPlace, fetchProfile, moderateClaim, vote } from '@/lib/places';
 import type { Place } from '@/lib/types';
 import { friendly } from '@/lib/errors';
 import { useUser } from '@/lib/useUser';
@@ -14,6 +14,7 @@ import PlaceDetail from './PlaceDetail';
 import PlaceExtras from './PlaceExtras';
 import PlaceCommunity from './PlaceCommunity';
 import Logo from './Logo';
+import Toast from './Toast';
 import AccountButton from './AccountButton';
 import DisplayToggles from './DisplayToggles';
 import AuthDialog from './AuthDialog';
@@ -93,11 +94,15 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
           onBack={() => router.push(`/map?place=${place.id}`)}
           backLabel={L('פתיחה במפה', 'Open on the map')}
           onVote={onVote}
+          onAdminApprove={isAdmin ? async (id) => {
+            try { await moderateClaim(sb, id, true); showToast(L('אושר באישור מנהל ✓', 'Approved by an admin ✓')); reload(); } catch (e) { showToast(friendly(e, L.lang)); }
+          } : undefined}
           onAddCertificate={() => { if (signedIn) setCertOpen(true); else askSignIn(); }}
           extra={
             <>
               <PlaceExtras key={`extras-${place.id}`} sb={sb} place={place} userId={signedIn && user ? user.id : null} isAdmin={isAdmin} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
               <PlaceCommunity key={place.id} sb={sb} place={place} isAdmin={isAdmin} signedIn={signedIn} onSignIn={askSignIn} onToast={showToast} onChanged={reload} />
+              <div id="place-similar" />
             </>
           }
           onShare={async () => {
@@ -124,7 +129,7 @@ export default function SharedPlace({ place: initial }: { place: Place }) {
           }}
         />
       )}
-      <div className={`toast${toast ? ' show' : ''}`} role="status" aria-live="polite">{toast}</div>
+      <Toast text={toast} />
     </div>
   );
 }

@@ -16,7 +16,7 @@ import { formatDate } from '@/lib/geo';
 import { useL } from './LangProvider';
 import Avatar from './Avatar';
 import OwnerEditDialog from './OwnerEditDialog';
-import { placeEmoji } from '@/lib/emoji';
+import { placeIcon } from '@/lib/emoji';
 
 interface Props {
   sb: SupabaseClient;
@@ -51,7 +51,14 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
   const [editing, setEditing] = useState(false);
   // The save, photo and list buttons stay above the place's tabs.
   const [actions, setActions] = useState<HTMLElement | null>(null);
-  useEffect(() => { setActions(document.getElementById('place-actions')); }, []);
+  // Photos show at the top of the place, and "you might also like" comes last, after the report buttons.
+  const [photoSlot, setPhotoSlot] = useState<HTMLElement | null>(null);
+  const [similarSlot, setSimilarSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setActions(document.getElementById('place-actions'));
+    setPhotoSlot(document.getElementById('place-photos'));
+    setSimilarSlot(document.getElementById('place-similar'));
+  }, []);
   const [lists, setLists] = useState<MyList[] | null>(null);
   const [newList, setNewList] = useState('');
   const file = useRef<HTMLInputElement>(null);
@@ -77,6 +84,19 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
   };
 
   const mine = reviews.find((r) => r.user_id === userId);
+  const photoStrip = () => (
+    <section className="sec photos-top" aria-label={L('תמונות מהמקום', 'Photos of the place')}>
+      <div className="place-photos">
+        {photos.map((p) => (
+          <figure key={p.id} className={p.approved ? undefined : 'waiting'}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.url} alt={L(`תמונה מ${place.name}`, `A photo from ${place.name}`)} loading="lazy" />
+            {!p.approved && <figcaption>{L('ממתינה לאישור', 'Waiting for approval')}</figcaption>}
+          </figure>
+        ))}
+      </div>
+    </section>
+  );
   const average = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
   return (
@@ -107,7 +127,7 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
           e.target.value = '';
           if (f) run(async () => {
             await uploadPlacePhoto(sb, place.id, userId!, f);
-            onToast(L('תודה! התמונה תופיע אחרי אישור מנהל.', 'Thanks! The photo will appear after approval.'));
+            onToast(L('תודה! התמונה מחכה לאישור מנהל. כבר עכשיו רואים אותה למעלה בדף המקום ובאזור האישי, ואחרי האישור כולם יראו אותה.', 'Thanks! The photo is waiting for approval. You can already see it at the top of this place and in your profile, and everyone will see it once approved.'));
             load();
           });
         }} />
@@ -138,19 +158,7 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
       )}
       </>, actions)}
 
-      {photos.length > 0 && (
-        <section className="sec">
-          <div className="place-photos">
-            {photos.map((p) => (
-              <figure key={p.id} className={p.approved ? undefined : 'waiting'}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.url} alt={L(`תמונה מ${place.name}`, `A photo from ${place.name}`)} loading="lazy" />
-                {!p.approved && <figcaption>{L('ממתינה לאישור', 'Waiting for approval')}</figcaption>}
-              </figure>
-            ))}
-          </div>
-        </section>
-      )}
+      {photos.length > 0 && (photoSlot ? createPortal(photoStrip(), photoSlot) : photoStrip())}
 
       <section className="sec reviews">
         <h3>{L('ביקורות', 'Reviews')}{reviews.length > 0 && <small> <Stars value={average} /> {average.toFixed(1)} ({reviews.length})</small>}</h3>
@@ -203,15 +211,15 @@ export default function PlaceExtras({ sb, place, userId, isAdmin, onSignIn, onTo
         )}
       </section>
 
-      {similar.length > 0 && (
-        <section className="sec">
+      {similar.length > 0 && similarSlot && createPortal(
+        <section className="sec similar">
           <h3>{L('אולי יעניין אותך גם…', 'You might also like…')}</h3>
           <ul className="tiles tiles-row">
             {similar.map((s, i) => (
-              <PlaceTile key={s.id} index={i} href={`/map?place=${s.id}`} emoji={placeEmoji(s.place_type)} name={s.name} sub={s.meters < 1000 ? L(`${s.meters} מ׳`, `${s.meters} m`) : L(`${(s.meters / 1000).toFixed(1)} ק״מ`, `${(s.meters / 1000).toFixed(1)} km`)} />
+              <PlaceTile key={s.id} index={i} href={`/map?place=${s.id}`} emoji={placeIcon(s)} name={s.name} sub={s.meters < 1000 ? L(`${s.meters} מ׳`, `${s.meters} m`) : L(`${(s.meters / 1000).toFixed(1)} ק״מ`, `${(s.meters / 1000).toFixed(1)} km`)} />
             ))}
           </ul>
-        </section>
+        </section>, similarSlot,
       )}
 
       {editing && <OwnerEditDialog sb={sb} place={place} menuUrl={business.menuUrl} onSaved={() => { onChanged(); load(); onToast(L('הפרטים נשמרו', 'Details saved')); }} onClose={() => setEditing(false)} />}

@@ -3,16 +3,26 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { fetchAdminOverview, fetchDashboard, fetchVisits, type AdminKind, type AdminOverview, type Dashboard, type Visits, fetchVisitsBegan } from '@/lib/places';
+import { fetchAdminOverview, fetchDashboard, fetchRangeStats, fetchVisits, type AdminKind, type AdminOverview, type Dashboard, type RangeStats, type Visits, fetchVisitsBegan } from '@/lib/places';
+import { formatDuration } from '@/lib/geo';
 import { friendly } from '@/lib/errors';
 import { useL } from './LangProvider';
 import AdminFeed, { KIND_LOOK } from './AdminFeed';
 
-const duration = (s: number, L: ReturnType<typeof useL>) => {
-  if (s < 60) return L(`${s} שנ׳`, `${s} sec`);
-  const m = Math.round(s / 60);
-  return m < 60 ? L(`${m} דק׳`, `${m} min`) : L(`${(m / 60).toFixed(1)} שע׳`, `${(m / 60).toFixed(1)} hr`);
-};
+const duration = (s: number, L: ReturnType<typeof useL>) => (
+  s < 60 ? L(`${s} שניות`, `${s} sec`) : formatDuration(s / 60, L.lang)
+);
+
+/** The first moment of a range of days, counted in Israel's time: today starts at midnight. */
+function rangeStart(days: number): string | null {
+  if (!days) return null;
+  const now = new Date();
+  const il = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' }));
+  const offset = now.getTime() - il.getTime();
+  il.setHours(0, 0, 0, 0);
+  il.setDate(il.getDate() - (days - 1));
+  return new Date(il.getTime() + offset).toISOString();
+}
 
 /** For the admin: what needs attention, who visits, what people add, and what they look for. */
 export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: SupabaseClient; onOpen: (tab: 'reports' | 'photos' | 'check' | 'dupes') => void; suspects: number; dupes: number }) {
@@ -21,6 +31,7 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
   const [over, setOver] = useState<AdminOverview | null>(null);
   const [visits, setVisits] = useState<Visits | null>(null);
   const [range, setRange] = useState(7);
+  const [stats, setStats] = useState<RangeStats | null>(null);
   const [began, setBegan] = useState<string | null>(null);
   const [kind, setKind] = useState<AdminKind | null>(null);
   const [error, setError] = useState('');
@@ -30,7 +41,21 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
     fetchAdminOverview(sb).then(setOver).catch(() => undefined);
     fetchVisitsBegan(sb).then(setBegan);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchVisits(sb, range).then(setVisits); }, [sb, range]);
+  // The range at the top applies to everything below it: visits, what people did, and who did the most.
+  useEffect(() => {
+    setVisits(null);
+    setStats(null);
+    fetchVisits(sb, range || 90).then(setVisits);
+    fetchRangeStats(sb, range).then(setStats);
+  }, [sb, range]);
+  const since = rangeStart(range);
+  const countFor = (k: AdminKind) => {
+    if (stats) return stats.kinds[k] ?? 0;
+    const c = over?.kinds[k];
+    return (range === 1 ? c?.today : range === 7 ? c?.week : c?.all) ?? 0; // before RUN-ME-44
+  };
+  const rangeName = { 1: L('היום', 'today'), 7: L('בשבוע האחרון', 'this week'), 30: L('בחודש האחרון', 'this month'), 0: L('מההתחלה', 'since the start') }[range as 1 | 7 | 30 | 0];
+  const topUsers = stats?.topUsers ?? over?.topUsers ?? [];
 
   const names: Record<AdminKind, string> = {
     user: L('נרשמו', 'Signed up'),
@@ -60,7 +85,14 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
 
   return (
     <>
-      <h2>{L('לוח נתונים', 'Dashboard')}</h2>
+      <div className="dash-top">
+        <h2>{L('לוח נתונים', 'Dashboard')}</h2>
+        <div className="dash-range" role="group" aria-label={L('טווח זמן לכל הנתונים', 'Time range for everything')}>
+          {[[1, L('היום', 'Today')], [7, L('שבוע', 'Week')], [30, L('חודש', 'Month')], [0, L('הכול', 'All')]].map(([d, label]) => (
+            <button key={d} type="button" aria-pressed={range === d} onClick={() => setRange(d as number)}>{label}</button>
+          ))}
+        </div>
+      </div>
       {error && <p className="warnbox">{error}</p>}
 
       {todo.length > 0 && (
@@ -78,14 +110,9 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
 
       <section className="dash-block">
         <div className="dash-head">
-          <h3>{L('כניסות לאתר', 'Visits')}</h3>
-          <div className="dash-range" role="group" aria-label={L('טווח זמן', 'Time range')}>
-            {[[1, L('היום', 'Today')], [7, L('שבוע', 'Week')], [30, L('חודש', 'Month')]].map(([d, label]) => (
-              <button key={d} type="button" aria-pressed={range === d} onClick={() => setRange(d as number)}>{label}</button>
-            ))}
-          </div>
+          <h3>{L('כניסות לאתר', 'Visits')} <small className="muted">{range ? rangeName : L('ב-90 הימים האחרונים', 'in the last 90 days')}</small></h3>
         </div>
-        {began && <p className="muted small">{L(`הספירה התחילה ב-${new Date(began).toLocaleDateString('he-IL')}, אז עד שיעבור שבוע או חודש המספרים יהיו דומים.`, `Counting began on ${new Date(began).toLocaleDateString('en-GB')}, so the numbers will look alike until a week or a month has passed.`)}</p>}
+        {began && since && new Date(began) > new Date(since) && <p className="muted small">{L(`הספירה התחילה ב-${new Date(began).toLocaleDateString('he-IL')}, אז עד שיעבור שבוע או חודש המספרים יהיו דומים.`, `Counting began on ${new Date(began).toLocaleDateString('en-GB')}, so the numbers will look alike until a week or a month has passed.`)}</p>}
         {!visits ? <p className="muted">{L('עוד אין נתונים.', 'No data yet.')}</p> : (
           <>
             <ul className="dash-numbers">
@@ -108,7 +135,7 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
       </section>
 
       <section className="dash-block">
-        <h3>{L('מה קורה באתר', 'What people are doing')}</h3>
+        <h3>{L('מה קורה באתר', 'What people are doing')} <small className="muted">{rangeName}</small></h3>
         <div className="dash-kinds">
           <button type="button" aria-pressed={kind === null} onClick={() => setKind(null)}>
             <span className="feed-icon" aria-hidden="true">✨</span><b>{L('הכול', 'All')}</b>
@@ -118,21 +145,21 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
             return (
               <button key={k} type="button" className={KIND_LOOK[k].cls} aria-pressed={kind === k} onClick={() => setKind(k)}>
                 <span className="feed-icon" aria-hidden="true">{KIND_LOOK[k].emoji}</span>
-                <b>{(c?.all ?? 0).toLocaleString()}</b>
+                <b>{countFor(k).toLocaleString()}</b>
                 <span>{names[k]}</span>
-                {!!c?.today && <em>{L(`+${c.today} היום`, `+${c.today} today`)}</em>}
+                {range !== 1 && !!c?.today && <em>{L(`+${c.today} היום`, `+${c.today} today`)}</em>}
               </button>
             );
           })}
         </div>
-        <AdminFeed sb={sb} kind={kind} canDelete />
+        <AdminFeed key={`${kind}-${range}`} sb={sb} kind={kind} canDelete since={since} />
       </section>
 
-      {over && over.topUsers.length > 0 && (
+      {topUsers.length > 0 && (
         <section className="dash-block">
-          <h3>{L('הכי פעילים החודש', 'Most active this month')}</h3>
+          <h3>{L('הכי פעילים', 'Most active')} <small className="muted">{stats ? rangeName : L('בחודש האחרון', 'this month')}</small></h3>
           <ul className="dash-terms">
-            {over.topUsers.map((u) => <li key={u.id}><Link href={`/u/${u.id}`}>{u.name ?? L('משתמש/ת', 'A user')} <b>{u.actions}</b></Link></li>)}
+            {topUsers.map((u) => <li key={u.id}><Link href={`/u/${u.id}`}>{u.name ?? L('משתמש/ת', 'A user')} <b>{u.actions}</b></Link></li>)}
           </ul>
         </section>
       )}

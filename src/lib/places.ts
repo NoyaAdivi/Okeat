@@ -260,8 +260,9 @@ export async function vote(sb: SupabaseClient, claimId: string, value: 1 | -1) {
 
 export async function addPlace(
   sb: SupabaseClient,
-  place: { name: string; placeType: string; address?: string; lat: number; lng: number },
+  place: { name: string; placeType: string; address?: string; lat: number; lng: number; cuisine?: string[] },
 ): Promise<string> {
+  const foods = (place.cuisine ?? []).slice(0, 6);
   const auth = { user: await ensureUser(sb) };
   const { data, error } = await sb
     .from('places')
@@ -269,6 +270,7 @@ export async function addPlace(
       name: place.name,
       place_type: place.placeType,
       address: place.address ?? null,
+      ...(foods.length ? { cuisine: foods, cuisine_source: 'community' } : {}),
       // PostGIS accepts WKT for geography columns
       location: `SRID=4326;POINT(${place.lng} ${place.lat})`,
       created_by: auth.user.id,
@@ -506,6 +508,36 @@ export async function uploadPlacePhoto(sb: SupabaseClient, placeId: string, user
   if (rowError) throw rowError;
 }
 
+/** Your own profile picture: made small, saved under your folder, and put on your profile. */
+export async function uploadAvatar(sb: SupabaseClient, userId: string, file: File): Promise<string> {
+  const path = `${userId}/${Date.now()}.jpg`;
+  const blob = await shrinkPhoto(file);
+  const { error } = await sb.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+  if (error) throw error;
+  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+  const { error: saveError } = await sb.rpc('set_my_avatar', { p_url: url });
+  if (saveError) throw saveError;
+  return url;
+}
+
+/** Back to the letter on a colored circle. */
+export async function removeAvatar(sb: SupabaseClient) {
+  const { error } = await sb.rpc('set_my_avatar', { p_url: null });
+  if (error) throw error;
+}
+
+/** A photo you added is swapped for a new one, which waits for approval like the first. */
+export async function replaceMyPhoto(sb: SupabaseClient, old: { id: string; path: string; placeId: string }, userId: string, file: File) {
+  await uploadPlacePhoto(sb, old.placeId, userId, file);
+  await deleteMyPhoto(sb, old.id, old.path);
+}
+
+/** Take back a type suggestion that was not decided yet. */
+export async function withdrawSuggestion(sb: SupabaseClient, id: string) {
+  const { error } = await sb.rpc('withdraw_suggestion', { p_id: id });
+  if (error) throw error;
+}
+
 export async function fetchPendingPhotos(sb: SupabaseClient): Promise<PendingPhoto[]> {
   const { data, error } = await sb.rpc('pending_photos');
   if (error) return [];
@@ -592,6 +624,12 @@ export async function fetchAdminMessages(sb: SupabaseClient): Promise<AdminMessa
   const { data, error } = await sb.rpc('admin_messages');
   if (error) throw error;
   return data as AdminMessage[];
+}
+
+/** Admin: a report on a place is handled, or open again. It stays in the list with its label. */
+export async function markReport(sb: SupabaseClient, placeId: string, userId: string, handled: boolean) {
+  const { error } = await sb.rpc('admin_mark_report', { p_place: placeId, p_user: userId, p_handled: handled });
+  if (error) throw error;
 }
 
 export async function markMessage(sb: SupabaseClient, id: number, handled: boolean) {
@@ -747,6 +785,15 @@ export async function adminSearchPlaces(sb: SupabaseClient, query: string, hidde
   return (data ?? []) as AdminPlace[];
 }
 
+/** Admin: one place with everything the edit form needs, hidden or not. */
+export async function adminGetPlace(sb: SupabaseClient, id: string): Promise<AdminPlace> {
+  const { data, error } = await sb.rpc('admin_get_place', { p_place: id });
+  if (error) throw error;
+  const row = ((data ?? []) as AdminPlace[])[0];
+  if (!row) throw new Error('not found');
+  return row;
+}
+
 export async function adminUpdatePlace(sb: SupabaseClient, place: AdminPlace) {
   const { error } = await sb.rpc('admin_update_place', {
     p_place: place.id, p_name: place.name, p_type: place.place_type, p_cuisine: place.cuisine ?? [],
@@ -882,6 +929,18 @@ export interface Visits {
   days: { day: string; visits: number; avgSeconds: number }[];
 }
 
+export interface RangeStats {
+  kinds: Partial<Record<AdminKind, number>>;
+  topUsers: { id: string; name: string | null; actions: number }[];
+  since: string | null;
+}
+
+/** Admin: how much of everything happened in the last days (0 = since the start). */
+export async function fetchRangeStats(sb: SupabaseClient, days: number): Promise<RangeStats | null> {
+  const { data, error } = await sb.rpc('admin_range_stats', { p_days: days });
+  return error ? null : (data as RangeStats);
+}
+
 export async function fetchVisits(sb: SupabaseClient, days: number): Promise<Visits | null> {
   const { data, error } = await sb.rpc('admin_visits', { p_days: days });
   return error ? null : (data as Visits);
@@ -895,6 +954,20 @@ export async function adminDeleteItem(sb: SupabaseClient, r: AdminEvent) {
 
 export const logVisit = (sb: SupabaseClient, sid: string, seconds: number, pages: number, signed: boolean) =>
   sb.rpc('log_visit', { p_sid: sid, p_seconds: seconds, p_pages: pages, p_signed: signed }).then(() => undefined, () => undefined);
+
+export interface AdminNews { total: number; place: number; claim: number; review: number; photo: number; report: number; suggestion: number }
+
+/** For moderators: what was added since they last looked, by kind. Null when there is nothing, or for everyone else. */
+export async function adminNews(sb: SupabaseClient, since: string): Promise<AdminNews | null> {
+  const { data, error } = await sb.rpc('admin_new_breakdown', { p_since: since });
+  if (error) {
+    // before RUN-ME-44: only the total is known
+    const total = await adminNewCount(sb, since);
+    return total > 0 ? { total, place: 0, claim: 0, review: 0, photo: 0, report: 0, suggestion: 0 } : null;
+  }
+  const d = data as AdminNews | null;
+  return d && d.total > 0 ? d : null;
+}
 
 export async function adminNewCount(sb: SupabaseClient, since: string): Promise<number> {
   const { data, error } = await sb.rpc('admin_new_count', { p_since: since });

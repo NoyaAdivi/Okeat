@@ -64,10 +64,12 @@ export async function fetchDirections(token: string, mode: TravelMode, from: Lat
   return null;
 }
 
-/** Arrival time as "14:52". */
+/** Arrival time as "14:52". On a later day the date comes first: "12.11 14:52". */
 export function eta(minutes: number, now = new Date()): string {
   const t = new Date(now.getTime() + minutes * 60000);
-  return t.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' });
+  const time = t.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' });
+  const day = (d: Date) => d.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', timeZone: 'Asia/Jerusalem' });
+  return day(t) === day(now) ? time : `${day(t)} ${time}`;
 }
 
 /** Rotation for an arrow that points up by default. */

@@ -5,14 +5,18 @@ import PlaceTile from '@/components/PlaceTile';
 import { notFound } from 'next/navigation';
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
 import { CITIES } from '@/lib/cities';
-import { NEED_ORDER, hasAnyVerified, withoutPending } from '@/lib/claims';
-import { placeEmoji } from '@/lib/emoji';
+import { MAIN_NEEDS, NEED_ORDER, hasAnyVerified, withoutPending } from '@/lib/claims';
+import { placeIcon } from '@/lib/emoji';
 import { getLang, serverL } from '@/lib/lang-server';
 import { fetchNearby } from '@/lib/places';
 import { createPublicClient } from '@/lib/supabase/server';
-import { placeTypeLabel, type NeedFilter } from '@/lib/types';
+import { placeTypeLabel, type Need, type NeedFilter } from '@/lib/types';
+import { FILTER_OPTIONS } from '@/lib/filters';
+import { CUISINES, cuisineLabel, placeFoods } from '@/lib/cuisine';
+import ListFilters from '@/components/ListFilters';
+import { cleanName } from '@/lib/text';
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props { params: Promise<{ slug: string }>; searchParams: Promise<{ need?: string; food?: string }> }
 
 const NO_FILTER = Object.fromEntries(NEED_ORDER.map((n) => [n, null])) as NeedFilter;
 
@@ -27,14 +31,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CityPage({ params }: Props) {
+export default async function CityPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const need = (MAIN_NEEDS as string[]).includes(sp.need ?? '') ? (sp.need as Need) : null;
+  const food = sp.food && CUISINES[sp.food] ? sp.food : null;
   const found = CITIES.find((c) => c.slug === slug);
   if (!found) notFound();
   const L = await serverL();
   const lang = (await getLang()) === 'en' ? 'en' : 'he';
   const sb = createPublicClient();
-  const places = await fetchNearby(sb, { lat: found.lat, lng: found.lng, radiusM: 4000, filter: NO_FILTER, limit: 40 }).catch(() => []);
+  const filter = need ? { ...NO_FILTER, [need]: FILTER_OPTIONS[need][0].min } : NO_FILTER;
+  // with a filter the search goes wider, so a small town still shows something
+  const places = await fetchNearby(sb, { lat: found.lat, lng: found.lng, radiusM: need || food ? 8000 : 4000, filter, limit: need || food ? 300 : 40, cuisine: food ? [food] : undefined })
+    .then((list) => list.slice(0, 60)).catch(() => []);
   // places with information come first, so the page opens with something useful
   places.sort((a, b) => Number(hasAnyVerified(b)) - Number(hasAnyVerified(a)));
   const name = lang === 'en' ? found.en : found.he;
@@ -49,12 +59,14 @@ export default async function CityPage({ params }: Props) {
             <p>{L('מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן', 'Kosher, vegan, vegetarian and gluten-free places')}</p>
           </div>
         </header>
-        <ul className="tiles">
+        <ListFilters base={`/city/${found.slug}`} need={need} food={food} lang={lang} />
+        {places.length === 0 && <p className="muted center">{L('לא מצאנו כאן מקומות כאלה. אפשר לנקות את הסינון או לחפש במפה.', "We didn't find such places here. Clear the filter or look on the map.")}</p>}
+        <ul className="tiles" key={`${need}-${food}`}>
           {places.map((p, i) => (
-            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeEmoji(p.place_type)} name={p.name} sub={placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
+            <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeIcon(p)} name={cleanName(p.name)} sub={placeFoods(p, 2).map((c) => cuisineLabel(c, lang)).join(', ') || placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
           ))}
         </ul>
-        <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>
+        <p className="center"><Link className="btn primary" href={`/map${need || food ? `?${[need && `need=${need}`, food && `food=${food}`].filter(Boolean).join('&')}` : ''}`}>{L('לפתוח את המפה', 'Open the map')}</Link></p>
       </main>
       <SiteFooter />
     </div>
