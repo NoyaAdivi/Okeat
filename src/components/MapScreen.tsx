@@ -1096,7 +1096,10 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               </button>
             )}
             {navigating && followPaused ? (
-              <button type="button" className="map-tool wide" onClick={() => setFollowPaused(false)}>🧭 {L('חזרה למסלול', 'Back to the route')}</button>
+              <button type="button" className="map-tool wide route-back" onClick={() => setFollowPaused(false)}>
+                <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 20c2-5 5-4 7-8s5-3 7-8" strokeDasharray="2.6 3.2" /><path d="M12 3l7 3-3 7" /></svg>
+                <span className="tool-label">{L('חזרה למסלול', 'Back to the route')}</span>
+              </button>
             ) : (
               <button type="button" className={`map-tool wide${manualLabel ? ' manual' : ''}`} onClick={() => setLocOpen((o) => !o)} aria-expanded={locOpen} aria-haspopup="dialog">
                 <span aria-hidden="true">📍</span> <span className="tool-label">{manualLabel ? L('המיקום שבחרתי', 'My chosen location') : L('המיקום שלי', 'My location')}</span>
