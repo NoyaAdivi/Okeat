@@ -1994,12 +1994,23 @@ a.dash-city { color: inherit; text-decoration: none; }
 
 /* ---------- iPad: a slimmer menu, so the map has room ---------- */
 @media (min-width: 761px) and (max-width: 1180px) {
-  .panel { width: clamp(320px, 40vw, 380px); top: 12px; bottom: 12px; inset-inline-start: 12px; border-radius: 24px; }
-  .panel-head { padding: 14px 16px 0; gap: 10px; }
-  .panel-body { padding-inline: 14px; }
+  .panel { width: 372px; top: 12px; bottom: 12px; inset-inline-start: 12px; border-radius: 24px; }
+  .panel-head { padding: 14px 14px 0; gap: 10px; }
   .filters-row .chip { min-height: 52px; font-size: 0.75rem; }
   .brand .tag { display: none; }
 }
+/* The top row of the menu always shows whole: logo, buttons and the account, never cut at the edge. */
+.panel .brand { flex-wrap: nowrap; min-width: 0; gap: 8px; }
+.panel .brand-home { flex: 0 1 auto; min-width: 0; gap: 8px; }
+.panel .brand-text { min-width: 0; }
+.panel .brand .h1 { white-space: nowrap; }
+.panel .brand > * { flex-shrink: 0; }
+.panel .brand > .brand-home { flex-shrink: 1; }
+@media (max-width: 1180px) {
+  .panel .brand .dt-btn { width: 38px; height: 38px; min-width: 38px; }
+  .panel .brand .h1 { font-size: 1.625rem; }
+}
+@media (max-width: 420px) { .panel .brand-home .brand-text { display: none; } }
 
 /* ---------- "hide the route": a round button like the others, in a soft rose ---------- */
 .map-tool.wide.route-off { background: color-mix(in srgb, var(--extra) 32%, var(--surface)); }
