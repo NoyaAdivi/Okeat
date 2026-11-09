@@ -39,3 +39,5 @@ test('a trip longer than an hour is said in hours and minutes, then days, then m
   assert.equal(formatDuration(30 * 1440), 'חודש');
   assert.equal(formatDuration(64 * 1440), 'חודשיים ו־4 ימים');
   assert.equal(formatDuration(261, 'en'), '4 hr 21 min');
+  assert.equal(formatDuration(1440 * 3, 'en'), '3 days');
+});
