@@ -1111,7 +1111,13 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
               </button>
             )}
             {route && !navigating && (
-              <button type="button" className="map-tool wide route-off" onClick={clearRoute}>
+              <button
+                type="button"
+                className="map-tool wide route-off"
+                // a mouse hides the route on press, so nothing that moves or redraws before the release can swallow the click
+                onPointerDown={(e) => { if (e.pointerType === 'mouse' && e.button === 0) { e.preventDefault(); clearRoute(); } }}
+                onClick={clearRoute}
+              >
                 <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 19c3-6 11-3 13-9" strokeDasharray="2.6 3.2" /><circle cx="5" cy="19" r="1.8" /><path d="m15 3 6 6M21 3l-6 6" /></svg>
                 <span className="tool-label">{L('הסתרת המסלול', 'Hide the route')}</span>
               </button>
