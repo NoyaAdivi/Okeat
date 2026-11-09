@@ -179,7 +179,7 @@ export default function PlaceCommunity({ sb, place, signedIn, isAdmin, onSignIn,
       {panel === 'owner' && code && (
         <Modal title={L('אימות בעלות על העסק', 'Verify you own the business')} subtitle={place.name} onClose={() => setPanel('none')}>
         <div className="report-form">
-          <p><b>{L('איך מוכיחים שהעסק שלכם?', 'How to prove the business is yours')}</b></p>
+          <p><b>{L('איך מוכיחים שהעסק הוא שלכם?', 'How to prove the business is yours')}</b></p>
           <ol className="steps-list">
             <li>{L('הוסיפו את הקוד הזה לזמן קצר באתר של העסק, או בביו / פוסט בעמוד האינסטגרם או הפייסבוק הרשמי שלו:', "Add this code for a short while to the business's website, or to the bio / a post on its official Instagram or Facebook page:")} <code dir="ltr">{code}</code></li>
             <li>{L('הדביקו כאן את הקישור לעמוד שבו רואים את הקוד.', 'Paste the link to the page where the code can be seen.')}</li>

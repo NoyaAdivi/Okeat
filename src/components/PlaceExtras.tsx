@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import PlaceTile from './PlaceTile';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';

@@ -22,10 +22,21 @@ function israelNow(now = new Date()) {
 
 const rangesFor = (hours: WeeklyHours, day: number) => hours[String(day) as keyof WeeklyHours];
 
+/** The range open right now. A range that ends after midnight (18:00–02:00) also counts on the next morning. */
+function openRange(hours: WeeklyHours, day: number, minutes: number): [string, string] | undefined {
+  const today = (rangesFor(hours, day) ?? []).find(([a, b]) => {
+    const start = toMin(a), end = toMin(b);
+    return end > start ? minutes >= start && minutes < end : minutes >= start; // overnight: open till midnight today
+  });
+  if (today) return today;
+  // yesterday's overnight range, still going after midnight
+  return (rangesFor(hours, (day + 6) % 7) ?? []).find(([a, b]) => toMin(b) <= toMin(a) && minutes < toMin(b));
+}
+
 export function isOpen(hours: WeeklyHours | null, now = new Date()): boolean {
   if (!hours) return false;
   const { day, minutes } = israelNow(now);
-  return (rangesFor(hours, day) ?? []).some(([a, b]) => minutes >= toMin(a) && minutes < toMin(b));
+  return Boolean(openRange(hours, day, minutes));
 }
 
 /** "פתוח עד 22:00", "סגור, נפתח מחר ב-08:00", "סגור, נפתח במוצאי שבת ב-19:30" */
@@ -34,7 +45,7 @@ export function openStatus(hours: WeeklyHours | null, lang: Lang = 'he', now = n
   if (!hours) return { open: false, text: '' };
   const { day, minutes } = israelNow(now);
 
-  const current = (rangesFor(hours, day) ?? []).find(([a, b]) => minutes >= toMin(a) && minutes < toMin(b));
+  const current = openRange(hours, day, minutes);
   if (current) return { open: true, text: en ? `Open until ${current[1]}` : `פתוח עד ${current[1]}` };
 
   for (let i = 0; i < 8; i++) {

@@ -3,7 +3,7 @@
 import { needLabel, needLetter, type Need, type NeedFilter } from '@/lib/types';
 import { useL } from './LangProvider';
 import { useState } from 'react';
-import { EXTRA_NEEDS, MAIN_NEEDS, NEED_CLASS, NEED_ORDER, TWO_LEVEL_NEEDS } from '@/lib/claims';
+import { EXTRA_NEEDS, MAIN_NEEDS, NEED_CLASS, NEED_ORDER } from '@/lib/claims';
 import { CUISINES, CUISINE_FILTERS, CUISINE_GROUPS } from '@/lib/cuisine';
 import { NEED_EMOJI } from '@/lib/emoji';
 import { FILTER_OPTIONS } from '@/lib/filters';

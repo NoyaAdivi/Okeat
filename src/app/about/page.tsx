@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { SiteFooter, SiteHeader, LINKEDIN_URL } from '@/components/SiteChrome';
 import { getLang, serverL } from '@/lib/lang-server';
 import TapSeal from '@/components/TapSeal';
@@ -113,8 +112,8 @@ const faqOf = (L: T) => [
   {
     group: 'use',
     q: L('איך מחפשים נכון?', 'How do I search?'),
-    a: L('אפשר לכתוב שם של מקום, או משפט שלם כמו "בא לי פיצה כשרה שפתוחה עכשיו", והאתר מסנן לבד. אם כתבתם גם עיר, מופיע כפתור שמעביר אתכם אליה. סינון שאתם משתמשים בו תמיד אפשר לשמור, והוא נשאר רק במכשיר שלכם.',
-      'Type the name of a place, or a whole sentence like "kosher pizza open now", and the site filters by itself. If you also name a city, a button takes you there. A filter you always use can be saved, and it stays only on your device.'),
+    a: L('אפשר לכתוב שם של מקום, או משפט שלם כמו "בא לי פיצה כשרה שפתוחה עכשיו", והאתר מסנן לבד. אם כתבתם גם עיר, מופיע כפתור שמעביר אתכם אליה. סינון שאתם משתמשים בו תמיד אפשר לשמור, והוא נשאר רק במכשיר שלכם. אפשר גם לבחור עיר בדף "לאן הולכים לאכול?", ושם לסנן לפי מה שחשוב לכם ולפי סוג האוכל.',
+      'Type the name of a place, or a whole sentence like "kosher pizza open now", and the site filters by itself. If you also name a city, a button takes you there. A filter you always use can be saved, and it stays only on your device. You can also pick a city on the "Where are we eating?" page, then filter it by what matters to you and by type of food.'),
   },
   {
     group: 'account',

@@ -69,7 +69,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
             <PlaceTile key={p.id} index={i} href={`/place/${p.id}`} emoji={placeIcon(p)} name={cleanName(p.name)} sub={placeFoods(p, 2).map((c) => cuisineLabel(c, lang)).join(', ') || placeTypeLabel(p.place_type, lang)} seals={<Badges place={withoutPending(p)} />} />
           ))}
         </ul>
-        <p className="center"><Link className="btn primary" href="/map">{L('לפתוח את המפה', 'Open the map')}</Link></p>
+        <p className="center"><Link className="btn primary" href={`/map?need=${topic.need}${food ? `&food=${food}` : ''}`}>{L('לפתוח את המפה', 'Open the map')}</Link></p>
       </main>
       <SiteFooter />
     </div>
