@@ -2246,3 +2246,6 @@ a.dash-city { color: inherit; text-decoration: none; }
 .food-groups .cuisine:hover { transform: translateY(-2px); }
 .food-groups .cuisine:hover .ce { transform: scale(1.2) rotate(-8deg); }
 @media (prefers-reduced-motion: reduce) { .food-groups .cuisine { animation: none; } }
+
+/* The page scrolls inside .page: keep the same space on both sides of its scrollbar, so the content sits exactly in the middle */
+.page { scrollbar-gutter: stable both-edges; }
