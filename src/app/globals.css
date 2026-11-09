@@ -2210,3 +2210,12 @@ a.dash-city { color: inherit; text-decoration: none; }
 .join .section-title { margin: 0; }
 .join-art { font-size: 2.75rem; line-height: 1; }
 @media (max-width: 560px) { .need-hero, .join { min-height: 200px; padding: 18px; } }
+
+/* Phone: the menu at its smallest still shows everything at its top whole: search, tabs, the four filters and "more filters" */
+@media (max-width: 760px) {
+  .app:not([data-sheet]) , .app[data-sheet="peek"] { --sheet-h: calc(284px + env(safe-area-inset-bottom, 0px)); }
+  .need-cards > .need-card { min-height: 184px; }
+}
+@media (max-height: 600px) and (max-width: 760px) {
+  .app[data-sheet="peek"] { --sheet-h: 170px; }
+}

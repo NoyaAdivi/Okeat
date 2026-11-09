@@ -25,3 +25,8 @@ test('foreign means letters, but no Hebrew ones', () => {
   assert.equal(isForeign('123'), false);
   assert.equal(hasHebrew('שלום'), true);
 });
+
+test('an address that is only numbers is no address', () => {
+  assert.equal(cleanAddress('123'), '');
+  assert.equal(cleanAddress('5, 7'), '');
+});

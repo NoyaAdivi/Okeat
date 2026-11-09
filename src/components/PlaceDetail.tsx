@@ -109,7 +109,7 @@ export default function PlaceDetail({
       <div className="detail-top">
         <button type="button" className="back-pill" onClick={onBack}><span aria-hidden="true">{lang === 'en' ? '←' : '→'}</span> {back}</button>
         <span className="detail-tools">
-          <a className="link" href={googleUrl(place.name, place.address ?? town)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('בגוגל', 'On Google')}</a>
+          <a className="link" href={googleUrl(place.name, address || town)} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">🔎</span> {L('בגוגל', 'On Google')}</a>
           <button type="button" className="link" onClick={onShare}><span aria-hidden="true">🔗</span> {L('העתקת קישור', 'Copy link')}</button>
         </span>
       </div>

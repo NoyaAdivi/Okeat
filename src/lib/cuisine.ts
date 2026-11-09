@@ -160,7 +160,7 @@ const NAME_HINTS: Record<string, RegExp> = {
 /** Place types that count as a category on their own. */
 const TYPE_HINTS: Record<string, string[]> = {
   pizza: ['pizza'], sushi: ['sushi'], japanese: ['sushi'], asian: ['sushi'],
-  hummus: ['hummus'], middle_eastern: ['hummus'], falafel: ['hummus'], shawarma: ['hummus'],
+  hummus: ['hummus'], middle_eastern: ['hummus'],
   burger: [], meat: ['grill'], steak_house: ['grill'],
   coffee_shop: ['cafe'], bakery: ['bakery'], ice_cream: ['ice_cream'], dessert: ['ice_cream', 'bakery'],
 };

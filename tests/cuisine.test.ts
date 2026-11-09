@@ -37,3 +37,9 @@ test('new kinds of food are found by name', () => {
   }
   assert.equal(matchesCuisine(named('Turkey Sandwich'), 'turkish'), false);
 });
+
+test('a hummus place is not a falafel or shawarma place by its type alone', () => {
+  assert.equal(matchesCuisine({ name: 'חומוס אליהו', place_type: 'hummus' }, 'falafel'), false);
+  assert.equal(matchesCuisine({ name: 'חומוס אליהו', place_type: 'hummus' }, 'shawarma'), false);
+  assert.equal(matchesCuisine({ name: 'פלאפל ושווארמה', place_type: 'hummus' }, 'falafel'), true);
+});

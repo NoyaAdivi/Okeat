@@ -25,7 +25,9 @@ export function cleanAddress(a: string | null | undefined): string {
   s = s.replace(/\s*,\s*/g, ', ').replace(/(,\s*)+/g, ', ').replace(/^[\s,.;:-]+|[\s,.;:-]+$/g, '');
   // the same part twice in a row ("תל אביב, תל אביב")
   const parts = s.split(', ').filter((p, i, all) => p && p !== all[i - 1]);
-  return parts.join(', ');
+  const out = parts.join(', ');
+  // "123" or "5, 7" is not an address anyone can find
+  return LETTER.test(out) ? out : '';
 }
 
 /** "  'PIZZA HUT'  בע\"מ " → "Pizza Hut" */
