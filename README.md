@@ -17,7 +17,7 @@
 ## ✨ Features
 
 - **Nationwide map** of over 20,000 eateries, clustered for speed, across Israel and the Israeli towns in Judea and Samaria, in Hebrew and English, with light, dark and automatic themes
-- **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by food type (pizza, sushi, coffee…) and "open now" in Israel time
+- **Filters** by need and level (e.g. "Mehadrin and up", "separate gluten-free kitchen"), vegetarian and allergies (dairy, egg, peanuts, nuts, sesame, soy), by over 60 food types in groups (favorite dishes, meat and fish, cafés and sweets, community kitchens, world kitchens) and "open now" in Israel time
 - **Community verification** – every claim needs 3 confirmations; you can't confirm your own; outdated info can be reported
 - **Kosher details** – choose the supervising body (including Tzohar or "unknown"); a certificate photo is optional and strengthens the claim. The site reads the supervising body, level and expiry date (including Hebrew dates). Expired certificates are flagged automatically
 - **Turn-by-turn navigation** inside the site (walking, cycling, driving) with Hebrew voice guidance, rerouting and "choose my location"
@@ -30,7 +30,8 @@
 - **Lists and notifications** – shareable lists, similar places, badges, and on-site notifications when information is confirmed or a certificate is ending
 - **Business owners** – verified owners update hours, phone, website and a menu link
 - **Admin tools** – dashboard, limits, activity log, users and roles, contact messages, photo approval and merging duplicates
-- **City pages and installable app** – a page for each main city and each need, and an app icon for the phone home screen
+- **City pages and installable app** – pick a city, then filter it by need and food type; a page for each need, and an app icon for the phone home screen
+- **Live numbers on the home page** – how many places there are in total and for each need, refreshing by themselves
 - **Community moderation** – 3 reports send a place to moderators; moderators are appointed by the admin, and details the admin adds are confirmed right away; automatic guesses can be corrected by people
 - **Admin hub** – what users added, changed and reported, each with a link to the person and the place, plus privacy-friendly visit counts
 - **Places to check** – suspicious names, new places and rough locations reach the admin by themselves, each with the reason, to approve, fix, hide or delete from any phone
@@ -70,20 +71,23 @@
 
 ```
 ├── src/
-│   ├── app/                 pages: home, map, place/[id], about, contact, legal pages, API routes
+│   ├── app/                 pages: home, map, place/[id], cities, city/[slug], topic/[slug], u/[id], about, contact, legal pages, API routes
 │   ├── components/          MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
-│   └── lib/                 data access, types, geo, hours, speech, Supabase clients
+│   └── lib/                 data access, types, food types, filters, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/          0001 … 0035 (schema, RLS, functions)
-│   ├── RUN-ME-IN-SUPABASE.sql   migrations 0003 – 0007 in one file
-│   ├── RUN-ME-2-IN-SUPABASE.sql same as 0008
-│   ├── RUN-ME-3-IN-SUPABASE.sql same as 0009
-│   └── RUN-ME-4 … 10-IN-SUPABASE.sql same as the later migrations
+│   ├── migrations/          0001 … 0051 (schema, RLS, functions)
+│   ├── RUN-ME-IN-SUPABASE.sql … RUN-ME-44-IN-SUPABASE.sql   the same migrations, ready to paste into the SQL Editor
+│   └── TEST-SETUP-IN-NEW-SUPABASE.sql   everything in one file, for a fresh test project
+├── tests/                   automated tests (npm test)
 └── scripts/
     ├── import-osm.mjs       import eateries from OpenStreetMap
     ├── import-overture.mjs  import more eateries from Overture Maps
     ├── classify-ai.mjs      give a food type to unclassified places with Claude
-    └── classify-diet.mjs    add vegan, vegetarian and gluten-free guesses, labelled as not confirmed
+    ├── classify-free.mjs    give a food type by name rules, without an API key
+    ├── classify-diet.mjs    add vegan, vegetarian and gluten-free guesses, labelled as not confirmed
+    ├── fix-locations.mjs    find and fix places with a wrong location
+    ├── backup.mjs           back up the database
+    └── screenshots.mjs      take screenshots of the site
 ```
 
 ## 💻 Running locally
@@ -96,6 +100,7 @@
    npm install
    npm run dev
    ```
+   Check the code with `npm run typecheck` and `npm test`.
 5. Fill the map:
    ```bash
    npm run import:osm
