@@ -2254,3 +2254,11 @@ a.dash-city { color: inherit; text-decoration: none; }
 .food-groups .cuisine { cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .food-groups .cuisine[aria-pressed="true"] { background: var(--peach); color: #2B2140; font-weight: 700; box-shadow: 0 4px 10px color-mix(in srgb, var(--peach-deep) 30%, transparent); }
 .food-groups .cuisine:active { transform: scale(.95); }
+
+/* Computer: Home, Map and How it works sit exactly in the middle, whatever the width of the logo and the buttons on the sides */
+@media (min-width: 768px) {
+  .site-head { display: grid; grid-template-columns: 1fr auto 1fr; }
+  .site-head .brand-link { justify-self: start; }
+  .site-head nav { justify-self: center; flex-wrap: nowrap; }
+  .site-head .site-tools { justify-self: end; }
+}
