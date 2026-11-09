@@ -680,9 +680,14 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
 
   // A phone has no pointer to hover with. The first tap on a button shows its name, the second uses it.
   useEffect(() => {
+    // What pressed the button decides: a finger shows the name first, a mouse acts at once.
+    // (Some computers with a touch screen say they are touch devices, which made a mouse need two clicks.)
+    let lastPointer = '';
+    const onPointer = (e: PointerEvent) => { lastPointer = e.pointerType; };
+    document.addEventListener('pointerdown', onPointer, true);
     const onClick = (e: MouseEvent) => {
-      // Phones report a tap in different ways, some even as a mouse, so go by the screen itself.
-      if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+      const touch = lastPointer ? lastPointer === 'touch' : window.matchMedia('(hover: none)').matches;
+      if (!touch) return;
       const button = (e.target as HTMLElement).closest?.('.map-tool.wide, .fab');
       if (!button) return;
       if (button.classList.contains('show-name')) {
@@ -696,7 +701,7 @@ export default function MapScreen({ initialPlaceId = null, authError = false, in
       setTimeout(() => button.classList.remove('show-name'), 3500);
     };
     document.addEventListener('click', onClick, true);
-    return () => document.removeEventListener('click', onClick, true);
+    return () => { document.removeEventListener('click', onClick, true); document.removeEventListener('pointerdown', onPointer, true); };
   }, []);
 
   // Esc: cancel picking, else close the place.

@@ -1906,7 +1906,7 @@ a.dash-city { color: inherit; text-decoration: none; }
 .map-tools { left: 24px; bottom: calc(76px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); }
 .fab { left: 24px; bottom: calc(24px + var(--sheet-h) + env(safe-area-inset-bottom, 0px)); }
 [dir="ltr"] .map-tools, [dir="ltr"] .fab { left: auto; right: 24px; }
-@media (hover: hover) and (min-width: 761px) {
+@media (any-hover: hover) and (min-width: 761px) {
   .map-tool.wide:hover, .map-tool.wide:focus-visible, .fab:hover, .fab:focus-visible, [dir="ltr"] .fab:hover { width: auto; padding: 0 12px; }
   .map-tool.wide:hover .tool-label, .map-tool.wide:focus-visible .tool-label, .fab:hover .tool-label, .fab:focus-visible .tool-label { max-width: 150px; margin-inline-start: 6px; }
 }
@@ -2204,7 +2204,7 @@ a.dash-city { color: inherit; text-decoration: none; }
 @media (max-width: 380px) { .place-tabs button { font-size: 0.75rem; } }
 
 /* "Know a place that is missing?" matches the "places to eat" card above it: same width, height and roundness */
-.need-hero, .join { box-sizing: border-box; min-height: 216px; border-radius: 28px; padding: 24px 28px; }
+.need-hero, .join { box-sizing: border-box; min-height: 224px; border-radius: 28px; padding: 24px 28px; }
 .join { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .join > div { display: grid; justify-items: center; gap: 12px; }
 .join .section-title { margin: 0; }
