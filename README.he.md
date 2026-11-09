@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/לאתר_החי-FFD5C9?style=for-the-badge&logo=vercel&logoColor=A8483A" alt="Open live site"></a>
+  <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open live site-FFD5C9?style=for-the-badge&logo=vercel&logoColor=A8483A" alt="Open live site"></a>
 </p>
 
 <p align="center">
