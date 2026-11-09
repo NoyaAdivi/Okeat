@@ -2189,3 +2189,16 @@ a.dash-city { color: inherit; text-decoration: none; }
 /* "back to the route" while navigating: a round icon like the others, in soft honey yellow */
 .map-tool.wide.route-back { background: color-mix(in srgb, var(--gf) 34%, var(--surface)); }
 .map-tool.wide.route-back svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; flex: none; }
+
+/* The three parts of a place: a calm row of soft cards, icon above a one-line name. The chosen one is filled in its pastel. */
+.place-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; border-radius: 22px; background: var(--surface-2); box-shadow: none; }
+.place-tabs button { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 60px; padding: 8px 4px; border-radius: 16px; background: var(--surface); box-shadow: 0 1px 3px rgba(60, 40, 90, .08); font-size: 0.8125rem; font-weight: 600; white-space: nowrap; line-height: 1.2; color: var(--muted); }
+.place-tabs button .pt-icon { font-size: 1.25rem; line-height: 1; transition: transform .2s; }
+.place-tabs button .pt-label { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.place-tabs button:hover { transform: translateY(-1px); color: var(--ink); }
+.place-tabs button:hover .pt-icon { transform: scale(1.12); }
+.place-tabs button[aria-selected="true"] { color: var(--ink); font-weight: 700; box-shadow: 0 4px 12px rgba(60, 40, 90, .12); }
+.place-tabs button:nth-child(1)[aria-selected="true"] { background: var(--kosher-soft); box-shadow: 0 4px 12px rgba(60, 40, 90, .12); }
+.place-tabs button:nth-child(2)[aria-selected="true"] { background: var(--vegan-soft); box-shadow: 0 4px 12px rgba(60, 40, 90, .12); }
+.place-tabs button:nth-child(3)[aria-selected="true"] { background: var(--peach-soft); box-shadow: 0 4px 12px rgba(60, 40, 90, .12); }
+@media (max-width: 380px) { .place-tabs button { font-size: 0.75rem; } }

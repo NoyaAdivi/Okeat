@@ -147,7 +147,6 @@ export default function PlaceDetail({
           <button key={value} type="button" role="tab" aria-selected={section === value} onClick={() => setSection(value)}>
             <span className="pt-icon" aria-hidden="true">{icon}</span>
             <span className="pt-label">{label}</span>
-            <span className="pt-chev" aria-hidden="true">⌄</span>
           </button>
         ))}
       </div>
