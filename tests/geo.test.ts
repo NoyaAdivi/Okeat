@@ -29,7 +29,7 @@ test('a trip longer than an hour is said in hours and minutes, then days, then m
   assert.equal(formatDuration(45), '45 דקות');
   assert.equal(formatDuration(1), 'דקה');
   assert.equal(formatDuration(60), 'שעה');
-  assert.equal(formatDuration(65), 'שעה ו-5 דקות');
+  assert.equal(formatDuration(65), 'שעה ו־5 דקות');
   assert.equal(formatDuration(120), 'שעתיים');
   assert.equal(formatDuration(261), '4 שעות ו-21 דקות');
   assert.equal(formatDuration(1439), '23 שעות ו-59 דקות');
