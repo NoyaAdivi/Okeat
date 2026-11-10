@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { adminDeleteItem, fetchAdminFeed, markMessage, markReport, placePhotoUrl, type AdminEvent, type AdminKind } from '@/lib/places';
+import { adminDeleteItem, fetchAdminFeed, moderateClaim, markMessage, markReport, placePhotoUrl, type AdminEvent, type AdminKind } from '@/lib/places';
 import { googleUrl } from '@/lib/text';
 import { friendly } from '@/lib/errors';
 import { levelInfo, levelText, needLabel, placeTypeLabel, type Level } from '@/lib/types';
@@ -49,6 +49,11 @@ export default function AdminFeed({ sb, kind = null, canDelete = false, canHandl
     setRows((list) => list?.map((x) => (x === r ? { ...x, status } : x)) ?? null);
     const work = r.kind === 'report' ? markReport(sb, r.place_id!, r.user_id!, done) : markMessage(sb, Number(r.id), done);
     work.catch((e) => setError(friendly(e, lang)));
+  };
+  // An admin's word is enough: the information counts as confirmed right away.
+  const approve = (r: AdminEvent) => {
+    setRows((list) => list?.map((x) => (x === r ? { ...x, status: 'verified' } : x)) ?? null);
+    moderateClaim(sb, r.id, true).catch((e) => setError(friendly(e, lang)));
   };
   const remove = (r: AdminEvent) => {
     setRows((list) => list?.filter((x) => x !== r) ?? null);
@@ -137,6 +142,9 @@ export default function AdminFeed({ sb, kind = null, canDelete = false, canHandl
             </Link>
           )}
           <time>{when(r.at)}</time>
+          {canDelete && r.kind === 'claim' && r.status === 'pending' && (
+            <button type="button" className="btn small admin-ok" onClick={() => approve(r)}><span aria-hidden="true">🛡️</span> {L('אישור', 'Approve')}</button>
+          )}
           {canDelete && r.kind !== 'user' && (sure === `${r.kind}-${r.id}`
             ? <button type="button" className="btn small ghost danger" onClick={() => remove(r)}>{r.kind === 'place' ? L('להסתיר?', 'Hide?') : L('למחוק?', 'Delete?')}</button>
             : <button type="button" className="link" onClick={() => setSure(`${r.kind}-${r.id}`)}>{r.kind === 'place' ? L('הסתרה', 'Hide') : L('מחיקה', 'Delete')}</button>)}
