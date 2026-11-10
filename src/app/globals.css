@@ -2262,3 +2262,4 @@ a.dash-city { color: inherit; text-decoration: none; }
   .site-head nav { justify-self: center; flex-wrap: nowrap; }
   .site-head .site-tools { justify-self: end; }
 }
+.notes-clear { margin: 0 0 8px; text-align: end; }

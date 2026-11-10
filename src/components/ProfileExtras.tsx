@@ -10,6 +10,8 @@ import { formatDate } from '@/lib/geo';
 import { useL } from './LangProvider';
 
 /** On your own profile: what's new, and your lists. */
+const CLEARED = 'okeat-notes-cleared';
+
 export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient; userId: string; show: 'notes' | 'lists' }) {
   const L = useL();
   const [notes, setNotes] = useState<MyNotification[]>([]);
@@ -18,7 +20,13 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchNotifications(sb).then((n) => { setNotes(n); if (n.some((x) => x.is_new)) markNotificationsSeen(sb); });
+    fetchNotifications(sb).then((n) => {
+      // Notifications cleared on this device stay cleared; anything that happens later shows again.
+      let cleared = '';
+      try { cleared = localStorage.getItem(CLEARED) ?? ''; } catch { /* shows all */ }
+      setNotes(n.filter((x) => x.happened_at > cleared));
+      if (n.some((x) => x.is_new)) markNotificationsSeen(sb);
+    });
     fetchMyLists(sb, userId).then(setLists);
   }, [sb, userId]);
 
@@ -50,6 +58,14 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
     <>
       {show === 'notes' && <section className="sec">
         <h2 className="vh">{L('התראות', 'Notifications')}</h2>
+        {notes.length > 0 && (
+          <p className="notes-clear">
+            <button type="button" className="link" onClick={() => {
+              try { localStorage.setItem(CLEARED, notes.reduce((m, n) => (n.happened_at > m ? n.happened_at : m), '')); } catch { /* only for now */ }
+              setNotes([]);
+            }}>{L('ניקוי כל ההתראות', 'Clear all notifications')}</button>
+          </p>
+        )}
         {notes.length === 0 && <p className="muted">{L('אין כרגע. כשמידע שהוספת יאושר, או תעודה שהעלית תתקרב לסיום, נספר לך כאן.', "Nothing right now. When your information is confirmed, or a certificate you added is about to end, you'll see it here.")}</p>}
         <ul className="profile-places note-cards">
           {notes.map((n) => (
