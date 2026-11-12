@@ -12,3 +12,5 @@ backups/
 # local-only files: social preview images and spare banners
 social-preview*.jpg
 Banner-en.png
+# old SQL copies kept only on the computer (the real ones are in supabase/migrations)
+supabase/RUN-ME*.sql
