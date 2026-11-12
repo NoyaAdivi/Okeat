@@ -1,9 +1,7 @@
 <div dir="rtl">
 
 <p align="center">
-  <a href="https://okeat.vercel.app">
-    <img src="Banner-he.png" width="100%" alt="Okeat: מפה דו־לשונית של מקומות אוכל כשרים, טבעוניים, צמחוניים וללא גלוטן בכל הארץ, שהקהילה מאמתת">
-  </a>
+  <a href="https://okeat.vercel.app"><img src="docs/readme/banner-he.svg" width="100%" alt="Okeat: מפה דו־לשונית של מקומות אוכל כשרים, טבעוניים, צמחוניים וללא גלוטן בכל הארץ, שהקהילה מאמתת"></a>
 </p>
 
 <p align="center"><a href="README.md"><img src="docs/readme/lang-en.svg" height="44" alt="Read in English"></a></p>
@@ -36,6 +34,10 @@
     <td align="center" width="25%"><a href="https://github.com/NoyaAdivi/Okeat/actions/workflows/tests.yml"><b>🧪 CI</b></a><br><sub>בדיקות בכל עדכון</sub></td>
   </tr>
 </table>
+
+<p align="center">
+  <a href="https://okeat.vercel.app"><img src="Banner-he.png" width="100%" alt="Okeat: מפה דו־לשונית של מקומות אוכל כשרים, טבעוניים, צמחוניים וללא גלוטן בכל הארץ, שהקהילה מאמתת"></a>
+</p>
 
 <a name="highlights"></a>
 <p align="center"><a href="#see-it-in-action"><img src="docs/readme/highlights-he.svg" width="100%" alt="מה מיוחד ב־Okeat"></a></p>

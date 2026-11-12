@@ -1,7 +1,5 @@
 <p align="center">
-  <a href="https://okeat.vercel.app">
-    <img src="Banner.png" width="100%" alt="Okeat: a bilingual, community-verified map of kosher, vegan, vegetarian and gluten-free eateries across Israel">
-  </a>
+  <a href="https://okeat.vercel.app"><img src="docs/readme/banner-en.svg" width="100%" alt="Okeat: a bilingual, community-verified map of kosher, vegan, vegetarian and gluten-free eateries across Israel"></a>
 </p>
 
 <p align="center"><a href="README.he.md"><img src="docs/readme/lang-he.svg" height="44" alt="לגרסה בעברית"></a></p>
@@ -34,6 +32,10 @@
     <td align="center" width="25%"><a href="https://github.com/NoyaAdivi/Okeat/actions/workflows/tests.yml"><b>🧪 CI</b></a><br><sub>tests on every push</sub></td>
   </tr>
 </table>
+
+<p align="center">
+  <a href="https://okeat.vercel.app"><img src="Banner.png" width="100%" alt="Okeat: a bilingual, community-verified map of kosher, vegan, vegetarian and gluten-free eateries across Israel"></a>
+</p>
 
 <a name="highlights"></a>
 <p align="center"><a href="#see-it-in-action"><img src="docs/readme/highlights-en.svg" width="100%" alt="Highlights"></a></p>
