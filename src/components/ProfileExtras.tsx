@@ -3,14 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createList, deleteList, renameList, fetchMyLists, fetchNotifications, markNotificationsSeen, type MyList, type MyNotification } from '@/lib/places';
+import { createList, deleteList, renameList, fetchMyLists, fetchNotifications, markNotificationsSeen, clearNotifications, type MyList, type MyNotification } from '@/lib/places';
 import { needLabel, type Need } from '@/lib/types';
 import { friendly } from '@/lib/errors';
 import { formatDate } from '@/lib/geo';
 import { useL } from './LangProvider';
 
 /** On your own profile: what's new, and your lists. */
-const CLEARED = 'okeat-notes-cleared';
 
 export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient; userId: string; show: 'notes' | 'lists' }) {
   const L = useL();
@@ -21,10 +20,8 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
 
   useEffect(() => {
     fetchNotifications(sb).then((n) => {
-      // Notifications cleared on this device stay cleared; anything that happens later shows again.
-      let cleared = '';
-      try { cleared = localStorage.getItem(CLEARED) ?? ''; } catch { /* shows all */ }
-      setNotes(n.filter((x) => x.happened_at > cleared));
+      // Cleared notifications are already left out by the database, on every device.
+      setNotes(n);
       if (n.some((x) => x.is_new)) markNotificationsSeen(sb);
     });
     fetchMyLists(sb, userId).then(setLists);
@@ -60,13 +57,15 @@ export default function ProfileExtras({ sb, userId, show }: { sb: SupabaseClient
         <h2 className="vh">{L('התראות', 'Notifications')}</h2>
         {notes.length > 0 && (
           <p className="notes-clear">
-            <button type="button" className="link" onClick={() => {
-              try { localStorage.setItem(CLEARED, notes.reduce((m, n) => (n.happened_at > m ? n.happened_at : m), '')); } catch { /* only for now */ }
+            <button type="button" className="link" onClick={async () => {
+              const before = notes;
               setNotes([]);
+              if (!(await clearNotifications(sb))) { setNotes(before); setError(L('לא הצלחנו לנקות את ההתראות. נסו שוב.', "Couldn't clear the notifications. Please try again.")); }
             }}>{L('ניקוי כל ההתראות', 'Clear all notifications')}</button>
           </p>
         )}
         {notes.length === 0 && <p className="muted">{L('אין כרגע. כשמידע שהוספת יאושר, או תעודה שהעלית תתקרב לסיום, נספר לך כאן.', "Nothing right now. When your information is confirmed, or a certificate you added is about to end, you'll see it here.")}</p>}
+        {error && <div className="err" role="alert">{error}</div>}
         <ul className="profile-places note-cards">
           {notes.map((n) => (
             <li key={`${n.kind}-${n.place_id}-${n.need}`} className={n.is_new ? 'note-new' : undefined}>

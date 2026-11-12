@@ -648,6 +648,12 @@ export async function fetchNotifications(sb: SupabaseClient): Promise<MyNotifica
 
 export const markNotificationsSeen = (sb: SupabaseClient) => sb.rpc('mark_notifications_seen').then(() => undefined);
 
+/** Hides every notification so far, on all devices. Newer ones still show. */
+export async function clearNotifications(sb: SupabaseClient): Promise<boolean> {
+  const { error } = await sb.rpc('clear_notifications');
+  return !error;
+}
+
 // ---------- lists ----------
 export interface MyList { id: string; title: string; list_places: { count: number }[] }
 export interface ListDetails {
