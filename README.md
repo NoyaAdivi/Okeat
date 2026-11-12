@@ -39,9 +39,9 @@
 <p align="center"><a href="#highlights"><img src="docs/readme/highlights-en.svg" width="100%" alt="Highlights"></a></p>
 
 <table>
-  <tr>
+  <tr valign="top">
     <td valign="top" width="33%">
-      <h3>🗺️ Find a place to eat</h3>
+      <p><b>🗺️ Find a place to eat</b></p>
       <ul>
         <li><a href="https://okeat.vercel.app/map"><b>Nationwide map</b></a>, clustered so it stays fast</li>
         <li><b>Filters that matter:</b> kosher level and supervising body, vegan, vegetarian, gluten-free, allergies</li>
@@ -50,7 +50,7 @@
       </ul>
     </td>
     <td valign="top" width="33%">
-      <h3>🤝 Information you can trust</h3>
+      <p><b>🤝 Information you can trust</b></p>
       <ul>
         <li><b>Every claim needs 3 confirmations</b>, and nobody can confirm their own</li>
         <li><b>Kosher certificates</b> are added as photos and read with OCR</li>
@@ -59,7 +59,7 @@
       </ul>
     </td>
     <td valign="top" width="33%">
-      <h3>💛 Built like a real product</h3>
+      <p><b>💛 Built like a real product</b></p>
       <ul>
         <li><b>Reviews, saved places, shareable lists</b> and photo uploads with approval</li>
         <li><b>Business owners</b> prove ownership with a code</li>
@@ -224,7 +224,7 @@ Place data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a
 
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_Okeat-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="Open Okeat"></a>
-  <a href="https://www.linkedin.com/in/noya-adivi/"><img src="https://img.shields.io/badge/LinkedIn-DAD5FF?style=for-the-badge&logo=linkedin&logoColor=5548C8" alt="LinkedIn"></a>
+  <a href="https://www.linkedin.com/in/noya-adivi/"><img src="https://img.shields.io/badge/LinkedIn-DAD5FF?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzU1NDhDOCIgZD0iTTIwLjQ1IDIwLjQ1aC0zLjU2di01LjU3YzAtMS4zMy0uMDMtMy4wNC0xLjg1LTMuMDQtMS44NiAwLTIuMTQgMS40NS0yLjE0IDIuOTR2NS42N0g5LjM1VjloMy40MXYxLjU2aC4wNWMuNDgtLjkgMS42NC0xLjg1IDMuMzctMS44NSAzLjYgMCA0LjI3IDIuMzcgNC4yNyA1LjQ2djYuMjh6TTUuMzQgNy40M2EyLjA2IDIuMDYgMCAxIDEgMC00LjEzIDIuMDYgMi4wNiAwIDAgMSAwIDQuMTN6TTcuMTIgMjAuNDVIMy41NlY5aDMuNTZ2MTEuNDV6TTIyLjIyIDBIMS43N0MuNzkgMCAwIC43NyAwIDEuNzN2MjAuNTRDMCAyMy4yMy43OSAyNCAxLjc3IDI0aDIwLjQ1Yy45OCAwIDEuNzgtLjc3IDEuNzgtMS43M1YxLjczQzI0IC43NyAyMy4yIDAgMjIuMjIgMHoiLz48L3N2Zz4=" alt="LinkedIn"></a>
   <a href="https://noyaadivi.github.io/noya-website"><img src="https://img.shields.io/badge/Portfolio-D9F3E7?style=for-the-badge&logo=githubpages&logoColor=1F7350" alt="Portfolio"></a>
   <a href="https://github.com/NoyaAdivi"><img src="https://img.shields.io/badge/More_projects-FBD5E0?style=for-the-badge&logo=github&logoColor=A03A5C" alt="More projects"></a>
 </p>
