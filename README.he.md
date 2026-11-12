@@ -38,7 +38,7 @@
 </table>
 
 <a name="highlights"></a>
-<p align="center"><a href="https://okeat.vercel.app"><img src="docs/readme/highlights-he.svg" width="100%" alt="מה מיוחד ב־Okeat"></a></p>
+<p align="center"><a href="#see-it-in-action"><img src="docs/readme/highlights-he.svg" width="100%" alt="מה מיוחד ב־Okeat"></a></p>
 
 <table dir="rtl">
   <tr valign="top">
@@ -73,7 +73,7 @@
 </table>
 
 <a name="see-it-in-action"></a>
-<p align="center"><a href="https://okeat.vercel.app/map"><img src="docs/readme/screens-he.svg" width="100%" alt="תראו את זה בפעולה"></a></p>
+<p align="center"><a href="#how-trust-works"><img src="docs/readme/screens-he.svg" width="100%" alt="תראו את זה בפעולה"></a></p>
 
 <p align="center">
   <a href="https://okeat.vercel.app/map"><img src="okeat.png" width="100%" alt="המפה של Okeat עם רשימת המקומות ודף הבית"></a>
@@ -88,7 +88,7 @@
 </p>
 
 <a name="how-trust-works"></a>
-<p align="center"><a href="docs/ARCHITECTURE.md"><img src="docs/readme/trust-he.svg" width="100%" alt="איך נבנה אמון"></a></p>
+<p align="center"><a href="#tech-stack"><img src="docs/readme/trust-he.svg" width="100%" alt="איך נבנה אמון"></a></p>
 
 </div>
 
@@ -112,7 +112,7 @@ flowchart RL
 <p align="center"><sub>אי אפשר להצביע על טענה שהצעת בעצמך. מידע מיובא או אוטומטי מסומן ולעולם לא נחשב כמאומת על ידי הקהילה.</sub></p>
 
 <a name="tech-stack"></a>
-<p align="center"><a href="package.json"><img src="docs/readme/stack-he.svg" width="100%" alt="טכנולוגיות"></a></p>
+<p align="center"><a href="#data-rules"><img src="docs/readme/stack-he.svg" width="100%" alt="טכנולוגיות"></a></p>
 
 <p align="center"><b>אפליקציה</b><br>
 <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js_15-DAD5FF?style=for-the-badge&logo=nextdotjs&logoColor=5548C8" alt="Next.js 15"></a>
@@ -148,7 +148,7 @@ flowchart RL
 </details>
 
 <a name="data-rules"></a>
-<p align="center"><a href="supabase/"><img src="docs/readme/rules-he.svg" width="100%" alt="כללי הנתונים"></a></p>
+<p align="center"><a href="#run-locally"><img src="docs/readme/rules-he.svg" width="100%" alt="כללי הנתונים"></a></p>
 
 | כלל | איפה |
 |---|---|
@@ -164,7 +164,7 @@ flowchart RL
 | הגבלת קצב על קריאת תעודות והודעות יצירת קשר | `log_extraction()`, `feedback_rate_limit()` |
 
 <a name="run-locally"></a>
-<p align="center"><a href=".env.example"><img src="docs/readme/run-he.svg" width="100%" alt="הרצה מקומית"></a></p>
+<p align="center"><a href="#contact"><img src="docs/readme/run-he.svg" width="100%" alt="הרצה מקומית"></a></p>
 
 1. פותחים חשבונות חינמיים: [Supabase](https://supabase.com), [Mapbox](https://mapbox.com), [Anthropic](https://console.anthropic.com).
 2. ב־Supabase, בתוך SQL Editor, מריצים את הקבצים שב־`supabase/migrations/` לפי הסדר.
