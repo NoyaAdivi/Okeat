@@ -205,7 +205,7 @@ npm run classify:diet
 </details>
 
 <a name="contact"></a>
-<p align="center"><a href="#contact"><img src="docs/readme/footer-he.svg" width="100%" alt="נבנה באהבה על ידי נויה אדיבי"></a></p>
+<p align="center"><a href="#contact"><img src="docs/readme/footer-he.svg" width="100%" alt="נוצר על ידי נויה אדיבי"></a></p>
 
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/%D7%9C%D7%90%D7%AA%D7%A8-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="לאתר"></a>

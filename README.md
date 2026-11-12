@@ -220,7 +220,7 @@ Place data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a
 </details>
 
 <a name="contact"></a>
-<p align="center"><a href="#contact"><img src="docs/readme/footer-en.svg" width="100%" alt="Built with care by Noya Adivi"></a></p>
+<p align="center"><a href="#contact"><img src="docs/readme/footer-en.svg" width="100%" alt="Built by Noya Adivi"></a></p>
 
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_Okeat-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="Open Okeat"></a>
