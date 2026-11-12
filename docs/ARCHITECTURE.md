@@ -20,7 +20,6 @@ flowchart LR
 | `src/components` | Interface pieces. `MapScreen` holds the map page state, `MapView` draws the map |
 | `src/lib` | Data access (`places.ts`), geography, directions, address search, speech |
 | `supabase/migrations` | The database, in order: tables, access rules, functions, triggers |
-| `supabase/RUN-ME-*` | The same migrations in a form to paste into the SQL Editor |
 | `scripts` | Importing places and classifying them |
 | `tools` | Windows shortcuts that run the scripts |
 | `tests` | Automated tests, run on GitHub on every push |

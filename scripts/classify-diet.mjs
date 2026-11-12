@@ -47,7 +47,7 @@ async function readAll(table, columns, build = (q) => q) {
     const { data, error } = await build(sb.from(table).select(columns)).order('id').range(from, from + 999);
     if (error) {
       console.error(`קריאה מ-${table} נכשלה:`, error.message);
-      if (error.message.includes('removed')) console.error('צריך להריץ קודם ב-Supabase את RUN-ME-2-IN-SUPABASE.sql.');
+      if (error.message.includes('removed')) console.error('צריך להריץ קודם ב-Supabase את supabase/migrations/0008_community.sql.');
       process.exit(1);
     }
     rows.push(...data);

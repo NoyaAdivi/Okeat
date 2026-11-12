@@ -52,7 +52,7 @@ export default function DashboardPanel({ sb, onOpen, suspects, dupes }: { sb: Su
   const countFor = (k: AdminKind) => {
     if (stats) return stats.kinds[k] ?? 0;
     const c = over?.kinds[k];
-    return (range === 1 ? c?.today : range === 7 ? c?.week : c?.all) ?? 0; // before RUN-ME-44
+    return (range === 1 ? c?.today : range === 7 ? c?.week : c?.all) ?? 0; // before migration 0051
   };
   const rangeName = { 1: L('היום', 'today'), 7: L('בשבוע האחרון', 'this week'), 30: L('בחודש האחרון', 'this month'), 0: L('מההתחלה', 'since the start') }[range as 1 | 7 | 30 | 0];
   const topUsers = stats?.topUsers ?? over?.topUsers ?? [];

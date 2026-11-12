@@ -9,3 +9,6 @@ client_secret*.json
 # images for LinkedIn, kept only on the computer
 linkedin-images/
 backups/
+# local-only files: social preview images and spare banners
+social-preview*.jpg
+Banner-en.png

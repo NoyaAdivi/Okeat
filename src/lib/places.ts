@@ -967,7 +967,7 @@ export interface AdminNews { total: number; place: number; claim: number; review
 export async function adminNews(sb: SupabaseClient, since: string): Promise<AdminNews | null> {
   const { data, error } = await sb.rpc('admin_new_breakdown', { p_since: since });
   if (error) {
-    // before RUN-ME-44: only the total is known
+    // before migration 0051: only the total is known
     const total = await adminNewCount(sb, since);
     return total > 0 ? { total, place: 0, claim: 0, review: 0, photo: 0, report: 0, suggestion: 0 } : null;
   }
