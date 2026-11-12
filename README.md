@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<p align="center"><b>English</b> · <a href="README.he.md">עברית</a></p>
+<p align="center"><a href="README.he.md"><img src="docs/readme/lang-he.svg" height="44" alt="לגרסה בעברית"></a></p>
 
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_live_site-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="Open live site"></a>
@@ -36,7 +36,7 @@
 </table>
 
 <a name="highlights"></a>
-<p align="center"><a href="#highlights"><img src="docs/readme/highlights-en.svg" width="100%" alt="Highlights"></a></p>
+<p align="center"><a href="https://okeat.vercel.app"><img src="docs/readme/highlights-en.svg" width="100%" alt="Highlights"></a></p>
 
 <table>
   <tr valign="top">
@@ -71,7 +71,7 @@
 </table>
 
 <a name="see-it-in-action"></a>
-<p align="center"><a href="#see-it-in-action"><img src="docs/readme/screens-en.svg" width="100%" alt="See it in action"></a></p>
+<p align="center"><a href="https://okeat.vercel.app/map"><img src="docs/readme/screens-en.svg" width="100%" alt="See it in action"></a></p>
 
 <p align="center">
   <a href="https://okeat.vercel.app/map"><img src="okeat-en.png" width="100%" alt="Okeat map with the place list and the home page"></a>
@@ -86,7 +86,7 @@
 </p>
 
 <a name="-how-trust-works"></a>
-<p align="center"><a href="#-how-trust-works"><img src="docs/readme/trust-en.svg" width="100%" alt="How trust works"></a></p>
+<p align="center"><a href="docs/ARCHITECTURE.md"><img src="docs/readme/trust-en.svg" width="100%" alt="How trust works"></a></p>
 
 ```mermaid
 flowchart LR
@@ -106,7 +106,7 @@ flowchart LR
 <p align="center"><sub>You can't vote on a claim you proposed. Imported and automatic info is labelled and never counts as community-verified.</sub></p>
 
 <a name="tech-stack"></a>
-<p align="center"><a href="#tech-stack"><img src="docs/readme/stack-en.svg" width="100%" alt="Tech Stack"></a></p>
+<p align="center"><a href="package.json"><img src="docs/readme/stack-en.svg" width="100%" alt="Tech Stack"></a></p>
 
 <p align="center"><b>App</b><br>
 <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js_15-DAD5FF?style=for-the-badge&logo=nextdotjs&logoColor=5548C8" alt="Next.js 15"></a>
@@ -150,7 +150,7 @@ The browser talks to the database directly, so access rules live in PostgreSQL a
 </details>
 
 <a name="data-rules"></a>
-<p align="center"><a href="#data-rules"><img src="docs/readme/rules-en.svg" width="100%" alt="Data rules"></a></p>
+<p align="center"><a href="supabase/"><img src="docs/readme/rules-en.svg" width="100%" alt="Data rules"></a></p>
 
 | Rule | Where |
 |---|---|
@@ -166,7 +166,7 @@ The browser talks to the database directly, so access rules live in PostgreSQL a
 | Rate limits on certificate reading and contact messages | `log_extraction()`, `feedback_rate_limit()` |
 
 <a name="run-locally"></a>
-<p align="center"><a href="#run-locally"><img src="docs/readme/run-en.svg" width="100%" alt="Run it locally"></a></p>
+<p align="center"><a href=".env.example"><img src="docs/readme/run-en.svg" width="100%" alt="Run it locally"></a></p>
 
 1. Create free accounts: [Supabase](https://supabase.com), [Mapbox](https://mapbox.com), [Anthropic](https://console.anthropic.com).
 2. In Supabase → SQL Editor, run the files in `supabase/migrations/` in order.
@@ -220,7 +220,7 @@ Place data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a
 </details>
 
 <a name="contact"></a>
-<p align="center"><a href="#contact"><img src="docs/readme/footer-en.svg" width="100%" alt="Built by Noya Adivi"></a></p>
+<p align="center"><a href="https://www.linkedin.com/in/noya-adivi/"><img src="docs/readme/footer-en.svg" width="100%" alt="Built by Noya Adivi"></a></p>
 
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_Okeat-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="Open Okeat"></a>
