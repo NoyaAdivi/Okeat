@@ -4,7 +4,7 @@
 //   npx playwright install chromium
 //   node scripts/screenshots.mjs
 // A browser window opens and works by itself.
-// Results: linkedin-images/he/, linkedin-images/en/, okeat.png (Hebrew), okeat-en.png (English), the share image.
+// Results: linkedin-images/he/, linkedin-images/en/, docs/images/okeat.png (Hebrew), docs/images/okeat-en.png (English), the share image.
 
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync, copyFileSync, unlinkSync } from 'node:fs';
@@ -163,7 +163,7 @@ for (const lang of ['he', 'en']) {
   unlinkSync(`${OUT}/hero.png`);
 
   if (en) {
-    copyFileSync(`${OUT}/1-combined.png`, 'okeat-en.png');
+    copyFileSync(`${OUT}/1-combined.png`, 'docs/images/okeat-en.png');
   } else {
     // The Hebrew picture at normal size is what shows up when someone shares the link.
     const small = await browser.newContext({ viewport: { width: 1200, height: 627 }, deviceScaleFactor: 1 });
@@ -171,7 +171,7 @@ for (const lang of ['he', 'en']) {
     await share.setContent(`<body style="margin:0"><img src="${data('1-combined')}" style="width:1200px;display:block"></body>`);
     await pause(500);
     await share.screenshot({ path: 'src/app/opengraph-image.png' });
-    copyFileSync(`${OUT}/1-combined.png`, 'okeat.png');
+    copyFileSync(`${OUT}/1-combined.png`, 'docs/images/okeat.png');
   }
 }
 

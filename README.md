@@ -34,7 +34,7 @@
 </table>
 
 <p align="center">
-  <a href="https://okeat.vercel.app"><img src="Banner.png" width="100%" alt="Okeat: a bilingual, community-verified map of kosher, vegan, vegetarian and gluten-free eateries across Israel"></a>
+  <a href="https://okeat.vercel.app"><img src="docs/images/Banner.png" width="100%" alt="Okeat: a bilingual, community-verified map of kosher, vegan, vegetarian and gluten-free eateries across Israel"></a>
 </p>
 
 <a name="highlights"></a>
@@ -76,7 +76,7 @@
 <p align="center"><a href="#-how-trust-works"><img src="docs/readme/screens-en.svg" width="100%" alt="See it in action"></a></p>
 
 <p align="center">
-  <a href="https://okeat.vercel.app/map"><img src="okeat-en.png" width="100%" alt="Okeat map with the place list and the home page"></a>
+  <a href="https://okeat.vercel.app/map"><img src="docs/images/okeat-en.png" width="100%" alt="Okeat map with the place list and the home page"></a>
 </p>
 
 <p align="center">
