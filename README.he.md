@@ -145,6 +145,15 @@ flowchart RL
 <summary><b>🏗️ הארכיטקטורה במבט אחד</b></summary>
 <br>
 
+```mermaid
+flowchart LR
+  U[דפדפן] -->|דפים| V[Next.js ב־Vercel]
+  U -->|נתונים, התחברות, תמונות| S[(Supabase<br/>PostgreSQL + PostGIS)]
+  U -->|מפה, מסלולים| M[Mapbox]
+  V -->|סשנים| S
+  I[סקריפטי ייבוא] -->|OpenStreetMap, Overture Maps| S
+```
+
 הדפדפן מדבר ישירות עם מסד הנתונים, ולכן כללי הגישה נמצאים ב־PostgreSQL ונשמרים גם בלי האתר. הסבר מלא ב־[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 </details>
@@ -199,6 +208,35 @@ npm run classify:diet
 
 > [!IMPORTANT]
 > המפתח `SUPABASE_SERVICE_ROLE_KEY` נועד רק לסקריפטים של הייבוא במחשב שלך. אסור לשים אותו בדפדפן או בהגדרות האחסון.
+
+</div>
+
+<details>
+<summary dir="rtl"><b>📂 מבנה הפרויקט</b></summary>
+
+```
+├── src/
+│   ├── app/          pages: home, map, place/[id], cities, city/[slug], topic/[slug], u/[id], about, legal pages, API routes
+│   ├── components/   MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
+│   └── lib/          data access, types, food types, filters, geo, hours, speech, Supabase clients
+├── supabase/
+│   ├── migrations/   0001 … 0051 (schema, RLS, functions)
+│   └── TEST-SETUP-IN-NEW-SUPABASE.sql   everything in one file, for a fresh test project
+├── tests/            automated tests (npm test)
+├── tools/            one-click Windows helpers (start, backup, import)
+└── scripts/
+    ├── import-osm.mjs       import eateries from OpenStreetMap
+    ├── import-overture.mjs  import more eateries from Overture Maps
+    ├── classify-ai.mjs      give a food type to unclassified places with Claude
+    ├── classify-free.mjs    give a food type by name rules, without an API key
+    ├── classify-diet.mjs    add vegan, vegetarian and gluten-free guesses, labelled as not confirmed
+    ├── fix-locations.mjs    find and fix places with a wrong location
+    ├── backup.mjs           back up the database
+    └── screenshots.mjs      take screenshots of the site
+```
+</details>
+
+<div dir="rtl">
 
 <details>
 <summary><b>🙏 קרדיטים</b></summary>
