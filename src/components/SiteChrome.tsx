@@ -75,7 +75,7 @@ export function SiteFooter() {
       <p className="foot-note">
         {L('חלק מהמידע על המקומות מגיע מ-', 'Some of the place information comes from ')}
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
-        {L(' ומתפרסם ברישיון ODbL, וחלק מ-', ' and is published under the ODbL licence, and some from ')}
+        {L(' ומתפרסם ברישיון ODbL, וחלק מ-', ' and is published under the ODbL license, and some from ')}
         <a href="https://overturemaps.org" target="_blank" rel="noopener noreferrer">Overture Maps</a>
         {L(' (CDLA Permissive 2.0). המידע באתר אינו מחליף בדיקה במקום.', ' (CDLA Permissive 2.0). The information here does not replace checking on site.')}
       </p>

@@ -63,7 +63,7 @@ function friendlyEn(e: unknown): string {
   if (msg.includes('only change your own')) return 'אפשר לשנות רק מה שהוספת.';
   if (msg.includes('text is too long')) return 'הטקסט ארוך מדי.';
   if (msg.includes('Others already rely')) return 'אחרים כבר אישרו את זה, אז אי אפשר למחוק. אפשר לכתוב לנו ביצירת קשר.';
-  if (msg.includes('Sign in with an account')) return 'Sign in with an account (Google or e-mail).';
+  if (msg.includes('Sign in with an account')) return 'Sign in with an account (Google or email).';
   if (msg.includes('claim you proposed')) return 'You added this yourself. Other people need to confirm it.';
   if (msg.includes('claim is closed')) return 'This suggestion is already closed.';
   if (msg.includes('already expired')) return 'The certificate has expired. Only a valid certificate can be added.';

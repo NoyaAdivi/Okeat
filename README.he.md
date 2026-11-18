@@ -30,7 +30,7 @@
   <tr>
     <td align="center" width="25%"><a href="https://okeat.vercel.app/map"><b>🗺️ 20,000+</b></a><br><sub>מקומות על המפה</sub></td>
     <td align="center" width="25%"><a href="#how-trust-works"><b>✅ 3</b></a><br><sub>אישורים לכל טענה</sub></td>
-    <td align="center" width="25%"><a href="https://okeat.vercel.app/cities"><b>🌍 עב · EN</b></a><br><sub>דו־לשוני מלא, מימין לשמאל</sub></td>
+    <td align="center" width="25%"><a href="https://okeat.vercel.app/cities"><b>🌍 HE · EN</b></a><br><sub>דו־לשוני מלא, מימין לשמאל</sub></td>
     <td align="center" width="25%"><a href="https://github.com/NoyaAdivi/Okeat/actions/workflows/tests.yml"><b>🧪 CI</b></a><br><sub>בדיקות בכל עדכון</sub></td>
   </tr>
 </table>
@@ -57,7 +57,7 @@
       <p><b>🤝 מידע שאפשר לסמוך עליו</b></p>
       <ul>
         <li><b>כל טענה צריכה 3 אישורים,</b> ואי אפשר לאשר טענה של עצמך</li>
-        <li><b>תעודות כשרות</b> מצלמים, והן נקראות ב־OCR</li>
+        <li>את <b>תעודות הכשרות</b> מצלמים, והן נקראות ב־OCR</li>
         <li><b>הכללים נמצאים במסד הנתונים</b> (RLS וטריגרים)</li>
         <li><b>מנהלי תוכן</b> שממנה המנהל מטפלים במקומות שדווחו</li>
       </ul>

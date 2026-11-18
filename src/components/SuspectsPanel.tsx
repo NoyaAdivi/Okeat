@@ -39,7 +39,7 @@ export default function SuspectsPanel({ sb, onCount }: { sb: SupabaseClient; onC
   // Why each place is on the list, in plain words.
   const why: Record<SuspectReason, string> = {
     hand: L('צריך לבדוק', 'Needs a look'),
-    new: L('משתמש/ת הוסיף/ה אותו לאחרונה, ועוד לא נבדק', 'A user added it lately and nobody checked yet'),
+    new: L('משתמש/ת הוסיף/ה אותו לאחרונה, ועוד לא נבדק', 'A user added it recently and nobody has checked it yet'),
     shop: L('בשם יש מילה של חנות, לא של אוכל', 'The name sounds like a shop, not food'),
     service: L('השם נשמע כמו עסק או שירות, לא אוכל', 'The name sounds like a business, not food'),
     health: L('השם נשמע כמו מקום בריאות', 'The name sounds like a health place'),

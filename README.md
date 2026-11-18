@@ -105,7 +105,7 @@ flowchart LR
   style F fill:#DAD5FF,stroke:#5548C8,color:#2C2668
 ```
 
-<p align="center"><sub>You can't vote on a claim you proposed. Imported and automatic info is labelled and never counts as community-verified.</sub></p>
+<p align="center"><sub>You can't vote on a claim you proposed. Imported and automatic info is labeled and never counts as community-verified.</sub></p>
 
 <a name="tech-stack"></a>
 <p align="center"><a href="#data-rules"><img src="docs/readme/stack-en.svg" width="100%" alt="Tech Stack"></a></p>
@@ -164,7 +164,7 @@ The browser talks to the database directly, so access rules live in PostgreSQL a
 | 3 reports on a place → moderators decide | `after_report()`, `moderate_place()` |
 | Moderators are appointed by the admin; people cannot change their own role | Column grants |
 | Owner approval needs an admin | `decide_ownership()` |
-| Imported / automatic info is labelled and never counts as community-verified | `claims.source` |
+| Imported / automatic info is labeled and never counts as community-verified | `claims.source` |
 | Rate limits on certificate reading and contact messages | `log_extraction()`, `feedback_rate_limit()` |
 
 <a name="run-locally"></a>

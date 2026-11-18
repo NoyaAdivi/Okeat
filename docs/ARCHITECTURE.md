@@ -31,7 +31,7 @@ flowchart LR
 3. Three confirmations mark it as verified. Triggers do this in the database, so the site cannot skip it.
 4. A kosher certificate that expired stops counting automatically.
 
-Places can also come from OpenStreetMap, Overture Maps or a guess from the name. These are labelled until people confirm them.
+Places can also come from OpenStreetMap, Overture Maps or a guess from the name. These are labeled until people confirm them.
 
 ## Main decisions
 

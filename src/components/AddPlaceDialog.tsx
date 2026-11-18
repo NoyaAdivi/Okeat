@@ -130,7 +130,7 @@ export default function AddPlaceDialog({ sb, location, initialAddress = '', onCl
         </div>
         {!moreNeeds && (
           <button type="button" className="link more-needs" onClick={() => setMoreNeeds(true)}>
-            + {L('אלרגיות (חלב, ביצים, בוטנים, אגוזים, שומשום, סויה)', 'Allergies (dairy, egg, peanuts, nuts, sesame, soy)')}
+            + {L('אלרגיות (חלב, ביצים, בוטנים, אגוזים, שומשום, סויה)', 'Allergies (dairy, eggs, peanuts, nuts, sesame, soy)')}
           </button>
         )}
         <span className="hint">{L('צילום של תעודת הכשרות לא חובה, אבל הוא מחזק את המידע.', "A photo of the kosher certificate isn't required, but it makes the information stronger.")}</span>
