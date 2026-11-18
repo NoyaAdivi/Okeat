@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useL } from './LangProvider';
 import Avatar from './Avatar';
-import { adminNews, fetchNotifications, fetchProfile, markNotificationsSeen, type AdminNews, type MyNotification } from '@/lib/places';
+import { adminNews, clearNotifications, fetchNotifications, fetchProfile, markNotificationsSeen, type AdminNews, type MyNotification } from '@/lib/places';
 import { adminSeen, markAdminSeen } from '@/lib/adminSeen';
 import { needLabel, type Need } from '@/lib/types';
 import { ago } from '@/lib/geo';
@@ -22,6 +22,10 @@ interface Props {
 export const PROFILE_SAVED = 'okeat-profile-saved';
 export const announceProfile = (p: { name?: string; avatar?: string | null; food?: string | null }) =>
   window.dispatchEvent(new CustomEvent(PROFILE_SAVED, { detail: p }));
+
+/** Backup for "clear all" on this device, in case the account-wide clear did not save. */
+const CLEARED_KEY = 'okeat-notes-cleared';
+const clearedAt = () => { try { return Date.parse(localStorage.getItem(CLEARED_KEY) ?? '') || 0; } catch { return 0; } };
 
 export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }: Props) {
   const L = useL();
@@ -44,7 +48,7 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
 
   useEffect(() => {
     if (!real || !user) { setNotes([]); setSite(null); return; }
-    fetchNotifications(sb).then(setNotes);
+    fetchNotifications(sb).then((list) => setNotes(list.filter((n) => new Date(n.happened_at).getTime() > clearedAt())));
     // For moderators: what people added since they last looked, by kind.
     adminNews(sb, adminSeen()).then(setSite);
     fetchProfile(sb, user.id).then((p) => p && setMe({ name: p.display_name === 'משתמש/ת Okeat' ? null : p.display_name, avatar: p.avatar_url })).catch(() => undefined);
@@ -60,6 +64,13 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
   }, []);
 
   const fresh = notes.filter((n) => n.is_new).length + (site?.total ?? 0);
+  const clearAll = () => {
+    clearNotifications(sb);
+    try { localStorage.setItem(CLEARED_KEY, new Date().toISOString()); } catch { /* private window */ }
+    markAdminSeen();
+    setNotes([]);
+    setSite(null);
+  };
   const markAll = () => {
     markNotificationsSeen(sb);
     markAdminSeen();
@@ -112,7 +123,10 @@ export default function AccountButton({ sb, user, ready, onSignIn, onSignedOut }
           <div className="menu-notes" aria-label={L('התראות', 'Notifications')}>
             <div className="menu-notes-head">
               <b>🔔 {L('התראות', 'Notifications')}</b>
-              {fresh > 0 && <button type="button" className="menu-mark" onClick={markAll}>{L('סימון הכול כנקרא', 'Mark all as read')}</button>}
+              <span className="menu-actions" style={{ display: 'flex', gap: 6 }}>
+                {fresh > 0 && <button type="button" className="menu-mark" onClick={markAll}>{L('סימון כנקרא', 'Mark as read')}</button>}
+                {(notes.length > 0 || site) && <button type="button" className="menu-mark" onClick={clearAll}>{L('ניקוי הכול', 'Clear all')}</button>}
+              </span>
             </div>
             {shownNotes.length === 0 && !site && <p className="menu-empty">{L('אין התראות חדשות. כשמישהו יאשר מה שהוספת, זה יופיע כאן.', 'No new notifications. When someone confirms what you added, it shows up here.')}</p>}
             {shownNotes.map((n) => (
