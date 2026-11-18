@@ -2263,3 +2263,11 @@ a.dash-city { color: inherit; text-decoration: none; }
   .site-head .site-tools { justify-self: end; }
 }
 .notes-clear { margin: 0 0 8px; text-align: end; }
+
+/* ===== Mobile stability: no sideways drift, pinch-zoom stays allowed ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
+:where(img,svg,video,canvas,iframe,table){max-width:100%}
+:where(img,video){height:auto}
+:where(h1,h2,h3,h4,p,li,a,span,td,th,label,button){overflow-wrap:break-word}
+@media (pointer:coarse){input,select,textarea{font-size:max(16px,1em)}}
