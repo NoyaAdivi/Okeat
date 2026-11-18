@@ -78,7 +78,7 @@
 <p align="center"><a href="#how-trust-works"><img src="docs/readme/screens-he.svg" width="100%" alt="תראו את זה בפעולה"></a></p>
 
 <p align="center">
-  <a href="https://okeat.vercel.app/map"><img src="docs/images/okeat.png" width="100%" alt="המפה של Okeat עם רשימת המקומות ודף הבית"></a>
+  <a href="https://okeat.vercel.app/map"><img src="docs/images/screenshot-he.png" width="100%" alt="דף הבית של Okeat"></a>
 </p>
 
 <p align="center">
