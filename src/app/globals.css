@@ -2271,3 +2271,15 @@ html,body{max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x
 :where(img,video){height:auto}
 :where(h1,h2,h3,h4,p,li,a,span,td,th,label,button){overflow-wrap:break-word}
 @media (pointer:coarse){input,select,textarea{font-size:max(16px,1em)}}
+
+/* ===== phone fit: nothing wider than the screen, no sideways wobble, no zoom on inputs ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:hidden}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+img,video,iframe,canvas{max-width:100%}
+img,video{height:auto}
+h1,h2,h3,h4,h5,p,li,dt,dd,blockquote,figcaption,label,td,th{overflow-wrap:break-word}
+pre{max-width:100%;overflow-x:auto}
+@media (max-width:700px){
+  input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:max(16px,1em)}
+}
