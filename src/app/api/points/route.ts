@@ -57,7 +57,25 @@ export async function GET(req: NextRequest) {
       for (const rows of batch) all.push(...rows);
       if (batch.some((rows) => rows.length < PAGE)) break;
     }
-    return NextResponse.json(all, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' } });
+    // Keep the answer small: the host refuses answers over 4.5 MB, and 20,000 places came close.
+    // Coordinates to 5 decimals (about one metre), and "false"/empty fields left out (the map reads them as false).
+    const slim = (all as Array<Record<string, unknown>>).map((p) => {
+      const o: Record<string, unknown> = {
+        id: p.id, name: p.name, place_type: p.place_type,
+        lat: Math.round((p.lat as number) * 1e5) / 1e5,
+        lng: Math.round((p.lng as number) * 1e5) / 1e5,
+        seals: ((p.seals as Array<Record<string, unknown>>) ?? []).map((s) => {
+          const c: Record<string, unknown> = { need: s.need, level: s.level };
+          if (s.imported) c.imported = true;
+          if (s.expired) c.expired = true;
+          return c;
+        }),
+      };
+      if (Array.isArray(p.cuisine) && p.cuisine.length) o.cuisine = p.cuisine;
+      if (p.pending) o.pending = true;
+      return o;
+    });
+    return NextResponse.json(slim, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' } });
   } catch {
     return NextResponse.json({ error: 'unavailable' }, { status: 503 });
   }
