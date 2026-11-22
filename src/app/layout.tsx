@@ -11,6 +11,7 @@ import { LangProvider } from '@/components/LangProvider';
 import { getLang } from '@/lib/lang-server';
 import { dirOf } from '@/lib/lang';
 import './globals.css';
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 
 // Fredoka: rounded display face that matches the scalloped logo. Rubik: readable Hebrew body.
 const display = Fredoka({
@@ -72,6 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Analytics />
           <CookieNotice />
         </LangProvider>
+        <VercelAnalytics />
       </body>
     </html>
   );
