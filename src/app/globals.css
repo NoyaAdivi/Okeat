@@ -2283,3 +2283,8 @@ pre{max-width:100%;overflow-x:auto}
 @media (max-width:700px){
   input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:max(16px,1em)}
 }
+
+/* Google Maps attribution for Places data, styled as Google's guidelines ask: Roboto, 12px+, gray on light, white on dark */
+.ginfo .g-attr { font-family: Roboto, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: normal; line-height: 16px; color: #5E5E5E; margin: 0 0 6px; text-align: start; }
+[data-theme="dark"] .ginfo .g-attr { color: #FFFFFF; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ginfo .g-attr { color: #FFFFFF; } }

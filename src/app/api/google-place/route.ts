@@ -12,9 +12,6 @@ const FIELDS = [
   'places.servesVegetarianFood', 'places.servesBreakfast', 'places.dineIn', 'places.takeout', 'places.delivery',
 ].join(',');
 
-// Small memory cache so opening the same place again doesn't cost another request (per server run, 6 hours).
-const cache = new Map<string, { at: number; data: unknown }>();
-const TTL = 6 * 3600 * 1000;
 const hits = new Map<string, number[]>();
 
 const meters = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
@@ -39,9 +36,6 @@ export async function GET(req: NextRequest) {
   hits.set(ip, recent);
 
   const lang = p.get('lang') === 'en' ? 'en' : 'he';
-  const ck = `${name}|${lat.toFixed(5)}|${lng.toFixed(5)}|${lang}`;
-  const hit = cache.get(ck);
-  if (hit && Date.now() - hit.at < TTL) return NextResponse.json(hit.data);
 
   const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
@@ -84,7 +78,6 @@ export async function GET(req: NextRequest) {
         delivery: match.delivery ?? null,
       }
     : { found: false };
-  cache.set(ck, { at: Date.now(), data });
   return NextResponse.json(data);
 }
 

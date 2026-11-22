@@ -71,6 +71,7 @@ export default function GoogleInfo({ name, lat, lng }: { name: string; lat: numb
   return (
     <section className="sec ginfo" aria-labelledby="g-h">
       <h3 id="g-h">{L('מידע נוסף מגוגל', 'More from Google')}</h3>
+      <p className="g-attr" translate="no" lang="en" dir="ltr">Google Maps</p>
       {info.closed && <p className="g-closed">{info.closed === 'permanent' ? L('⚠️ לפי גוגל המקום נסגר.', '⚠️ According to Google this place has closed.') : L('⚠️ לפי גוגל המקום סגור זמנית.', '⚠️ According to Google this place is temporarily closed.')}</p>}
       <div className="g-row">
         {info.type && <span className="food-chip">{info.type}</span>}
