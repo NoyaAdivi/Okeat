@@ -1,8 +1,13 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-/** Refreshes the Supabase session cookie on every request. */
+/** Refreshes the Supabase session cookie for signed-in visitors. */
 export async function updateSession(request: NextRequest) {
+  // Visitors who aren't signed in have no Supabase cookie, so there is nothing to refresh.
+  // Skipping the check for them saves a round trip to Supabase on every page.
+  const signedIn = request.cookies.getAll().some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'));
+  if (!signedIn) return NextResponse.next({ request });
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
