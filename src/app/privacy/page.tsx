@@ -57,7 +57,8 @@ function PrivacyHe() {
             <li><b>Mapbox</b>: הצגת המפה וחישוב מסלולים. כשאתם מבקשים מסלול, נקודת ההתחלה והיעד נשלחות ל-Mapbox.</li>
               <li><b>חיפוש של OpenStreetMap (Photon, של Komoot)</b>: כשאתם מקלידים כתובת כדי לקבוע את המיקום שלכם, הטקסט שהקלדתם נשלח אליו.</li>
               <li><b>Vercel</b>: אחסון האתר. כמו בכל אתר, השרת מקבל פרטים טכניים כמו כתובת IP.</li>
-              <li><b>Google</b>: התחברות עם חשבון Google, רק אם בחרתם בה. וגם Google Maps: כשפותחים מקום, השם והמיקום של המקום (לא שלכם) נשלחים ל-Google כדי להביא דירוג ושעות פתיחה. השימוש כפוף ל<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">מדיניות הפרטיות של Google</a>.</li>
+              <li><b>Anthropic</b>: כשמצלמים תעודת כשרות, התמונה נשלחת לקריאה אוטומטית של הפרטים שעליה (שם העסק, הגוף המשגיח ותוקף). התמונה לא משמשת לאימון מודלים, כפוף ל<a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener noreferrer">מדיניות הפרטיות של Anthropic</a>.</li>
+              <li><b>Google</b>: התחברות עם חשבון Google, רק אם בחרתם בה. כפוף ל<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">מדיניות הפרטיות של Google</a>.</li>
           <li><b>שירות שליחת מיילים</b>: כתובת המייל שלכם עוברת דרכו כדי לשלוח את קישור וקוד ההתחברות.</li>
             <li><b>jsDelivr</b>: טעינת כלי קריאת התעודות לדפדפן. התמונה עצמה נקראת בתוך הדפדפן שלכם.</li>
           </ul>
@@ -111,7 +112,8 @@ function PrivacyEn() {
             <li><b>Mapbox</b>: showing the map and working out routes. When you ask for a route, the start and the destination are sent to Mapbox.</li>
             <li><b>OpenStreetMap search (Photon, by Komoot)</b>: when you type an address to set your location, the text you type is sent to it.</li>
             <li><b>Vercel</b>: hosting the site. As with any site, the server receives technical details such as your IP address.</li>
-            <li><b>Google</b>: signing in with a Google account, only if you choose it. Also Google Maps: when you open a place, the place&apos;s name and location (not yours) are sent to Google to fetch ratings and opening hours. This is subject to the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.</li>
+            <li><b>Anthropic</b>: when you photograph a kosher certificate, the photo is sent for automatic reading of its details (business name, supervising body and expiry). It is not used to train models, subject to the <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener noreferrer">Anthropic Privacy Policy</a>.</li>
+            <li><b>Google</b>: signing in with a Google account, only if you choose it. Subject to the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.</li>
           <li><b>An email service</b>: your email address goes through it so we can send your sign-in link and code.</li>
             <li><b>jsDelivr</b>: loading the certificate reader into your browser. The photo itself is read inside your browser.</li>
           </ul>

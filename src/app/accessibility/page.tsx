@@ -52,6 +52,7 @@ function StatementHe() {
           </ul>
   
           <h2>נתקלתם בבעיה?</h2>
+          <p><b>רכזת הנגישות:</b> נויה אדיבי, דרך <Link href="/contact?topic=accessibility">טופס יצירת הקשר</Link>.</p>
           <p>נשמח לשמוע ולתקן. אפשר לכתוב לנו ב<Link href="/contact?topic=accessibility">טופס יצירת הקשר</Link>, או ל<a href="https://www.linkedin.com/in/noya-adivi" target="_blank" rel="noopener noreferrer">נויה אדיבי בלינקדאין</a>. נחזור אליכם תוך 14 ימי עבודה.</p>
   
           <p className="muted">ההצהרה עודכנה ב-{UPDATED}.</p>
@@ -84,6 +85,7 @@ function StatementEn() {
           </ul>
 
           <h2>Found a problem?</h2>
+          <p><b>Accessibility coordinator:</b> Noya Adivi, through the <Link href="/contact?topic=accessibility">contact form</Link>.</p>
           <p>We&apos;d be glad to hear about it and fix it. Write to us using the <Link href="/contact?topic=accessibility">contact form</Link>, or to <a href="https://www.linkedin.com/in/noya-adivi" target="_blank" rel="noopener noreferrer">Noya Adivi on LinkedIn</a>. We will get back to you within 14 working days.</p>
 
           <p className="muted">This statement was updated on {UPDATED}.</p>

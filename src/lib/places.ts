@@ -122,13 +122,23 @@ const pointsKey = (filter: NeedFilter, query?: string, cuisine?: string[]) =>
 /** Every matching place in the country. Pages are fetched 4 at a time. */
 export async function fetchMapPoints(sb: SupabaseClient, filter: NeedFilter, query?: string, cuisine?: string[], signal?: AbortSignal): Promise<MapPoint[]> {
   const plain = !query?.trim() && !cuisine?.length && Object.values(filter).every((v) => v === null || v === undefined);
-  if (plain && !wantFresh) {
+  // Without a typed search, the server's shared copy answers (filters included), so a crowd of
+  // visitors doesn't send the database one big request each.
+  if (!query?.trim() && !wantFresh) {
     try {
-      const res = await fetch('/api/points', { signal });
-      const data = res.ok ? ((await res.json()) as MapPoint[]) : [];
-      if (data.length > 1000) {
-        remember(pointsKey(filter, query, cuisine), data);
-        return data;
+      const params = new URLSearchParams();
+      if (filter.kosher != null) params.set('k', String(filter.kosher));
+      if (filter.vegan != null) params.set('v', String(filter.vegan));
+      if (filter.gluten_free != null) params.set('g', String(filter.gluten_free));
+      const extra = extraParam(filter).p_extra;
+      if (extra) params.set('x', JSON.stringify(Object.fromEntries(Object.entries(extra).sort())));
+      const qs = params.toString();
+      const res = await fetch(qs ? `/api/points?${qs}` : '/api/points', { signal });
+      const data = res.ok ? ((await res.json()) as MapPoint[]) : null;
+      if (Array.isArray(data) && (data.length > 1000 || !plain)) {
+        const result = cuisine?.length ? data.filter((p) => matchesAnyCuisine(p, cuisine)) : data;
+        remember(pointsKey(filter, query, cuisine), result);
+        return result;
       }
     } catch (e) {
       if (signal?.aborted) throw e;

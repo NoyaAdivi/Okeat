@@ -4,7 +4,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 // Nothing from Google is saved in our database (Google's terms don't allow keeping it).
 // Needs GOOGLE_PLACES_API_KEY in .env.local; without it this route answers 404 and the panel hides the section.
 
-const KEY = process.env.GOOGLE_PLACES_API_KEY;
+// Turned off: Google's terms (Maps Service Specific Terms, Places API 14.2) don't allow showing
+// Places API content next to a non-Google map, and our map is Mapbox. The route answers 404 and
+// the place panel hides the Google section. Turn back on only together with a Google map.
+const KEY: string | undefined = undefined; // was process.env.GOOGLE_PLACES_API_KEY
 const FIELDS = [
   'places.id', 'places.displayName', 'places.location', 'places.primaryTypeDisplayName', 'places.types',
   'places.regularOpeningHours', 'places.rating', 'places.userRatingCount', 'places.priceLevel',

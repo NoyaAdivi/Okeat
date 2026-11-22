@@ -336,15 +336,31 @@ export default function MapView({
     };
     if (rtl.getRTLTextPluginStatus?.() === 'unavailable') rtl.setRTLTextPlugin?.(RTL_PLUGIN, undefined, true);
 
-    const map = new mapboxgl.Map({
-      container: container.current,
-      style: isDarkNow() ? STYLES.dark : STYLES.light,
-      center: [initialCenter.lng, initialCenter.lat],
-      zoom: 14.5,
-      minZoom: 7,
-      maxBounds: ISRAEL_BOUNDS,
-      attributionControl: true,
-    });
+    let map: mapboxgl.Map;
+    try {
+      map = new mapboxgl.Map({
+        container: container.current,
+        style: isDarkNow() ? STYLES.dark : STYLES.light,
+        center: [initialCenter.lng, initialCenter.lat],
+        zoom: 14.5,
+        minZoom: 7,
+        maxBounds: ISRAEL_BOUNDS,
+        attributionControl: true,
+      });
+    } catch (e) {
+      // Old phones or browsers without WebGL can't draw the map. Show a kind message instead of a broken page.
+      console.error('map failed to start', e);
+      const box = document.createElement('div');
+      box.className = 'map-fallback';
+      box.setAttribute('role', 'alert');
+      box.style.cssText = 'position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;';
+      const he = lang !== 'en';
+      box.innerHTML = `<div><p style="font-weight:600;margin:0 0 8px">${he ? 'המפה לא נטענת בדפדפן הזה' : "The map can't load in this browser"}</p>`
+        + `<p style="margin:0 0 14px">${he ? 'אפשר לעדכן את הדפדפן, או לחפש מקומות לפי עיר.' : 'Try updating your browser, or browse places by city.'}</p>`
+        + `<a class="btn primary" href="/cities">${he ? 'מקומות לפי עיר' : 'Places by city'}</a></div>`;
+      container.current.appendChild(box);
+      return;
+    }
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-left');
     mapRef.current = map;
     // handy for debugging in the browser console (development only)

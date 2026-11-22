@@ -1,18 +1,51 @@
 import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 // The whole map in one answer. The server keeps it for a few minutes, so opening the map
 // takes one quick download instead of twenty requests to the database.
+// Filters (kosher, vegan...) come as ?k=2&v=1&g=1&x={"dairy":1}, and each filter mix is kept
+// on its own, so a crowd of visitors asks the database once every few minutes, not once each.
 export const dynamic = 'force-dynamic';
 
 const PAGE = 1000;
 const PARALLEL = 5;
 
-export async function GET() {
+const level = (v: string | null) => {
+  if (v === null || v === '') return null;
+  const n = Number(v);
+  return Number.isInteger(n) && n >= 0 && n <= 9 ? n : undefined;
+};
+
+export async function GET(req: NextRequest) {
+  const q = req.nextUrl.searchParams;
+  const k = level(q.get('k'));
+  const v = level(q.get('v'));
+  const g = level(q.get('g'));
+  if (k === undefined || v === undefined || g === undefined) return NextResponse.json({ error: 'bad request' }, { status: 400 });
+
+  let extra: Record<string, number> | null = null;
+  const x = q.get('x');
+  if (x) {
+    try {
+      const parsed = JSON.parse(x) as Record<string, unknown>;
+      const entries = Object.entries(parsed).filter(([key, val]) => /^[a-z_]{2,30}$/.test(key) && Number.isInteger(val) && (val as number) >= 0 && (val as number) <= 9);
+      if (entries.length !== Object.keys(parsed).length || entries.length > 10) throw new Error('bad');
+      extra = entries.length ? Object.fromEntries(entries) as Record<string, number> : null;
+    } catch {
+      return NextResponse.json({ error: 'bad request' }, { status: 400 });
+    }
+  }
+
   const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
   const page = async (from: number) => {
     const { data, error } = await sb
-      .rpc('map_points', { p_min_kosher: null, p_min_vegan: null, p_min_gluten_free: null, p_query: null })
+      .rpc('map_points', {
+        p_min_kosher: k,
+        p_min_vegan: v,
+        p_min_gluten_free: g,
+        p_query: null,
+        ...(extra ? { p_extra: extra } : {}),
+      })
       .range(from, from + PAGE - 1);
     if (error) throw error;
     return data ?? [];

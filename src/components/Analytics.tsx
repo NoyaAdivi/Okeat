@@ -33,7 +33,7 @@ export default function Analytics() {
       pages.current = 0;
     };
     const tick = setInterval(() => { if (!document.hidden) seconds.current += 5; }, 5000);
-    const report = setInterval(send, 30000);
+    const report = setInterval(send, 120000); // every 2 minutes (and when the tab is hidden), light on the database
     const hidden = () => { if (document.hidden) send(); };
     document.addEventListener('visibilitychange', hidden);
     send();
