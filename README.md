@@ -20,7 +20,7 @@
 <h3 align="center">OK to eat. Find where you can really eat, without guessing.</h3>
 
 <p align="center">
-  Okeat is a bilingual map of <b>20,000+</b> kosher, vegan, vegetarian and gluten-free eateries across Israel.<br>
+  Okeat is a bilingual map of <b>20,000+</b> eateries across Israel, showing which are kosher, vegan, vegetarian or gluten-free.<br>
   Locals add places, other locals confirm them, and the database itself enforces every rule.
 </p>
 
@@ -199,7 +199,7 @@ The browser talks to the database directly, so access rules live in PostgreSQL a
 │   ├── components/   MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/          data access, types, food types, filters, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/   0001 … 0051 (schema, RLS, functions)
+│   ├── migrations/   0001 … 0052 (schema, RLS, functions)
 │   └── TEST-SETUP-IN-NEW-SUPABASE.sql   everything in one file, for a fresh test project
 ├── tests/            automated tests (npm test)
 ├── tools/            one-click Windows helpers (start, backup, import)

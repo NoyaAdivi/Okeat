@@ -109,7 +109,7 @@ const NAME_HINTS: Record<string, RegExp> = {
   hummus: /חומוס|hummus|humus/i,
   falafel: /פלאפל|falafel/i,
   shawarma: /שווארמ|שוורמ|shawarma|shwarma/i,
-  meat: /(?<!מ)בשר(?!ון)|גריל|סטייק|אסאדו|מעשנה|grill|steak|meat|bbq|asado|smoke(?:house|d)/i,
+  meat: /(?:^|[^מ])בשר(?!ון)|גריל|סטייק|אסאדו|מעשנה|grill|steak|meat|bbq|asado|smoke(?:house|d)/i,
   steak_house: /סטייק|steak/i,
   chicken: /עוף|שניצל|chicken|schnitzel|wings/i,
   fish: /(?:^|\s)[הו]?דג(?:ים|י)?(?=\s|$)|פירות ים|fish|sea ?food/i,

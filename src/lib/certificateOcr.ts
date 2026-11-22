@@ -31,7 +31,7 @@ function levelOf(text: string): KosherLevel | 'unknown' {
 /** The latest real date printed, which on a certificate is the expiry date. */
 function latestDate(text: string): string | null {
   let best: string | null = null;
-  for (const m of text.matchAll(/(?<!\d)(\d{1,2})[./-](\d{1,2})[./-](\d{4}|\d{2})(?!\d)/g)) {
+  for (const m of text.matchAll(/(?:^|\D)(\d{1,2})[./-](\d{1,2})[./-](\d{4}|\d{2})(?!\d)/g)) {
     const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
     const d = new Date(Date.UTC(year, Number(m[2]) - 1, Number(m[1])));
     if (d.getUTCMonth() !== Number(m[2]) - 1 || d.getUTCDate() !== Number(m[1])) continue;

@@ -299,7 +299,7 @@ span.account { background: var(--surface); }
 .qitem .acts { grid-column: 2; display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
 
 /* ---------- dialogs ---------- */
-.modal-back { position: fixed; inset: 0; background: var(--scrim); z-index: 20; display: grid; place-items: center; padding: 16px; backdrop-filter: blur(3px); }
+.modal-back { position: fixed; inset: 0; background: var(--scrim); z-index: 20; display: grid; place-items: center; padding: 16px; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
 .modal { background: var(--surface); border-radius: 28px; width: min(540px, 100%); max-height: 100%; overflow: auto; box-shadow: var(--shadow); padding: 24px 24px 20px; display: grid; gap: 16px; }
 .modal h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.6875rem; margin: 0; line-height: 1.15; }
 .modal .sub { color: var(--muted); font-size: 0.875rem; margin: -8px 0 0; }
@@ -432,7 +432,7 @@ span.account { background: var(--surface); }
 /* ---------- content pages ---------- */
 .page { height: 100%; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
 .page main { display: block; }
-.site-head { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); }
+.site-head { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); background: color-mix(in srgb, var(--bg) 85%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .site-head nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .nav-link { color: var(--ink); text-decoration: none; padding: 8px 14px; border-radius: 999px; font-weight: 500; }
 .nav-link:hover { background: var(--surface-2); }
