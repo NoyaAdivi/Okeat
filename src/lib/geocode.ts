@@ -89,15 +89,32 @@ export async function findCity(q: string, lang: 'he' | 'en', signal: AbortSignal
   return f?.properties.name ? { name: f.properties.name, point: { lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] } } : null;
 }
 
+/**
+ * The best street address among the nearest results: one with a house number, then any street.
+ * A street itself has its name in `name`, not in `street`.
+ */
+function bestStreet(list: PhotonProps[]): { street: string | null; city: string | null } {
+  const streetOf = (p: PhotonProps) => p.street ?? (p.osm_key === 'highway' || p.type === 'street' ? p.name : undefined);
+  const withNumber = list.find((p) => streetOf(p) && p.housenumber);
+  const p = withNumber ?? list.find((x) => streetOf(x)) ?? list[0];
+  if (!p) return { street: null, city: null };
+  const st = streetOf(p);
+  const street = st && p.housenumber ? `${st} ${p.housenumber}` : st ?? null;
+  const city = list.map((x) => x.city).find(Boolean) ?? list.map((x) => x.locality || x.district).find(Boolean) ?? null;
+  return { street, city };
+}
+
+/** The nearest results around a point, from Photon. */
+async function photonNear(point: LatLng, lang: 'he' | 'en'): Promise<PhotonProps[]> {
+  const res = await fetch(`https://photon.komoot.io/reverse?lat=${point.lat}&lon=${point.lng}&limit=10&radius=0.15&lang=${lang === 'en' ? 'en' : 'default'}`);
+  if (!res.ok) return [];
+  const json = (await res.json()) as { features?: { properties: PhotonProps }[] };
+  return (json.features ?? []).map((f) => f.properties);
+}
+
 /** The street and city nearest to a point, for places saved without a full address. */
 export async function addressAt(point: LatLng, lang: 'he' | 'en'): Promise<string | null> {
-  const res = await fetch(`https://photon.komoot.io/reverse?lat=${point.lat}&lon=${point.lng}&limit=1&lang=${lang === 'en' ? 'en' : 'default'}`);
-  if (!res.ok) return null;
-  const json = (await res.json()) as { features?: { properties: PhotonProps }[] };
-  const p = json.features?.[0]?.properties;
-  if (!p) return null;
-  const street = p.street && p.housenumber ? `${p.street} ${p.housenumber}` : p.street;
-  const city = p.city || p.locality || p.district || '';
+  const { street, city } = bestStreet(await photonNear(point, lang));
   return [street, city].filter(Boolean).join(', ') || null;
 }
 
@@ -119,22 +136,17 @@ async function mapboxAddressAt(point: LatLng, lang: 'he' | 'en'): Promise<{ addr
 export async function hebrewAddressAt(point: LatLng): Promise<{ address: string | null; city: string | null }> {
   const heb = (s: string | null | undefined) => !!s && /[֐-׿]/.test(s);
   let local: { address: string | null; city: string | null } = { address: null, city: null };
+  let hasStreet = false;
   try {
-    const res = await fetch(`https://photon.komoot.io/reverse?lat=${point.lat}&lon=${point.lng}&limit=1&lang=default`);
-    if (res.ok) {
-      const p = ((await res.json()) as { features?: { properties: PhotonProps }[] }).features?.[0]?.properties;
-      if (p) {
-        const street = p.street && p.housenumber ? `${p.street} ${p.housenumber}` : p.street;
-        const city = p.city || p.locality || p.district || null;
-        local = { address: [street, city].filter(Boolean).join(', ') || null, city };
-      }
-    }
+    const { street, city } = bestStreet(await photonNear(point, 'he'));
+    hasStreet = !!street;
+    local = { address: [street, city].filter(Boolean).join(', ') || null, city };
   } catch { /* try Mapbox */ }
-  if (heb(local.address) && heb(local.city)) return local;
+  if (hasStreet && heb(local.address) && heb(local.city)) return local;
   try {
     const mb = await mapboxAddressAt(point, 'he');
     return {
-      address: heb(mb.address) ? mb.address : local.address ?? mb.address,
+      address: heb(mb.address) && (!hasStreet || !heb(local.address)) ? mb.address : local.address ?? mb.address,
       city: heb(local.city) ? local.city : heb(mb.city) ? mb.city : local.city ?? mb.city,
     };
   } catch { return local; }
