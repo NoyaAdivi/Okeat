@@ -26,6 +26,7 @@ export default async function Home() {
           </div>
           <div className="hero-inner">
             <div className="hero-logo"><Logo size={132} /></div>
+            <p className="hero-brand" style={{ fontFamily: 'var(--f-display)', fontWeight: 700, fontSize: '1.6rem', margin: '0 0 .25rem' }}>Okeat</p>
             <h1>{L('מוצאים איפה לאכול, ', 'Find where to eat, ')}<span className="nowrap">{L('בלי לנחש', 'without guessing')}</span></h1>
             <p className="lead">{L('מפה של מקומות כשרים, טבעוניים, צמחוניים וללא גלוטן, עם חותמת שמראה מה אנשים כמוכם כבר אישרו.', 'A map of kosher, vegan, vegetarian and gluten-free places, with a seal that shows what people like you have already confirmed.')}</p>
             <div className="cta-row">
@@ -33,6 +34,15 @@ export default async function Home() {
               <Link href="/about" className="cta">{L('איך זה עובד', 'How it works')}</Link>
             </div>
           </div>
+        </section>
+
+        <section className="section" aria-labelledby="about-h">
+          <h2 id="about-h" className="section-title">{L('מה זה Okeat?', 'What is Okeat?')}</h2>
+          <p className="lead">{L(
+            'Okeat הוא אתר חינמי שעוזר לאנשים עם צרכי תזונה מיוחדים למצוא מסעדות ובתי קפה שמתאימים להם: כשר, טבעוני, צמחוני וללא גלוטן. כל אחד יכול לצפות במפה בלי להתחבר. מי שרוצה להוסיף מקום, לאשר פרט או לכתוב ביקורת יכול להתחבר עם Google או עם קוד במייל, ואנחנו משתמשים בשם, במייל ובתמונה רק כדי להציג מי הוסיף מה.',
+            'Okeat is a free website that helps people with dietary needs find restaurants and cafes that suit them: kosher, vegan, vegetarian and gluten-free. Anyone can browse the map without signing in. People who want to add a place, confirm a detail or write a review can sign in with Google or with an email code, and we use their name, email and picture only to show who added what.',
+          )}</p>
+          <p><Link href="/privacy">{L('מדיניות פרטיות', 'Privacy policy')}</Link> · <Link href="/terms">{L('תנאי שימוש', 'Terms of use')}</Link></p>
         </section>
 
         <section className="section" aria-labelledby="needs-h">

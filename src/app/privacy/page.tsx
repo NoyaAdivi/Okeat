@@ -47,6 +47,15 @@ function PrivacyHe() {
             <li><b>הגדרות באתר.</b> העדפות נגישות, תצוגה ושפה נשמרות בדפדפן שלכם.</li>
           </ul>
   
+          <h2>מידע שמגיע מחשבון Google</h2>
+          <p>ההתחברות עם Google היא בחירה שלכם. אם בחרתם בה, Okeat מקבל מ-Google רק את השם, כתובת המייל ותמונת הפרופיל שלכם (ההרשאות openid, email ו-profile). איננו מקבלים גישה לאנשי קשר, למיילים, לקבצים או לכל מידע אחר בחשבון Google שלכם.</p>
+          <ul>
+            <li><b>למה.</b> השם והתמונה מוצגים בפרופיל הציבורי שלכם וליד מה שהוספתם. המייל משמש לזיהוי החשבון שלכם בלבד ולא מוצג לאחרים.</li>
+            <li><b>איפה נשמר.</b> במסד הנתונים של האתר אצל Supabase, בחיבור מוצפן.</li>
+            <li><b>שיתוף.</b> איננו מוכרים, משכירים או מעבירים את המידע הזה לאף אחד, איננו משתמשים בו לפרסום, ואיננו משתמשים בו לאימון מודלים של בינה מלאכותית. השימוש במידע שמתקבל מ-Google APIs עומד ב<a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">מדיניות נתוני המשתמש של Google API Services</a>, כולל דרישות ה-Limited Use.</li>
+            <li><b>מחיקה.</b> אפשר לבקש למחוק את החשבון וכל המידע שקיבלנו מ-Google דרך <Link href="/contact?topic=privacy">טופס יצירת הקשר</Link>, ונמחק אותו תוך 30 יום. אפשר גם לבטל בכל רגע את הגישה של Okeat בעמוד <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">ההרשאות של חשבון Google</a>.</li>
+          </ul>
+  
           <h2>עוגיות (Cookies) ואחסון בדפדפן</h2>
           <p>אנחנו משתמשים רק בעוגיות ובאחסון שנחוצים כדי שהאתר יעבוד: שמירת ההתחברות, השפה, והעדפות התצוגה והנגישות. איננו משתמשים בעוגיות פרסום או מעקב.</p>
   
@@ -100,6 +109,15 @@ function PrivacyEn() {
           <li><b>Site errors.</b> If something breaks, we keep the error message and the page it happened on, with no details about you.</li>
             <li><b>Location.</b> If you allow it in your browser, your location is used to show nearby places and to navigate. We don&apos;t store it. A location you choose yourself stays only in your browser.</li>
             <li><b>Site settings.</b> Accessibility, display and language preferences are kept in your browser.</li>
+          </ul>
+
+          <h2>Google user data</h2>
+          <p>Signing in with Google is optional. If you choose it, Okeat receives from Google only your name, email address and profile picture (the openid, email and profile scopes). We do not get access to your contacts, emails, files or any other data in your Google account.</p>
+          <ul>
+            <li><b>How we use it.</b> Your name and picture are shown on your public profile and next to what you added. Your email is used only to identify your account and is never shown to other users.</li>
+            <li><b>Where it is stored.</b> In the site&apos;s database at Supabase, over an encrypted connection.</li>
+            <li><b>Sharing.</b> We do not sell, rent or transfer this data to anyone, we do not use it for advertising, and we do not use it to train AI models. Okeat&apos;s use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.</li>
+            <li><b>Deletion.</b> You can ask us to delete your account and all data we received from Google using the <Link href="/contact?topic=privacy">contact form</Link>, and we will delete it within 30 days. You can also remove Okeat&apos;s access at any time on your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">Google Account permissions page</a>.</li>
           </ul>
 
           <h2>Cookies and browser storage</h2>

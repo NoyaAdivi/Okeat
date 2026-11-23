@@ -14,3 +14,5 @@ social-preview*.jpg
 Banner-en.png
 # old SQL copies kept only on the computer (the real ones are in supabase/migrations)
 supabase/RUN-ME*.sql
+# press screenshots, kept only on the computer
+mako-images/
