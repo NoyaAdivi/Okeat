@@ -8,6 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 const PAGE = 1000;
+const EXTRA = new Set(['vegetarian', 'dairy_free', 'egg_free', 'peanut_free', 'nut_free', 'sesame_free', 'soy_free']);
 const PARALLEL = 5;
 
 const level = (v: string | null) => {
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest) {
   if (x) {
     try {
       const parsed = JSON.parse(x) as Record<string, unknown>;
-      const entries = Object.entries(parsed).filter(([key, val]) => /^[a-z_]{2,30}$/.test(key) && Number.isInteger(val) && (val as number) >= 0 && (val as number) <= 9);
+      // only the real filters, so made-up keys can't skip the cache and load the database
+      const entries = Object.entries(parsed).filter(([key, val]) => EXTRA.has(key) && Number.isInteger(val) && (val as number) >= 0 && (val as number) <= 9);
       if (entries.length !== Object.keys(parsed).length || entries.length > 10) throw new Error('bad');
       extra = entries.length ? Object.fromEntries(entries) as Record<string, number> : null;
     } catch {

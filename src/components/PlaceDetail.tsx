@@ -78,7 +78,8 @@ export default function PlaceDetail({
     hebrewAddressAt(place).then((a) => {
       if (!live) return;
       setTown(a.city);
-      if (!a.address) return;
+      // only the town, or the same thing the place already says: nothing new to show
+      if (!a.address || a.address === address || (a.address === a.city && address && !isForeign(address))) return;
       // a Hebrew address in place of a foreign one, or a street where there was none
       if ((!address || !/\d/.test(address)) || (isForeign(address) && hasHebrew(a.address))) setNearby(a.address);
     }).catch(() => undefined);

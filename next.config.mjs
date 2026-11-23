@@ -6,6 +6,8 @@ const securityHeaders = [
   // camera for certificate photos, location for "near me" and navigation
   { key: 'Permissions-Policy', value: 'camera=(self), geolocation=(self), microphone=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+  // A light policy that blocks embedding, plugins and <base> tricks without touching the map, sign-in or analytics.
+  { key: 'Content-Security-Policy', value: "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" },
 ];
 
 const nextConfig = {

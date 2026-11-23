@@ -53,6 +53,9 @@ const [W, S, E, N] = [34.2, 29.45, 35.95, 33.35];
 const EAT = 'restaurant|cafe|coffee|bakery|pizza|burger|bar$|^bar_|pub|dessert|ice_cream|gelato|food_truck|food_court|deli|bistro|diner|sandwich|juice|smoothie|falafel|shawarma|hummus|sushi|steak|grill|bagel|creperie|waffle|donut|patisserie|cake_shop|chocolat|noodle|ramen|brasserie|tea_room|bubble_tea|snack|kebab|barbecue|eatery';
 const NOT_EAT = 'grocery|supermarket|liquor|convenience|wholesale|farm|butcher|beverage_store|wine_store|catering|food_delivery|cooking_school|kitchen_supply|restaurant_equipment|vending|winery|brewery_tour';
 
+// Names that say the business sells equipment or wholesale, not food to eat (found on the live map, Nov 2026).
+const NOT_EAT_NAME = '(?i)מכונות קפה|coffee machines|מטבחי חוץ|בלוני גז|סיטונא|wholesale|מוצרים לאפיה|מוצרי מאפה קפואים|מזון לשוק המוסדי|תעשיות מזון|שיווק בשר|ייבוא ושיווק|קורסים לאפיה|סלסלות פירות|flower delivery|מפעל לייצור|מפעל יצור|שילב|shilav';
+
 const setup = ['INSTALL httpfs', 'LOAD httpfs', "SET s3_region = 'us-west-2'"];
 const sql = `
 SELECT
@@ -76,6 +79,7 @@ WHERE bbox.xmin BETWEEN ${W} AND ${E} AND bbox.ymin BETWEEN ${S} AND ${N}
   AND names.primary IS NOT NULL
   AND regexp_matches(coalesce(basic_category, taxonomy.primary, '') || ' ' || coalesce(to_json(taxonomy.hierarchy)::VARCHAR, ''), '${EAT}')
   AND NOT regexp_matches(coalesce(basic_category, taxonomy.primary, ''), '${NOT_EAT}')
+  AND NOT regexp_matches(coalesce(names.primary::VARCHAR, ''), '${NOT_EAT_NAME}')
 `;
 
 console.log(`מוריד מקומות אוכל בישראל מ-Overture Maps (גרסה ${RELEASE}). זה יכול לקחת כמה דקות…`);

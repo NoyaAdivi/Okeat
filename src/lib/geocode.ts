@@ -93,13 +93,18 @@ export async function findCity(q: string, lang: 'he' | 'en', signal: AbortSignal
  * The best street address among the nearest results: one with a house number, then any street.
  * A street itself has its name in `name`, not in `street`.
  */
+/** Photon "streets" that are not streets a person can find: steps, paths, bus stops... */
+const NOT_STREET = new Set([...NOISE, 'steps', 'pedestrian_area', 'bridleway', 'corridor', 'elevator', 'crossing', 'traffic_signals', 'turning_circle', 'proposed', 'construction']);
+
 function bestStreet(list: PhotonProps[]): { street: string | null; city: string | null } {
-  const streetOf = (p: PhotonProps) => p.street ?? (p.osm_key === 'highway' || p.type === 'street' ? p.name : undefined);
+  // A shop or a bus stop nearby has its own name in `name`; only a real street feature gives its name as a street.
+  // (Before this, a bus stop called "מרכז משטרה" or steps named in Russian were shown as the street.)
+  const streetOf = (p: PhotonProps) => p.street
+    ?? (p.type === 'street' && p.osm_key === 'highway' && !NOT_STREET.has(p.osm_value ?? '') ? p.name : undefined);
   const withNumber = list.find((p) => streetOf(p) && p.housenumber);
-  const p = withNumber ?? list.find((x) => streetOf(x)) ?? list[0];
-  if (!p) return { street: null, city: null };
-  const st = streetOf(p);
-  const street = st && p.housenumber ? `${st} ${p.housenumber}` : st ?? null;
+  const p = withNumber ?? list.find((x) => streetOf(x));
+  const st = p ? streetOf(p) : undefined;
+  const street = st && p?.housenumber ? `${st} ${p.housenumber}` : st ?? null;
   const city = list.map((x) => x.city).find(Boolean) ?? list.map((x) => x.locality || x.district).find(Boolean) ?? null;
   return { street, city };
 }
@@ -135,19 +140,22 @@ async function mapboxAddressAt(point: LatLng, lang: 'he' | 'en'): Promise<{ addr
  */
 export async function hebrewAddressAt(point: LatLng): Promise<{ address: string | null; city: string | null }> {
   const heb = (s: string | null | undefined) => !!s && /[֐-׿]/.test(s);
-  let local: { address: string | null; city: string | null } = { address: null, city: null };
-  let hasStreet = false;
+  // a street in Hebrew or Arabic (what is on the sign); never one in Russian or English on a Hebrew page
+  const readable = (s: string | null | undefined) => !!s && /[֐-׿؀-ۿ]/.test(s);
+  let street: string | null = null;
+  let city: string | null = null;
   try {
-    const { street, city } = bestStreet(await photonNear(point, 'he'));
-    hasStreet = !!street;
-    local = { address: [street, city].filter(Boolean).join(', ') || null, city };
+    ({ street, city } = bestStreet(await photonNear(point, 'he')));
   } catch { /* try Mapbox */ }
-  if (hasStreet && heb(local.address) && heb(local.city)) return local;
+  const join = (st: string | null, c: string | null) => [st, c].filter(Boolean).join(', ') || null;
+  if (heb(street) && heb(city)) return { address: join(street, city), city };
   try {
     const mb = await mapboxAddressAt(point, 'he');
-    return {
-      address: heb(mb.address) && (!hasStreet || !heb(local.address)) ? mb.address : local.address ?? mb.address,
-      city: heb(local.city) ? local.city : heb(mb.city) ? mb.city : local.city ?? mb.city,
-    };
-  } catch { return local; }
+    const town = heb(city) ? city : heb(mb.city) ? mb.city : city ?? mb.city;
+    // Mapbox's Hebrew street wins over Photon's street in another language
+    if (heb(mb.address) && !heb(street)) return { address: mb.address, city: town };
+    return { address: join(readable(street) ? street : null, town), city: town };
+  } catch {
+    return { address: join(readable(street) ? street : null, city), city };
+  }
 }
