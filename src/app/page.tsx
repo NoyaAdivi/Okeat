@@ -36,15 +36,6 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="section" aria-labelledby="about-h">
-          <h2 id="about-h" className="section-title">{L('מה זה Okeat?', 'What is Okeat?')}</h2>
-          <p className="lead">{L(
-            'Okeat הוא אתר חינמי שעוזר לאנשים עם צרכי תזונה מיוחדים למצוא מסעדות ובתי קפה שמתאימים להם: כשר, טבעוני, צמחוני וללא גלוטן. כל אחד יכול לצפות במפה בלי להתחבר. מי שרוצה להוסיף מקום, לאשר פרט או לכתוב ביקורת יכול להתחבר עם Google או עם קוד במייל, ואנחנו משתמשים בשם, במייל ובתמונה רק כדי להציג מי הוסיף מה.',
-            'Okeat is a free website that helps people with dietary needs find restaurants and cafes that suit them: kosher, vegan, vegetarian and gluten-free. Anyone can browse the map without signing in. People who want to add a place, confirm a detail or write a review can sign in with Google or with an email code, and we use their name, email and picture only to show who added what.',
-          )}</p>
-          <p><Link href="/privacy">{L('מדיניות פרטיות', 'Privacy policy')}</Link> · <Link href="/terms">{L('תנאי שימוש', 'Terms of use')}</Link></p>
-        </section>
-
         <section className="section" aria-labelledby="needs-h">
           <h2 id="needs-h" className="section-title">{L('מה חשוב לכם?', 'What matters to you?')}</h2>
           <Stats />

@@ -20,6 +20,12 @@ const journeyOf = (L: T) => [
 
 const faqOf = (L: T) => [
   {
+    group: 'use',
+    q: L('מה זה Okeat?', 'What is Okeat?'),
+    a: L('Okeat הוא אתר חינמי שעוזר לאנשים עם צרכי תזונה מיוחדים למצוא מסעדות ובתי קפה שמתאימים להם: כשר, טבעוני, צמחוני וללא גלוטן. כל אחד יכול לצפות במפה בלי להתחבר. מי שרוצה להוסיף מקום, לאשר פרט או לכתוב ביקורת יכול להתחבר עם Google או עם קוד במייל, ואנחנו משתמשים בשם, במייל ובתמונה רק כדי להציג מי הוסיף מה.',
+      'Okeat is a free website that helps people with dietary needs find restaurants and cafes that suit them: kosher, vegan, vegetarian and gluten-free. Anyone can browse the map without signing in. People who want to add a place, confirm a detail or write a review can sign in with Google or with an email code, and we use their name, email and picture only to show who added what.'),
+  },
+  {
     group: 'data',
     q: L('מאיפה מגיע המידע?', 'Where does the information come from?'),
     a: L('משלושה מקורות: אנשים שמוסיפים ומאשרים מידע באתר, המאגרים הפתוחים OpenStreetMap ו-Overture Maps, וסיווג אוטומטי לפי שם המקום וסוגו. מידע שעוד לא אושר באתר מסומן במפורש.',
