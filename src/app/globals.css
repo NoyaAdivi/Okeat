@@ -2290,3 +2290,8 @@ pre{max-width:100%;overflow-x:auto}
 .ginfo .g-attr { font-family: Roboto, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: normal; line-height: 16px; color: #5E5E5E; margin: 0 0 6px; text-align: start; }
 [data-theme="dark"] .ginfo .g-attr { color: #FFFFFF; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ginfo .g-attr { color: #FFFFFF; } }
+
+/* Short pages (like the contact page after sending): the footer stays at the bottom instead of jumping up */
+.page { display: flex; flex-direction: column; }
+.page > * { flex-shrink: 0; width: 100%; }
+.page > main { flex: 1 0 auto; }
