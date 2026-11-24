@@ -6,5 +6,5 @@ export const SITE = {
   /** date the legal pages were last updated */
   updated: '24.11.2026',
   /** public contact email for privacy and accessibility requests (the law asks for a direct way to reach you). Leave '' to hide it. */
-  email: '',
+  email: 'okeat.site@gmail.com',
 };
