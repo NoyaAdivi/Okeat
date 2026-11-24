@@ -689,6 +689,8 @@ span.account { background: var(--surface); }
 .foot-name { display: inline-flex; align-items: center; gap: 5px; color: var(--peach-deep); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .foot-linkedin:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(10, 102, 194, .35); }
 .contact-linkedin { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.contact-mail { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: var(--peach-soft); color: var(--peach-deep) !important; text-decoration: none; font-weight: 600; font-size: 0.875rem; transition: transform .15s, box-shadow .15s; }
+.contact-mail:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(227, 110, 87, .25); }
 
 .builder { display: flex; gap: 18px; align-items: flex-start; background: linear-gradient(135deg, var(--peach-soft), var(--kosher-soft)); border-radius: 28px; padding: 24px; max-width: 760px; margin-inline: auto; box-shadow: var(--shadow-sm); }
 .builder-emoji { font-size: 3rem; line-height: 1; flex: none; animation: bob 3s ease-in-out infinite; }
