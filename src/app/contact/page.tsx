@@ -31,7 +31,7 @@ export default async function Contact({ searchParams }: Props) {
             </svg>{' '}
             {L('נויה אדיבי', 'Noya Adivi')}
           </a>
-          {SITE.email && <>{L(' או במייל ', ' or by email at ')}<a href={`mailto:${SITE.email}`}>{SITE.email}</a></>}
+          {SITE.email && <>{L(' או במייל ', ' or by email at ')}<a className="contact-mail" href={`mailto:${SITE.email}`} dir="ltr"><span aria-hidden="true">✉️</span> {SITE.email}</a></>}
         </p>
         <ContactForm initialTopic={topic} />
       </main>
