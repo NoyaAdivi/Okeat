@@ -4,5 +4,7 @@ export const SITE = {
   /** the public address of the site once it's online, e.g. https://okeat.co.il */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://okeat.vercel.app' : 'http://localhost:3000'),
   /** date the legal pages were last updated */
-  updated: '22.11.2026',
+  updated: '24.11.2026',
+  /** public contact email for privacy and accessibility requests (the law asks for a direct way to reach you). Leave '' to hide it. */
+  email: '',
 };
