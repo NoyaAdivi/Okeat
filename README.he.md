@@ -255,3 +255,5 @@ npm run classify:diet
 </p>
 
 </div>
+
+<p align="center" dir="rtl"><sub>הקוד מופץ לפי <a href="LICENSE">רישיון MIT</a>. השם Okeat והלוגו אינם כלולים ברישיון, ואין להשתמש בהם בלי רשות.</sub></p>

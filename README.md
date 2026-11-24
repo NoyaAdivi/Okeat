@@ -230,3 +230,5 @@ Place data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a
   <a href="https://noyaadivi.github.io/noya-website"><img src="https://img.shields.io/badge/Portfolio-D9F3E7?style=for-the-badge&logo=githubpages&logoColor=1F7350" alt="Portfolio"></a>
   <a href="https://github.com/NoyaAdivi"><img src="https://img.shields.io/badge/More_projects-FBD5E0?style=for-the-badge&logo=github&logoColor=A03A5C" alt="More projects"></a>
 </p>
+
+<p align="center"><sub>The code is under the <a href="LICENSE">MIT license</a>. The Okeat name and logo are not covered by it and may not be used without permission.</sub></p>
