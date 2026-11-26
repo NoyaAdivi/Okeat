@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 
-// The whole map in one answer. The server keeps it for a few minutes, so opening the map
+// The whole map in one answer. The server keeps it for half an hour, so opening the map
 // takes one quick download instead of twenty requests to the database.
 // Filters (kosher, vegan...) come as ?k=2&v=1&g=1&x={"dairy":1}, and each filter mix is kept
-// on its own, so a crowd of visitors asks the database once every few minutes, not once each.
+// on its own, so a crowd of visitors asks the database once every half hour, not once each.
 export const dynamic = 'force-dynamic';
 
 const PAGE = 1000;
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
       if (p.pending) o.pending = true;
       return o;
     });
-    return NextResponse.json(slim, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' } });
+    return NextResponse.json(slim, { headers: { 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600' } });
   } catch {
     return NextResponse.json({ error: 'unavailable' }, { status: 503 });
   }
