@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import Logo from '@/components/Logo';
-import { logClientError } from '@/lib/errorLog';
+import { logClientError, reloadIfStaleVersion } from '@/lib/errorLog';
 import { useL } from '@/components/LangProvider';
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const L = useL();
   useEffect(() => {
     console.error(error);
+    // A missing code file after a new version went live: reload once instead of showing an error.
+    if (reloadIfStaleVersion(error.message)) return;
     logClientError(error.message);
   }, [error]);
 
