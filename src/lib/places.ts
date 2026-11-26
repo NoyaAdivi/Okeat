@@ -307,9 +307,33 @@ export async function proposeClaim(
   if (error) throw error;
 }
 
+/**
+ * Phone photos are often 5-12 MB. Shrink to at most 2000 px on the long side as JPEG,
+ * which is plenty to read a certificate. If the browser can't decode it, keep the original.
+ */
+async function shrinkImage(file: File): Promise<File> {
+  const MAX = 2000;
+  if (file.size <= 1.5 * 1024 * 1024) return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bmp.width * scale);
+    canvas.height = Math.round(bmp.height * scale);
+    canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    bmp.close();
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.85));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], 'certificate.jpg', { type: 'image/jpeg' });
+  } catch {
+    return file;
+  }
+}
+
 /** Uploads to certificates/<uid>/<random>.<ext> and returns the storage path. */
-export async function uploadCertificatePhoto(sb: SupabaseClient, file: File): Promise<string> {
+export async function uploadCertificatePhoto(sb: SupabaseClient, original: File): Promise<string> {
   const auth = { user: await ensureUser(sb) };
+  const file = await shrinkImage(original);
   if (file.size > 5 * 1024 * 1024) throw new Error('התמונה גדולה מ-5MB. נסו לצלם שוב.');
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const path = `${auth.user.id}/${crypto.randomUUID()}.${ext}`;
