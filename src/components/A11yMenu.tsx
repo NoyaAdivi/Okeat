@@ -12,13 +12,15 @@ const SPOT_KEY = 'okeat-a11y-spot';
 /** Accessibility menu, available on every page from a tab on the side of the screen. */
 export default function A11yMenu() {
   // The button can be dragged out of the way; where it was left is remembered on this device.
-  const [spot, setSpot] = useState<{ side: 'left' | 'right'; top: number }>({ side: 'left', top: 50 });
+  // top stays empty until the button is dragged, so each page's own CSS decides where it starts
+  // (on the phone map that is above the place card, not over it).
+  const [spot, setSpot] = useState<{ side: 'left' | 'right'; top: number | null }>({ side: 'left', top: null });
   const dragged = useRef(false);
   const press = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(SPOT_KEY) ?? 'null');
-      if (saved?.side && typeof saved.top === 'number') setSpot(saved);
+      if (saved?.side === 'left' || saved?.side === 'right') setSpot({ side: saved.side, top: typeof saved.top === 'number' ? saved.top : null });
     } catch { /* stays where it is */ }
   }, []);
   const moveSpot = (next: typeof spot) => {
@@ -141,7 +143,7 @@ export default function A11yMenu() {
         ref={button}
         type="button"
         className={`a11y-tab${spot.side === 'right' ? ' right' : ''}`}
-        style={{ top: `${spot.top}%`, touchAction: 'none' }}
+        style={spot.top === null ? { touchAction: 'none' } : { top: `${spot.top}%`, touchAction: 'none' }}
         title={L('אפשר לגרור למקום אחר', 'You can drag this somewhere else')}
         aria-expanded={open}
         aria-controls="a11y-panel"
