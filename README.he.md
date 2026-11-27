@@ -25,7 +25,9 @@
 <p align="center">
   Okeat היא מפה דו־לשונית של יותר מ־<b>20,000</b> מקומות אוכל בכל הארץ, עם מידע מי כשר, טבעוני, צמחוני או ללא גלוטן.<br>
   אנשים מוסיפים מקומות, אחרים מאשרים אותם, ומסד הנתונים עצמו אוכף כל כלל.<br><br>
-  📰 <b>כפי שפורסם <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm">במאקו</a></b>: כתבה על Okeat ועל בניית מוצרים אמיתיים כמפתחת בעידן ה־AI.
+  📰 <b>כפי שפורסם <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm">במאקו</a></b>: כתבה על Okeat ועל בניית מוצרים אמיתיים כמפתחת בעידן ה־AI.<br><br>
+  👋 נבנה על ידי <b>נויה אדיבי</b>, סטודנטית למדעי המחשב שמחפשת משרת סטודנטית בהנדסת תוכנה וב־ML.<br>
+  <a href="https://www.linkedin.com/in/noya-adivi/"><b>ללינקדאין</b></a> · <a href="https://noyaadivi.github.io/noya-website"><b>לתיק העבודות</b></a> · <a href="https://github.com/NoyaAdivi"><b>לעוד פרויקטים</b></a>
 </p>
 
 <table align="center">

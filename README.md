@@ -23,7 +23,9 @@
 <p align="center">
   Okeat is a bilingual map of <b>20,000+</b> eateries across Israel, showing which are kosher, vegan, vegetarian or gluten-free.<br>
   Locals add places, other locals confirm them, and the database itself enforces every rule.<br><br>
-  📰 <b>As seen on <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm">Mako</a></b>: featured in an article about Okeat and building real products as a developer in the AI era.
+  📰 <b>As seen on <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm">Mako</a></b>: featured in an article about Okeat and building real products as a developer in the AI era.<br><br>
+  👋 Built by <b>Noya Adivi</b>, a CS student open to student positions in Software Engineering and ML.<br>
+  <a href="https://www.linkedin.com/in/noya-adivi/"><b>Connect on LinkedIn</b></a> · <a href="https://noyaadivi.github.io/noya-website"><b>Portfolio</b></a> · <a href="https://github.com/NoyaAdivi"><b>More projects</b></a>
 </p>
 
 <table align="center">
