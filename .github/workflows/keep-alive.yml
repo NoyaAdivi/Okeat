@@ -1,0 +1,14 @@
+name: Keep database awake
+# Once a day, opens one place page on the live site. The page is built from the database,
+# so Supabase sees activity and never pauses the free project, even in a quiet week.
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl --fail --silent --show-error --retry 3 --retry-delay 20 --output /dev/null "https://okeat.vercel.app/place/0001444b-983e-43e4-a29f-b8e1b7e268e2?keepalive=$(date +%s)"
