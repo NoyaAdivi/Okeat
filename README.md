@@ -7,6 +7,7 @@
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_live_site-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="Open live site"></a>
   <a href="https://okeat.vercel.app/map"><img src="https://img.shields.io/badge/Explore_the_map-D9F3E7?style=for-the-badge&logo=mapbox&logoColor=1F7350" alt="Explore the map"></a>
+  <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm"><img src="https://img.shields.io/badge/Featured_on_Mako-FFF1C9?style=for-the-badge&logo=googlenews&logoColor=B98A1E" alt="Featured on Mako"></a>
   <a href="docs/ARCHITECTURE.md"><img src="https://img.shields.io/badge/Architecture-DAD5FF?style=for-the-badge&logo=databricks&logoColor=5548C8" alt="Architecture"></a>
 </p>
 

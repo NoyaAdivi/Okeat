@@ -9,6 +9,7 @@
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/%D7%9C%D7%90%D7%AA%D7%A8_%D7%94%D7%97%D7%99-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="לאתר החי"></a>
   <a href="https://okeat.vercel.app/map"><img src="https://img.shields.io/badge/%D7%9C%D7%9E%D7%A4%D7%94-D9F3E7?style=for-the-badge&logo=mapbox&logoColor=1F7350" alt="למפה"></a>
+  <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm"><img src="https://img.shields.io/badge/%D7%9B%D7%AA%D7%91%D7%94_%D7%91%D7%9E%D7%90%D7%A7%D7%95-FFF1C9?style=for-the-badge&logo=googlenews&logoColor=B98A1E" alt="כתבה במאקו"></a>
   <a href="docs/ARCHITECTURE.md"><img src="https://img.shields.io/badge/%D7%90%D7%A8%D7%9B%D7%99%D7%98%D7%A7%D7%98%D7%95%D7%A8%D7%94-DAD5FF?style=for-the-badge&logo=databricks&logoColor=5548C8" alt="ארכיטקטורה"></a>
 </p>
 
