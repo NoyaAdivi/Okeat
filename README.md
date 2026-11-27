@@ -22,7 +22,8 @@
 
 <p align="center">
   Okeat is a bilingual map of <b>20,000+</b> eateries across Israel, showing which are kosher, vegan, vegetarian or gluten-free.<br>
-  Locals add places, other locals confirm them, and the database itself enforces every rule.
+  Locals add places, other locals confirm them, and the database itself enforces every rule.<br><br>
+  📰 <b>As seen on <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm">Mako</a></b>: featured in an article about Okeat and building real products as a developer in the AI era.
 </p>
 
 <table align="center">
@@ -228,7 +229,8 @@ Place data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/Open_Okeat-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="Open Okeat"></a>
   <a href="https://www.linkedin.com/in/noya-adivi/"><img src="https://img.shields.io/badge/LinkedIn-DAD5FF?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzU1NDhDOCIgZD0iTTIwLjQ1IDIwLjQ1aC0zLjU2di01LjU3YzAtMS4zMy0uMDMtMy4wNC0xLjg1LTMuMDQtMS44NiAwLTIuMTQgMS40NS0yLjE0IDIuOTR2NS42N0g5LjM1VjloMy40MXYxLjU2aC4wNWMuNDgtLjkgMS42NC0xLjg1IDMuMzctMS44NSAzLjYgMCA0LjI3IDIuMzcgNC4yNyA1LjQ2djYuMjh6TTUuMzQgNy40M2EyLjA2IDIuMDYgMCAxIDEgMC00LjEzIDIuMDYgMi4wNiAwIDAgMSAwIDQuMTN6TTcuMTIgMjAuNDVIMy41NlY5aDMuNTZ2MTEuNDV6TTIyLjIyIDBIMS43N0MuNzkgMCAwIC43NyAwIDEuNzN2MjAuNTRDMCAyMy4yMy43OSAyNCAxLjc3IDI0aDIwLjQ1Yy45OCAwIDEuNzgtLjc3IDEuNzgtMS43M1YxLjczQzI0IC43NyAyMy4yIDAgMjIuMjIgMHoiLz48L3N2Zz4=" alt="LinkedIn"></a>
-  <a href="https://noyaadivi.github.io/noya-website"><img src="https://img.shields.io/badge/Portfolio-D9F3E7?style=for-the-badge&logo=githubpages&logoColor=1F7350" alt="Portfolio"></a>
+  <a href="https://noyaadivi.github.io/noya-website"><img src="https://img.shields.io/badge/Portfolio-D9F3E7?style=for-the-badge&logo=safari&logoColor=1F7350" alt="Portfolio"></a>
+  <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm"><img src="https://img.shields.io/badge/Featured_on_Mako-FFF1C9?style=for-the-badge&logo=googlenews&logoColor=B98A1E" alt="Featured on Mako"></a>
   <a href="https://github.com/NoyaAdivi"><img src="https://img.shields.io/badge/More_projects-FBD5E0?style=for-the-badge&logo=github&logoColor=A03A5C" alt="More projects"></a>
 </p>
 

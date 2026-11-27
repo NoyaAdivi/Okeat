@@ -24,7 +24,8 @@
 
 <p align="center">
   Okeat היא מפה דו־לשונית של יותר מ־<b>20,000</b> מקומות אוכל בכל הארץ, עם מידע מי כשר, טבעוני, צמחוני או ללא גלוטן.<br>
-  אנשים מוסיפים מקומות, אחרים מאשרים אותם, ומסד הנתונים עצמו אוכף כל כלל.
+  אנשים מוסיפים מקומות, אחרים מאשרים אותם, ומסד הנתונים עצמו אוכף כל כלל.<br><br>
+  📰 <b>כפי שפורסם <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm">במאקו</a></b>: כתבה על Okeat ועל בניית מוצרים אמיתיים כמפתחת בעידן ה־AI.
 </p>
 
 <table align="center">
@@ -251,7 +252,8 @@ npm run classify:diet
 <p align="center">
   <a href="https://okeat.vercel.app"><img src="https://img.shields.io/badge/%D7%9C%D7%90%D7%AA%D7%A8-FFD5C9?style=for-the-badge&logo=googlechrome&logoColor=A8483A" alt="לאתר"></a>
   <a href="https://www.linkedin.com/in/noya-adivi/"><img src="https://img.shields.io/badge/LinkedIn-DAD5FF?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzU1NDhDOCIgZD0iTTIwLjQ1IDIwLjQ1aC0zLjU2di01LjU3YzAtMS4zMy0uMDMtMy4wNC0xLjg1LTMuMDQtMS44NiAwLTIuMTQgMS40NS0yLjE0IDIuOTR2NS42N0g5LjM1VjloMy40MXYxLjU2aC4wNWMuNDgtLjkgMS42NC0xLjg1IDMuMzctMS44NSAzLjYgMCA0LjI3IDIuMzcgNC4yNyA1LjQ2djYuMjh6TTUuMzQgNy40M2EyLjA2IDIuMDYgMCAxIDEgMC00LjEzIDIuMDYgMi4wNiAwIDAgMSAwIDQuMTN6TTcuMTIgMjAuNDVIMy41NlY5aDMuNTZ2MTEuNDV6TTIyLjIyIDBIMS43N0MuNzkgMCAwIC43NyAwIDEuNzN2MjAuNTRDMCAyMy4yMy43OSAyNCAxLjc3IDI0aDIwLjQ1Yy45OCAwIDEuNzgtLjc3IDEuNzgtMS43M1YxLjczQzI0IC43NyAyMy4yIDAgMjIuMjIgMHoiLz48L3N2Zz4=" alt="LinkedIn"></a>
-  <a href="https://noyaadivi.github.io/noya-website"><img src="https://img.shields.io/badge/%D7%AA%D7%99%D7%A7_%D7%A2%D7%91%D7%95%D7%93%D7%95%D7%AA-D9F3E7?style=for-the-badge&logo=githubpages&logoColor=1F7350" alt="תיק עבודות"></a>
+  <a href="https://noyaadivi.github.io/noya-website"><img src="https://img.shields.io/badge/%D7%AA%D7%99%D7%A7_%D7%A2%D7%91%D7%95%D7%93%D7%95%D7%AA-D9F3E7?style=for-the-badge&logo=safari&logoColor=1F7350" alt="תיק עבודות"></a>
+  <a href="https://www.mako.co.il/nexter-news/Article-8ef77a1ce2712a1027.htm"><img src="https://img.shields.io/badge/%D7%9B%D7%AA%D7%91%D7%94_%D7%91%D7%9E%D7%90%D7%A7%D7%95-FFF1C9?style=for-the-badge&logo=googlenews&logoColor=B98A1E" alt="כתבה במאקו"></a>
   <a href="https://github.com/NoyaAdivi"><img src="https://img.shields.io/badge/%D7%A2%D7%95%D7%93_%D7%A4%D7%A8%D7%95%D7%99%D7%A7%D7%98%D7%99%D7%9D-FBD5E0?style=for-the-badge&logo=github&logoColor=A03A5C" alt="עוד פרויקטים"></a>
 </p>
 
