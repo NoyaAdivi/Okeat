@@ -8,6 +8,8 @@ export default function ErrorWatcher() {
   useEffect(() => {
     const onError = (e: ErrorEvent) => { if (!staleVersion(e.message)) logClientError(e.message); };
     const onRejection = (e: PromiseRejectionEvent) => {
+      // A failed image or script load (often an ad blocker) rejects with a bare Event, which says nothing useful.
+      if (typeof Event !== 'undefined' && e.reason instanceof Event) return;
       const msg = String(e.reason?.message ?? e.reason ?? '');
       if (!staleVersion(msg)) logClientError(msg);
     };

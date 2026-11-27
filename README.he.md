@@ -220,7 +220,7 @@ npm run classify:diet
 │   ├── components/   MapScreen, MapView, NavPanel, PlaceDetail, FilterBar, dialogs, A11yMenu…
 │   └── lib/          data access, types, food types, filters, geo, hours, speech, Supabase clients
 ├── supabase/
-│   ├── migrations/   0001 … 0052 (schema, RLS, functions)
+│   ├── migrations/   0001 … 0055 (schema, RLS, functions)
 │   └── TEST-SETUP-IN-NEW-SUPABASE.sql   everything in one file, for a fresh test project
 ├── tests/            automated tests (npm test)
 ├── tools/            one-click Windows helpers (start, backup, import)
