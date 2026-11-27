@@ -1319,6 +1319,8 @@ li:nth-child(4n) > .item .av { background: var(--gf-soft); }
 /* phone map: the side button stays above the sheet, clear of the sign-in button */
 @media (max-width: 640px) {
   body:has(.app) .a11y-tab { top: 24%; }
+  /* other pages: below the opening text and buttons, above the cookie notice */
+  body:not(:has(.app)) .a11y-tab { top: 72%; }
 }
 
 /* a row that scrolls sideways must not widen the card around it */
