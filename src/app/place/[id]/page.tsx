@@ -38,7 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${place.name} | Okeat`,
     description,
-    openGraph: { title: place.name, description, type: 'website', locale: lang === 'en' ? 'en_US' : 'he_IL' },
+    // Setting openGraph here replaces the site's default, so the share image has to be named again.
+    openGraph: { title: place.name, description, type: 'website', locale: lang === 'en' ? 'en_US' : 'he_IL', images: ['/opengraph-image.png'] },
+    twitter: { card: 'summary_large_image', title: place.name, description, images: ['/opengraph-image.png'] },
   };
 }
 
